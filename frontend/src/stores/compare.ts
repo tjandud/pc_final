@@ -28,7 +28,9 @@ export const useCompareStore = defineStore('compare', () => {
   const isFull = computed(() => count.value >= COMPARE_MAX)
 
   function has(productSlug: string, variantId: string | null = null) {
-    return items.value.some((i) => i.productSlug === productSlug && i.variantId === variantId)
+    return items.value.some(
+      (i) => i.productSlug === productSlug && (variantId === null || i.variantId === variantId),
+    )
   }
 
   function add(item: CompareItem): AddResult {
@@ -40,12 +42,39 @@ export const useCompareStore = defineStore('compare', () => {
   }
 
   function remove(productSlug: string, variantId: string | null = null) {
-    items.value = items.value.filter((i) => !(i.productSlug === productSlug && i.variantId === variantId))
+    items.value = items.value.filter(
+      (i) => !(i.productSlug === productSlug && (variantId === null || i.variantId === variantId)),
+    )
+  }
+
+  function setFromResolved(nextItems: CompareItem[]) {
+    if (nextItems.length === 0) return
+    const firstCat = nextItems[0]!.category
+    const valid = nextItems.filter((i) => i.category === firstCat).slice(0, COMPARE_MAX)
+    items.value = valid
+  }
+
+  function toQueryParam(): string {
+    return items.value
+      .map((i) => (i.variantId ? `${i.productSlug}:${i.variantId}` : i.productSlug))
+      .join(',')
   }
 
   function clear() {
     items.value = []
   }
 
-  return { items, category, count, canCompare, isFull, has, add, remove, clear }
+  return {
+    items,
+    category,
+    count,
+    canCompare,
+    isFull,
+    has,
+    add,
+    remove,
+    setFromResolved,
+    toQueryParam,
+    clear,
+  }
 })

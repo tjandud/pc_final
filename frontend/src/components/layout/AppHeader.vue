@@ -1,10 +1,14 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue'
 import { useRoute } from 'vue-router'
+import { storeToRefs } from 'pinia'
 import { Menu, X } from 'lucide-vue-next'
+import { useThemeStore, type ThemeId } from '@/stores/theme'
 
 const route = useRoute()
 const menuOpen = ref(false)
+const themeStore = useThemeStore()
+const { current: currentTheme } = storeToRefs(themeStore)
 
 const links = [
   { to: '/products', label: '제품', path: '/products', category: null },
@@ -14,12 +18,25 @@ const links = [
   { to: '/compare', label: '비교', path: '/compare', category: null },
 ] as const
 
-/** Router's exact-active ignores the query string, so category links are matched manually. */
 function isActive(l: (typeof links)[number]) {
   if (route.path !== l.path) return false
   const current = typeof route.query.category === 'string' ? route.query.category : null
   return l.path === '/products' ? current === l.category : true
 }
+
+watch(
+  () => route.query.theme,
+  (qTheme) => {
+    if (
+      qTheme === 'classic-blue' ||
+      qTheme === 'sky-blue' ||
+      qTheme === 'navy-blue'
+    ) {
+      themeStore.setTheme(qTheme as ThemeId)
+    }
+  },
+  { immediate: true },
+)
 
 watch(
   () => route.fullPath,
@@ -48,6 +65,21 @@ watch(
       </nav>
 
       <div class="nav__actions">
+        <div class="theme-switch" role="group" aria-label="테마 선택">
+          <button
+            v-for="t in themeStore.options"
+            :key="t.id"
+            type="button"
+            class="theme-switch__btn"
+            :class="{ 'is-active': currentTheme === t.id }"
+            :aria-pressed="currentTheme === t.id"
+            @click="themeStore.setTheme(t.id)"
+          >
+            <span class="theme-switch__dot" :style="{ backgroundColor: t.swatch }" aria-hidden="true" />
+            <span>{{ t.label }}</span>
+          </button>
+        </div>
+
         <RouterLink to="/products" class="btn btn--primary nav__cta">제품 찾기</RouterLink>
         <button
           class="btn btn--secondary nav__menu"
@@ -65,12 +97,27 @@ watch(
 
     <div v-if="menuOpen" id="mobile-menu" class="sheet">
       <RouterLink v-for="l in links" :key="l.to" :to="l.to" class="sheet__link">{{ l.label }}</RouterLink>
+      <div class="sheet__themes">
+        <p class="label">컬러 테마 선택</p>
+        <div class="sheet__theme-row">
+          <button
+            v-for="t in themeStore.options"
+            :key="t.id"
+            type="button"
+            class="theme-switch__btn"
+            :class="{ 'is-active': currentTheme === t.id }"
+            @click="themeStore.setTheme(t.id)"
+          >
+            <span class="theme-switch__dot" :style="{ backgroundColor: t.swatch }" aria-hidden="true" />
+            <span>{{ t.label }}</span>
+          </button>
+        </div>
+      </div>
     </div>
   </header>
 </template>
 
 <style scoped>
-/* Fixed, opaque, 1px hairline from first paint. No blur / transparency / shrink. */
 .nav {
   position: fixed;
   inset: 0 0 auto 0;
@@ -84,7 +131,7 @@ watch(
   height: 100%;
   display: flex;
   align-items: center;
-  gap: var(--s-6);
+  gap: var(--s-5);
 }
 
 .nav__brand {
@@ -101,9 +148,9 @@ watch(
   place-items: center;
   width: 28px;
   height: 28px;
-  border-radius: 7px;
-  background: var(--ink);
-  color: var(--g-main);
+  border-radius: var(--r-sm);
+  background: var(--action);
+  color: var(--action-ink);
   font-size: 12px;
   font-weight: 600;
   font-family: var(--font-mono);
@@ -112,7 +159,7 @@ watch(
 .nav__links {
   display: flex;
   gap: var(--s-5);
-  margin-left: var(--s-4);
+  margin-left: var(--s-3);
 }
 
 .nav__link {
@@ -149,17 +196,61 @@ watch(
   color: var(--ink);
 }
 
-/* Current page: 2px bar under the word (system.md) */
 .nav__link.is-active::after {
   height: 2px;
   bottom: -5px;
+  background: var(--action);
   transform: scaleX(1);
 }
 
 .nav__actions {
   margin-left: auto;
   display: flex;
-  gap: var(--s-2);
+  align-items: center;
+  gap: var(--s-3);
+}
+
+.theme-switch {
+  display: inline-flex;
+  align-items: center;
+  padding: 2px;
+  background: var(--g-alt);
+  border: 1px solid var(--hairline);
+  border-radius: var(--r-sm);
+  gap: 2px;
+}
+
+.theme-switch__btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.theme-switch__btn:hover {
+  color: var(--ink);
+}
+
+.theme-switch__btn.is-active {
+  background: var(--card);
+  color: var(--ink);
+  border-color: var(--action-border);
+}
+
+.theme-switch__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 2px;
+  flex: none;
 }
 
 .nav__menu {
@@ -178,11 +269,30 @@ watch(
 }
 
 .sheet__link {
-  height: 56px;
+  height: 52px;
   display: flex;
   align-items: center;
   border-bottom: 1px solid var(--hairline);
-  font-size: 18px;
+  font-size: 17px;
+}
+
+.sheet__themes {
+  margin-top: var(--s-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+
+.sheet__theme-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--s-2);
+}
+
+@media (max-width: 1120px) {
+  .theme-switch {
+    display: none;
+  }
 }
 
 @media (max-width: 1023px) {

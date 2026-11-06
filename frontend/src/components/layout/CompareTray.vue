@@ -1,19 +1,22 @@
 <script setup lang="ts">
-import { watchEffect } from 'vue'
+import { computed, watchEffect } from 'vue'
+import { useRoute } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { X } from 'lucide-vue-next'
 import { useCompareStore, COMPARE_MAX, COMPARE_MIN } from '@/stores/compare'
 
+const route = useRoute()
 const store = useCompareStore()
 const { items, count, canCompare } = storeToRefs(store)
+const showTray = computed(() => count.value > 0 && route.name !== 'compare')
 
 watchEffect(() => {
-  document.body.classList.toggle('has-tray', count.value > 0)
+  document.body.classList.toggle('has-tray', showTray.value)
 })
 </script>
 
 <template>
-  <aside v-if="count > 0" class="tray" aria-label="비교함">
+  <aside v-if="showTray" class="tray" aria-label="비교함">
     <div class="wrap tray__inner">
       <ul class="tray__items">
         <li v-for="i in items" :key="i.productSlug + (i.variantId ?? '')" class="tray__chip">
@@ -27,7 +30,7 @@ watchEffect(() => {
       <span class="label num">{{ count }} / {{ COMPARE_MAX }}</span>
       <button type="button" class="btn btn--secondary" @click="store.clear()">비우기</button>
       <RouterLink
-        :to="{ name: 'compare' }"
+        :to="{ name: 'compare', query: canCompare ? { items: store.toQueryParam() } : {} }"
         class="btn btn--primary"
         :aria-disabled="!canCompare"
         :class="{ 'is-disabled': !canCompare }"

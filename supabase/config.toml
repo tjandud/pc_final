@@ -1,0 +1,28 @@
+# Supabase Local / Remote Project Configuration for TechCompare
+# Wait for the new dedicated TechCompare Supabase project before linking.
+# DO NOT link to existing unrelated projects (e.g., pc_fit).
+
+project_id = "techcompare"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 17
+
+[db.migrations]
+enabled = true
+schema_paths = []
+
+[db.seed]
+enabled = true
+sql_paths = ["./seed/00001_base_reference.sql"]
+
+[storage]
+enabled = true
+file_size_limit = "10MiB"

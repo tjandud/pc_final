@@ -46,6 +46,8 @@ export function configStatus() {
     },
     supabase: {
       configured: Boolean(env.SUPABASE_URL && env.SUPABASE_ANON_KEY),
+      adminConfigured: Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY),
+      dataMode: env.SUPABASE_URL && env.SUPABASE_ANON_KEY ? 'supabase_remote' : 'official_reference_seed',
     },
   };
 }
