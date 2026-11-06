@@ -1,0 +1,100 @@
+/*
+ * TechCompare design tokens (single source of truth).
+ * Based on design-taste-frontend (tasteskill 2.5) system.md / layout-v4.md:
+ *  - one near-white ink, 90-95% neutral interface, one accent
+ *  - no glassmorphism, no neon, no violet (OKLCH hue 270-330 forbidden)
+ *  - spacing scale 4..128, 12-col grid, 1280 wrap, equal edges
+ */
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+
+  /* Surfaces: strict 3-step hierarchy */
+  --g-main: #0a0b0d;
+  --g-alt: #101216;
+  --card: #15181d;
+  --frag: #1c2027;
+
+  /* Ink */
+  --ink: #f2f4f7;
+  --c-text: rgba(242, 244, 247, 0.84);
+  --muted: #8b95a5;
+  --hairline: rgba(242, 244, 247, 0.1);
+  --hairline-strong: rgba(242, 244, 247, 0.2);
+
+  /* Single accent (actions, focus, links) */
+  --action: #3b82f6;
+  --action-hover: #5a96f8;
+  --action-ink: #ffffff;
+
+  /* Data semantics (charts / diff only, never decoration) */
+  --brand-apple: #d4d8de;
+  --brand-samsung: #4aa8ff;
+  --spec-win: #22c55e;
+  --price-drop: #22c55e;
+  --price-rise: #f05262;
+  --warn: #f5a524;
+  --test-data: #f5a524;
+
+  /* Spacing scale (--s-1..--s-10) */
+  --s-1: 4px;
+  --s-2: 8px;
+  --s-3: 12px;
+  --s-4: 16px;
+  --s-5: 24px;
+  --s-6: 32px;
+  --s-7: 48px;
+  --s-8: 64px;
+  --s-9: 96px;
+  --s-10: 128px;
+
+  /* Rhythm */
+  --nav: 72px;
+  --gut: 80px;
+  --wrap-max: 1280px;
+  --grid-gap: 24px;
+
+  /* Radius (soft) */
+  --r-sm: 8px;
+  --r-md: 12px;
+  --r-lg: 20px;
+  --r-btn: 10px;
+  --btn-h: 44px;
+
+  /* Type */
+  --font-sans: 'IBM Plex Sans KR', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --t-h1: clamp(38px, 2.6vw + 25px, 64px);
+  --t-h2: clamp(28px, 1.4vw + 22px, 44px);
+  --t-h3: clamp(22px, 0.5vw + 20px, 28px);
+  --t-lead: clamp(18px, 0.2vw + 17px, 20px);
+  --t-card: clamp(18px, 0.2vw + 17px, 20px);
+  --t-body: 16px;
+  --t-small: 14px;
+  --t-label: 13px;
+
+  /* Motion (motion.md) */
+  --m-in: 140ms;
+  --m-out: 200ms;
+  --m-press: 90ms;
+  --m-image: 600ms;
+  --m-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+/* Same selector list as the base block, so specificity matches and these overrides win. */
+@media (max-width: 1023px) {
+  :root,
+  :root[data-theme='dark'] {
+    --gut: 48px;
+  }
+}
+
+@media (max-width: 639px) {
+  :root,
+  :root[data-theme='dark'] {
+    --nav: 56px;
+    --gut: 24px;
+    --grid-gap: 12px;
+    --r-lg: 18px;
+  }
+}

@@ -1,0 +1,33 @@
+# Dependencies
+node_modules/
+**/node_modules/
+
+# Environment Variables (STRICTLY IGNORED)
+.env
+.env.*
+!.env.example
+backend/.env
+backend/.env.*
+!backend/.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Build outputs
+dist/
+**/dist/
+build/
+**/build/
+
+# Logs & temp & installed external agent skills (recorded in skills-lock.json)
+*.log
+npm-debug.log*
+.taste-skill/
+shots/
+.agents/
+
+# IDE & OS
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
