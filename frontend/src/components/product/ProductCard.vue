@@ -4,6 +4,7 @@ import { Check, Plus } from 'lucide-vue-next'
 import type { ProductSummaryRecord } from '@/types/api'
 import { useCompareStore } from '@/stores/compare'
 import { buildShoppingMallLinks } from '@/utils/shopping'
+import TechIcon from '@/components/common/TechIcon.vue'
 
 const props = defineProps<{
   product: ProductSummaryRecord
@@ -63,7 +64,10 @@ function toggleCompare(e: Event) {
     <RouterLink :to="{ name: 'product-detail', params: { slug: product.slug } }" class="pcard__link">
       <div class="pcard__stage" :data-brand="product.brand.slug">
         <div class="pcard__stage-top">
-          <span class="pcard__brand" :data-brand="product.brand.slug">{{ product.brand.name }}</span>
+          <span class="pcard__brand" :data-brand="product.brand.slug">
+            <TechIcon :name="product.brand.slug" :size="12" />
+            <span>{{ product.brand.name }}</span>
+          </span>
           <span class="pcard__code num">{{ product.baseModelNumber ?? product.series }}</span>
         </div>
 
@@ -145,7 +149,8 @@ function toggleCompare(e: Event) {
             class="pcard__mall-chip"
             @click.stop
           >
-            {{ mall.id === 'danawa' ? '다나와' : mall.id === 'naver' ? '네이버' : '쿠팡' }} ↗
+            <TechIcon :name="mall.id" :size="11" />
+            <span>{{ mall.id === 'danawa' ? '다나와' : mall.id === 'naver' ? '네이버' : '쿠팡' }}</span>
           </a>
         </div>
       </div>
@@ -201,7 +206,7 @@ function toggleCompare(e: Event) {
   position: relative;
   height: 196px;
   padding: var(--s-3) var(--s-4);
-  background: #ffffff;
+  background: radial-gradient(circle at 50% 42%, #ffffff 0%, #f1f5f9 100%);
   border-bottom: 1px solid var(--hairline);
   border-radius: calc(var(--r-md) - 1px) calc(var(--r-md) - 1px) 0 0;
   display: flex;
@@ -217,6 +222,9 @@ function toggleCompare(e: Event) {
 }
 
 .pcard__brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
   font-size: 11px;
   font-weight: 700;
   letter-spacing: 0.02em;
@@ -348,7 +356,10 @@ function toggleCompare(e: Event) {
 }
 
 .pcard__mall-chip {
-  padding: 2px 7px;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 7px;
   border-radius: 3px;
   border: 1px solid var(--hairline-strong);
   background: var(--g-alt);
@@ -356,6 +367,7 @@ function toggleCompare(e: Event) {
   font-size: 11px;
   font-weight: 600;
   text-decoration: none;
+  transition: border-color 150ms ease, color 150ms ease;
 }
 
 .pcard__mall-chip:hover {

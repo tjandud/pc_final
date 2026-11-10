@@ -1,50 +1,70 @@
 /*
- * TechCompare Design Tokens (Single Source of Truth)
- * Grounded in .agents/skills/design-taste-frontend/SKILL.md (tasteskill 2.5) & references/system.md:
- *  - 90-95% neutral surface hierarchy, 1px solid hairlines, zero glassmorphism / neon / blur shadows
- *  - Equal left/right edges (.wrap), tabular numbers (.num), strict radius scale (sharp/soft)
- *  - 3 calibrated themes: Classic Blue, Sky Blue, Navy Blue
- *    Each theme adjusts surface luminance, hairline contrast, text contrast (>= 7:1 ink, >= 4.5:1 muted/button),
- *    and highlight density while keeping identical layout and component structure.
+ * TechCompare Dual-Theme Design System — Spotlight Blue (Dark) & Spotlight White (Light)
+ * 60:30:10 Rule:
+ *  - Dark Mode (Default): 60% Pitch Black (#05070A + radial spotlight), 30% Glass Card (rgba(11,15,23,0.80) + border rgba(0,150,255,0.25)), 10% Electric Blue (#0096FF)
+ *  - White Mode ([data-theme="white"]): 60% Arctic White (#F8FAFC + radial spotlight), 30% Glass Card (rgba(255,255,255,0.88) + border rgba(0,119,255,0.22)), 10% Cobalt Blue (#0077FF)
+ * Typography:
+ *  - UI Sans: 'Pretendard Variable', 'Pretendard', 'Inter', sans-serif (No Serif allowed)
+ *  - Spec / Numeric Mono (.tech-mono, .num): 'JetBrains Mono', monospace + tabular-nums
  */
 
 :root,
-:root[data-theme='classic-blue'],
 :root[data-theme='dark'] {
   color-scheme: dark;
 
-  /* 1. Classic Blue: Neutral Carbon-Obsidian Surfaces + Royal Cobalt Accent */
-  --g-main: #090b0f;
-  --g-alt: #0e1218;
-  --card: #131821;
-  --frag: #19202c;
+  /* Spotlight Blue (Dark Mode — 60:30:10) */
+  --bg-main: #05070A;
+  --bg-spotlight: radial-gradient(
+    circle at 50% 58%,
+    rgba(0, 150, 255, 0.52) 0%,
+    rgba(0, 75, 170, 0.20) 42%,
+    #05070A 74%
+  );
+  --card-bg: rgba(11, 15, 23, 0.90);
+  --card-inner: rgba(255, 255, 255, 0.04);
+  --card-border: rgba(0, 150, 255, 0.25);
+  --card-shadow: 0 20px 50px -15px rgba(0, 150, 255, 0.15);
+  --text-main: #FFFFFF;
+  --text-sub: #94A3B8;
+  --accent: #0096FF;
+  --accent-hover: #26A7FF;
+  --accent-text: #FFFFFF;
+  --second-bar: rgba(255, 255, 255, 0.22);
+  --track-bg: rgba(0, 0, 0, 0.45);
+  --badge-bg: rgba(0, 150, 255, 0.16);
+  --badge-text: #60BFFF;
+  --divider: rgba(255, 255, 255, 0.10);
+  --header-bg: rgba(5, 7, 10, 0.82);
 
-  /* Ink & Contrast (Ink 17.5:1, Muted 5.6:1 on --g-main) */
-  --ink: #f3f6fa;
-  --c-text: #c9d2df;
-  --muted: #8693a6;
+  /* Mapped Legacy & Component Tokens */
+  --g-main: var(--bg-main);
+  --g-alt: rgba(11, 15, 23, 0.72);
+  --card: var(--card-bg);
+  --frag: var(--card-inner);
 
-  /* 1px Structural Hairlines */
-  --hairline: rgba(216, 226, 240, 0.09);
-  --hairline-strong: rgba(216, 226, 240, 0.2);
+  --ink: var(--text-main);
+  --c-text: #CBD5E1;
+  --muted: var(--text-sub);
 
-  /* Primary Action (White label on #2563eb = 5.17:1 WCAG AA pass) */
-  --action: #2563eb;
-  --action-hover: #3b82f6;
-  --action-ink: #ffffff;
-  --action-subtle: rgba(37, 99, 235, 0.13);
-  --action-border: rgba(59, 130, 246, 0.42);
-  --diff-row-bg: rgba(37, 99, 235, 0.06);
+  --hairline: var(--divider);
+  --hairline-strong: var(--card-border);
+
+  --action: var(--accent);
+  --action-hover: var(--accent-hover);
+  --action-ink: var(--accent-text);
+  --action-subtle: var(--badge-bg);
+  --action-border: rgba(0, 150, 255, 0.45);
+  --diff-row-bg: rgba(0, 150, 255, 0.08);
 
   /* Semantic Data Tokens */
-  --brand-apple: #e2e8f0;
-  --brand-samsung: #60a5fa;
-  --spec-win: #60a5fa;
-  --spec-win-bg: rgba(59, 130, 246, 0.14);
-  --price-drop: #10b981;
-  --price-rise: #f43f5e;
-  --warn: #f59e0b;
-  --test-data: #f59e0b;
+  --brand-apple: #E2E8F0;
+  --brand-samsung: #60BFFF;
+  --spec-win: #38BDF8;
+  --spec-win-bg: rgba(0, 150, 255, 0.16);
+  --price-drop: #10B981;
+  --price-rise: #F43F5E;
+  --warn: #F59E0B;
+  --test-data: #F59E0B;
 
   /* Spacing Scale (--s-1 .. --s-10) */
   --s-1: 4px;
@@ -60,122 +80,113 @@
 
   /* Layout Rhythm */
   --nav: 72px;
-  --gut: 80px;
-  --wrap-max: 1280px;
+  --gut: 48px;
+  --wrap-max: 1240px;
   --grid-gap: 24px;
 
-  /* Restrained Hardware Radius Scale (No bubbly pills/20px cards) */
-  --r-sm: 6px;
-  --r-md: 8px;
-  --r-lg: 12px;
-  --r-btn: 8px;
+  /* Hardware Radius Scale */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-btn: 12px;
   --btn-h: 44px;
 
-  /* Typography */
-  --font-sans: 'IBM Plex Sans KR', system-ui, -apple-system, sans-serif;
-  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
-  --t-h1: clamp(34px, 2.2vw + 24px, 52px);
+  /* Typography — Strict Gothic Sans + Tabular Mono (Zero Serif) */
+  --font-sans: 'Pretendard Variable', 'Pretendard', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+  --t-h1: clamp(34px, 2.4vw + 24px, 54px);
   --t-h2: clamp(24px, 1.1vw + 19px, 34px);
   --t-h3: clamp(19px, 0.4vw + 17px, 23px);
   --t-lead: clamp(16px, 0.2vw + 15px, 18px);
   --t-card: 18px;
   --t-body: 16px;
   --t-small: 14px;
-  --t-label: 13px;
+  --t-label: 12px;
 
-  /* Quiet Motion (motion.md) */
-  --m-in: 140ms;
-  --m-out: 200ms;
+  /* Smooth Theme & Micro-Interaction Motion */
+  --m-in: 180ms;
+  --m-out: 260ms;
   --m-press: 90ms;
   --m-image: 400ms;
-  --m-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  --m-ease: cubic-bezier(0.22, 1, 0.36, 1);
 }
 
 /*
- * 2. Sky Blue Theme:
- * Lifted Mineral-Slate Luminance + High-Clarity Sky Cyan Accent.
- * Button label uses deep abyssal navy (#051320) on #38bdf8 to guarantee 10.8:1 contrast (WCAG AAA).
+ * Spotlight White (Light Mode — 60:30:10)
+ * Triggered when document.documentElement has [data-theme="white"]
  */
-:root[data-theme='sky-blue'] {
-  color-scheme: dark;
+:root[data-theme='white'] {
+  color-scheme: light;
 
-  --g-main: #0b1016;
-  --g-alt: #101821;
-  --card: #151f2b;
-  --frag: #1b2836;
+  /* 60% Soft Blue-Gray Base + Crisp Spotlight, 30% Pure White Card, 10% High-Saturation #0A84FF */
+  --bg-main: #EDF2F9;
+  --bg-spotlight: radial-gradient(
+    circle at 50% 42%,
+    rgba(10, 132, 255, 0.20) 0%,
+    rgba(56, 189, 248, 0.14) 38%,
+    #EDF2F9 74%
+  );
+  --card-bg: #FFFFFF;
+  --card-inner: #F1F5F9;
+  --card-border: rgba(10, 132, 255, 0.28);
+  --card-shadow: 0 14px 34px -8px rgba(15, 23, 42, 0.09), 0 2px 6px rgba(15, 23, 42, 0.04);
+  --text-main: #0F172A;
+  --text-sub: #334155;
+  --accent: #0A84FF;
+  --accent-hover: #0066CC;
+  --accent-text: #FFFFFF;
+  --second-bar: #94A3B8;
+  --track-bg: #DCE5F2;
+  --badge-bg: rgba(10, 132, 255, 0.14);
+  --badge-text: #0055D4;
+  --divider: rgba(15, 23, 42, 0.12);
+  --header-bg: rgba(255, 255, 255, 0.92);
 
-  --ink: #f0f9ff;
-  --c-text: #cce3f5;
-  --muted: #86a3bc;
+  /* Mapped Legacy & Component Tokens */
+  --g-main: var(--bg-main);
+  --g-alt: #F8FAFC;
+  --card: var(--card-bg);
+  --frag: var(--card-inner);
 
-  --hairline: rgba(186, 230, 253, 0.11);
-  --hairline-strong: rgba(125, 211, 252, 0.25);
+  --ink: var(--text-main);
+  --c-text: #1E293B;
+  --muted: var(--text-sub);
 
-  --action: #38bdf8;
-  --action-hover: #7dd3fc;
-  --action-ink: #051320;
-  --action-subtle: rgba(56, 189, 248, 0.14);
-  --action-border: rgba(56, 189, 248, 0.45);
-  --diff-row-bg: rgba(56, 189, 248, 0.065);
+  --hairline: var(--divider);
+  --hairline-strong: var(--card-border);
 
-  --brand-apple: #e0f2fe;
-  --brand-samsung: #38bdf8;
-  --spec-win: #38bdf8;
-  --spec-win-bg: rgba(56, 189, 248, 0.15);
-}
+  --action: var(--accent);
+  --action-hover: var(--accent-hover);
+  --action-ink: var(--accent-text);
+  --action-subtle: var(--badge-bg);
+  --action-border: rgba(10, 132, 255, 0.45);
+  --diff-row-bg: rgba(10, 132, 255, 0.07);
 
-/*
- * 3. Navy Blue Theme:
- * Deep Architectural Midnight Navy + Crisp Prussian/Indigo Ledger Lines.
- * Higher border definition to separate dense spec tables on deep navy ground.
- */
-:root[data-theme='navy-blue'] {
-  color-scheme: dark;
-
-  --g-main: #060a14;
-  --g-alt: #0b1121;
-  --card: #10182d;
-  --frag: #16213c;
-
-  --ink: #f1f5f9;
-  --c-text: #cbd5e1;
-  --muted: #8295b5;
-
-  --hairline: rgba(148, 179, 235, 0.13);
-  --hairline-strong: rgba(148, 179, 235, 0.27);
-
-  --action: #2b5ce6;
-  --action-hover: #4775f5;
-  --action-ink: #ffffff;
-  --action-subtle: rgba(43, 92, 230, 0.17);
-  --action-border: rgba(96, 140, 248, 0.46);
-  --diff-row-bg: rgba(43, 92, 230, 0.085);
-
-  --brand-apple: #e2e8f0;
-  --brand-samsung: #93c5fd;
-  --spec-win: #93c5fd;
-  --spec-win-bg: rgba(43, 92, 230, 0.22);
+  --brand-apple: #0F172A;
+  --brand-samsung: #0A84FF;
+  --spec-win: #0055D4;
+  --spec-win-bg: rgba(10, 132, 255, 0.14);
+  --price-drop: #047857;
+  --price-rise: #BE123C;
+  --warn: #B45309;
+  --test-data: #F59E0B;
 }
 
 @media (max-width: 1023px) {
   :root,
-  :root[data-theme='classic-blue'],
-  :root[data-theme='sky-blue'],
-  :root[data-theme='navy-blue'],
-  :root[data-theme='dark'] {
-    --gut: 48px;
+  :root[data-theme='dark'],
+  :root[data-theme='white'] {
+    --gut: 32px;
   }
 }
 
 @media (max-width: 639px) {
   :root,
-  :root[data-theme='classic-blue'],
-  :root[data-theme='sky-blue'],
-  :root[data-theme='navy-blue'],
-  :root[data-theme='dark'] {
-    --nav: 56px;
-    --gut: 24px;
-    --grid-gap: 12px;
-    --r-lg: 10px;
+  :root[data-theme='dark'],
+  :root[data-theme='white'] {
+    --nav: 60px;
+    --gut: 20px;
+    --grid-gap: 14px;
+    --r-lg: 16px;
   }
 }

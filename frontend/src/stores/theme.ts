@@ -1,35 +1,59 @@
 import { defineStore } from 'pinia'
-import { watch } from 'vue'
+import { computed, watch } from 'vue'
 import { useLocalStorage } from '@vueuse/core'
 
-export type ThemeId = 'classic-blue' | 'sky-blue' | 'navy-blue'
+export type ThemeId = 'dark' | 'white'
 
 export interface ThemeOption {
   id: ThemeId
   label: string
+  subLabel: string
   swatch: string
 }
 
 export const THEME_OPTIONS: ThemeOption[] = [
-  { id: 'classic-blue', label: 'Classic Blue', swatch: '#2563eb' },
-  { id: 'sky-blue', label: 'Sky Blue', swatch: '#38bdf8' },
-  { id: 'navy-blue', label: 'Navy Blue', swatch: '#1e3a8a' },
+  {
+    id: 'dark',
+    label: 'Spotlight Blue',
+    subLabel: 'Pitch Black (#05070A) + Electric Blue (#0096FF)',
+    swatch: '#0096FF',
+  },
+  {
+    id: 'white',
+    label: 'Spotlight White',
+    subLabel: 'Arctic White (#F8FAFC) + Cobalt Blue (#0077FF)',
+    swatch: '#0077FF',
+  },
 ]
 
 export const useThemeStore = defineStore('theme', () => {
-  const current = useLocalStorage<ThemeId>('techcompare:theme', 'classic-blue')
+  const stored = useLocalStorage<string>('techcompare:theme', 'dark')
+
+  const current = computed<ThemeId>({
+    get: () => (stored.value === 'white' ? 'white' : 'dark'),
+    set: (val) => {
+      stored.value = val
+    },
+  })
+
+  const isWhite = computed(() => current.value === 'white')
 
   function applyToDom(theme: ThemeId) {
-    if (typeof document !== 'undefined') {
-      document.documentElement.setAttribute('data-theme', theme)
+    if (typeof document === 'undefined') return
+    if (theme === 'white') {
+      document.documentElement.setAttribute('data-theme', 'white')
+    } else {
+      document.documentElement.removeAttribute('data-theme')
     }
   }
 
   function setTheme(theme: ThemeId) {
-    if (THEME_OPTIONS.some((t) => t.id === theme)) {
-      current.value = theme
-      applyToDom(theme)
-    }
+    current.value = theme === 'white' ? 'white' : 'dark'
+    applyToDom(current.value)
+  }
+
+  function toggleTheme() {
+    setTheme(current.value === 'white' ? 'dark' : 'white')
   }
 
   watch(
@@ -42,7 +66,9 @@ export const useThemeStore = defineStore('theme', () => {
 
   return {
     current,
+    isWhite,
     options: THEME_OPTIONS,
     setTheme,
+    toggleTheme,
   }
 })

@@ -1,0 +1,16 @@
+# Project Rules: Auto-Trigger Skills & Core Standards
+
+## 0. [Auto-Trigger Skill Routing]
+- **모든 코드 작성/수정** → `ponytail` (`full` 레벨) 최소 변경 원칙 즉시 적용.
+- **UI/프론트엔드 수정** → `design-taste-frontend` 적용 (`starter.html` 복사는 제외하고 기존 `tokens.css` 3종 테마 유지).
+- **로고/아이콘/파비콘 (명시적 요청 시에만)** → `logo-design` 적용 (일반 리팩터링·기능 작업 중 기존 로고·아이콘 임의 변경 금지).
+- **기능 완료 / 커밋·PR 전** → `ponytail-review` 기준으로 변경분과 호출부(Callers) 영향도 점검.
+
+## 1. Ponytail (Anti-Bloat & Minimal Diff)
+- 불필요한 추상화·래퍼·미사용 헬퍼를 금지하며, 한 줄로 명확한 로직은 늘리지 않는다.
+- **줄이기 제외 대상**: 입력 검증(Zod), 인증/권한 체크, 에러 핸들링 및 데이터 무결성 로직은 절대 축소·생략하지 않는다.
+- **주석 규칙**: 기존 주석·문서의 임의 수정·삭제는 금지하되, `ponytail`이 의도적 타협 지점에 남기는 `// shortcut: <한계>, <업그레이드 시점>` 주석만 예외로 허용한다.
+
+## 2. Impeccable UI/UX & Frontend Standards
+- 보라색/네온 그라데이션·글래스모피즘을 배제하고, 고정 폭 숫자(`tabular-nums`)와 스펙·가격 중심 정보 밀도를 유지한다.
+- UI 표현과 상태(Pinia Store/Composable)를 분리하고, 파생 상태는 `computed`로 계산하며 엄격한 TypeScript 타입을 유지한다.

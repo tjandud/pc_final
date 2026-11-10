@@ -17,6 +17,7 @@ import type {
 } from '@/types/api'
 import { useCompareStore } from '@/stores/compare'
 import { buildShoppingMallLinks } from '@/utils/shopping'
+import TechIcon from '@/components/common/TechIcon.vue'
 
 const props = defineProps<{ slug: string }>()
 
@@ -172,7 +173,10 @@ const shoppingLinks = computed(() => {
 
         <div class="detail-hero__info">
           <div class="detail-hero__badges">
-            <span class="pill">{{ product.brand.name }}</span>
+            <span class="pill pill--brand">
+              <TechIcon :name="product.brand.slug" :size="13" />
+              <span>{{ product.brand.name }}</span>
+            </span>
             <span class="pill">{{ product.category.name }}</span>
             <span class="pill">{{ product.series }}</span>
             <span v-if="product.isTestData" class="badge-test">TEST DATA</span>
@@ -281,7 +285,10 @@ const shoppingLinks = computed(() => {
           <div v-for="mall in shoppingLinks" :key="mall.id" class="mall-box">
             <div class="mall-box__top">
               <div class="mall-box__title-row">
-                <strong class="mall-box__name">{{ mall.mallName }}</strong>
+                <strong class="mall-box__name">
+                  <TechIcon :name="mall.id" :size="16" class="mall-box__icon" />
+                  <span>{{ mall.mallName }}</span>
+                </strong>
                 <span class="mall-badge" :class="`mall-badge--${mall.id}`">{{ mall.badge }}</span>
               </div>
               <p class="muted mall-box__desc">{{ mall.description }}</p>
@@ -326,7 +333,10 @@ const shoppingLinks = computed(() => {
         <ul class="rows spec-rows">
           <li v-for="s in specs" :key="s.specKey" class="spec-row">
             <span class="spec-row__label">
-              {{ s.displayName }}
+              <span class="spec-row__icon">
+                <TechIcon :name="s.specKey" :size="15" />
+              </span>
+              <span>{{ s.displayName }}</span>
               <span v-if="s.sourceScope === 'variant'" class="spec-scope">변형 사양</span>
             </span>
             <span
@@ -389,11 +399,12 @@ const shoppingLinks = computed(() => {
   height: 320px;
   padding: var(--s-5);
   border-radius: var(--r-md);
-  background: #ffffff;
+  background: radial-gradient(circle at 50% 42%, #ffffff 0%, #f1f5f9 100%);
   border: 1px solid var(--hairline-strong);
   display: flex;
   align-items: center;
   justify-content: center;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9);
 }
 
 .detail-hero__img {
@@ -401,6 +412,12 @@ const shoppingLinks = computed(() => {
   max-width: 100%;
   object-fit: contain;
   mix-blend-mode: multiply;
+  filter: drop-shadow(0 12px 24px rgba(15, 23, 42, 0.14));
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.detail-hero__visual:hover .detail-hero__img {
+  transform: scale(1.03);
 }
 
 .detail-hero__placeholder {
@@ -424,11 +441,19 @@ const shoppingLinks = computed(() => {
 }
 
 .pill {
-  padding: 2px var(--s-3);
+  padding: 3px var(--s-3);
   border-radius: 6px;
   border: 1px solid var(--hairline);
   background: var(--frag);
   font-size: var(--t-label);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.pill--brand {
+  color: var(--ink);
+  font-weight: 600;
 }
 
 .detail-hero__title {
@@ -571,6 +596,13 @@ const shoppingLinks = computed(() => {
 .mall-box__name {
   font-size: var(--t-body);
   font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mall-box__icon {
+  color: var(--action);
 }
 
 .mall-badge {
@@ -647,10 +679,23 @@ const shoppingLinks = computed(() => {
 .spec-row__label {
   color: var(--muted);
   font-size: var(--t-small);
-  min-width: 140px;
+  min-width: 160px;
   display: inline-flex;
   align-items: center;
   gap: var(--s-2);
+}
+
+.spec-row__icon {
+  width: 26px;
+  height: 26px;
+  border-radius: 6px;
+  background: var(--frag);
+  border: 1px solid var(--hairline);
+  color: var(--action);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .spec-scope {

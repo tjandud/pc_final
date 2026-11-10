@@ -17,16 +17,29 @@ html {
 }
 
 body {
-  background: var(--g-main);
-  color: var(--ink);
+  background-color: var(--bg-main);
+  color: var(--text-main);
   font-family: var(--font-sans);
   font-size: var(--t-body);
   line-height: 1.6;
-  /* Korean: break between words, never inside a word */
   word-break: keep-all;
   overflow-wrap: break-word;
   -webkit-font-smoothing: antialiased;
   min-height: 100svh;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease;
+}
+
+/* GPU-composited fixed spotlight layer (avoids browser repaint lag from background-attachment: fixed) */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image: var(--bg-spotlight);
+  will-change: transform;
 }
 
 h1,
@@ -34,9 +47,10 @@ h2,
 h3,
 h4 {
   margin: 0;
-  font-weight: 500;
+  font-family: var(--font-sans);
+  font-weight: 700;
   line-height: 1.15;
-  letter-spacing: -0.02em;
+  letter-spacing: -0.025em;
 }
 
 p {
@@ -58,17 +72,26 @@ button {
   color: inherit;
 }
 
-/* Numbers that get compared vertically always align */
+/* Spec / numeric dedicated monospace font (.tech-mono & .num) */
+.tech-mono,
 .num {
   font-family: var(--font-mono);
   font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
 }
 
-.muted {
-  color: var(--muted);
+.muted,
+.text-sub {
+  color: var(--text-sub);
+  transition: color 0.3s ease;
 }
 
-/* One wrap for header, sections, footer: equal edges */
+.text-accent {
+  color: var(--accent);
+  transition: color 0.3s ease;
+}
+
+/* Shared container with equal edges */
 .wrap {
   width: min(100% - 2 * var(--gut), var(--wrap-max));
   margin-inline: auto;
@@ -76,12 +99,69 @@ button {
 
 .label {
   font-size: var(--t-label);
-  font-weight: 500;
-  color: var(--muted);
+  font-weight: 600;
+  color: var(--text-sub);
+  letter-spacing: 0.02em;
 }
 
-/* Buttons: one primary, one secondary */
-.btn {
+/* Reference Spotlight Utility Classes */
+.top-bar {
+  background: var(--header-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--divider);
+  transition: all 0.35s ease;
+}
+
+.glass-card,
+.card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
+  border-radius: var(--r-lg);
+  padding: var(--s-6);
+  transition:
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+
+.inner-box {
+  background: var(--card-inner);
+  border: 1px solid var(--divider);
+  border-radius: var(--r-md);
+  transition: all 0.35s ease;
+}
+
+.badge-style {
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  border: 1px solid var(--card-border);
+  transition: all 0.3s ease;
+}
+
+.bar-track {
+  background: var(--track-bg);
+  transition: background 0.3s ease;
+}
+
+.bar-primary {
+  background: var(--accent);
+  transition:
+    width 0.6s ease,
+    background 0.3s ease;
+}
+
+.bar-secondary {
+  background: var(--second-bar);
+  transition:
+    width 0.6s ease,
+    background 0.3s ease;
+}
+
+/* Buttons */
+.btn,
+.btn-accent {
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -89,66 +169,65 @@ button {
   height: var(--btn-h);
   padding: 0 var(--s-5);
   border-radius: var(--r-btn);
-  font-size: var(--t-body);
-  font-weight: 500;
+  font-size: var(--t-small);
+  font-weight: 600;
   border: 1px solid transparent;
   cursor: pointer;
   transition:
-    background-color var(--m-in) var(--m-ease),
-    border-color var(--m-in) var(--m-ease),
-    transform var(--m-in) var(--m-ease);
+    background-color 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease,
+    transform 0.25s ease;
 }
 
-.btn--primary {
-  background: var(--action);
-  color: var(--action-ink);
+.btn--primary,
+.btn-accent {
+  background-color: var(--accent);
+  color: var(--accent-text);
 }
 
 .btn--secondary {
-  background: transparent;
-  color: var(--ink);
-  border-color: var(--hairline-strong);
+  background: var(--card-inner);
+  color: var(--text-main);
+  border-color: var(--card-border);
 }
 
 @media (hover: hover) and (pointer: fine) {
-  .btn:hover {
+  .btn:hover,
+  .btn-accent:hover {
     transform: translateY(-1px);
   }
-  .btn--primary:hover {
-    background: var(--action-hover);
+  .btn--primary:hover,
+  .btn-accent:hover {
+    background-color: var(--accent-hover);
+    box-shadow: 0 8px 25px -5px rgba(0, 150, 255, 0.5);
   }
   .btn--secondary:hover {
-    background: rgba(242, 244, 247, 0.04);
-    border-color: rgba(242, 244, 247, 0.32);
+    border-color: var(--accent);
   }
 }
 
-.btn:active {
+.btn:active,
+.btn-accent:active {
   transform: translateY(1px) scale(0.985);
   transition-duration: var(--m-press);
 }
 
 :focus-visible {
-  outline: 2px solid var(--action);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
 }
 
-/* Card: one step off the page, hairline, no blur shadow */
-.card {
-  background: var(--card);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-lg);
-  padding: var(--s-6);
-}
-
 @media (max-width: 1023px) {
-  .card {
-    padding: 28px;
+  .card,
+  .glass-card {
+    padding: 24px;
   }
 }
 
 @media (max-width: 639px) {
-  .card {
+  .card,
+  .glass-card {
     padding: var(--s-5);
   }
   .btn {
@@ -168,7 +247,7 @@ button {
   justify-content: space-between;
   gap: var(--s-4);
   padding: var(--s-3) 0;
-  border-bottom: 1px solid var(--hairline);
+  border-bottom: 1px solid var(--divider);
 }
 
 .badge-test {
@@ -178,7 +257,7 @@ button {
   padding: 0 var(--s-2);
   border-radius: 6px;
   font-size: var(--t-label);
-  font-weight: 500;
+  font-weight: 600;
   color: #1a1204;
   background: var(--test-data);
 }

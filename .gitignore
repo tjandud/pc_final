@@ -25,6 +25,8 @@ npm-debug.log*
 .taste-skill/
 shots/
 .agents/
+backups/
+gemini-code-1794289047371.html
 
 # IDE & OS
 .vscode/

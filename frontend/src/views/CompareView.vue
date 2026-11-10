@@ -5,6 +5,7 @@ import { storeToRefs } from 'pinia'
 import { api, ApiClientError } from '@/services/api'
 import { useCompareStore, COMPARE_MAX, COMPARE_MIN } from '@/stores/compare'
 import { buildShoppingMallLinks } from '@/utils/shopping'
+import TechIcon from '@/components/common/TechIcon.vue'
 import type { CategorySlug, CompareProductItem, CompareResult, ProductSummaryRecord } from '@/types/api'
 
 const route = useRoute()
@@ -483,7 +484,8 @@ onMounted(() => {
                   <div class="prod-head">
                     <div class="prod-head__top">
                       <span class="brand-badge" :data-brand="entry.product.brand.slug">
-                        {{ entry.product.brand.name }}
+                        <TechIcon :name="entry.product.brand.slug" :size="13" />
+                        <span>{{ entry.product.brand.name }}</span>
                       </span>
                       <button
                         type="button"
@@ -575,15 +577,18 @@ onMounted(() => {
                         class="compare-shop-btn"
                         :class="`compare-shop-btn--${mall.id}`"
                       >
-                        {{
-                          mall.id === 'danawa'
-                            ? '다나와 최저가 ↗'
-                            : mall.id === 'naver'
-                              ? '네이버쇼핑 ↗'
-                              : mall.id === 'coupang'
-                                ? '쿠팡 로켓배송 ↗'
-                                : '공식스토어 ↗'
-                        }}
+                        <TechIcon :name="mall.id" :size="12" />
+                        <span>
+                          {{
+                            mall.id === 'danawa'
+                              ? '다나와 최저가 ↗'
+                              : mall.id === 'naver'
+                                ? '네이버쇼핑 ↗'
+                                : mall.id === 'coupang'
+                                  ? '쿠팡 로켓배송 ↗'
+                                  : '공식스토어 ↗'
+                          }}
+                        </span>
                       </a>
                     </div>
                   </div>
@@ -598,7 +603,10 @@ onMounted(() => {
                 :class="{ 'compare-row--diff': row.isDifferent }"
               >
                 <th scope="row" class="compare-row__label">
-                  <span>{{ row.displayName }}</span>
+                  <span class="compare-row__label-main">
+                    <TechIcon :name="row.specKey" :size="15" />
+                    <span>{{ row.displayName }}</span>
+                  </span>
                   <small v-if="row.unit" class="label">{{ row.unit }}</small>
                 </th>
                 <td
@@ -1071,7 +1079,33 @@ onMounted(() => {
   color: var(--c-text);
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
+}
+
+.compare-row__label-main {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+}
+
+.brand-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.compare-shop-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 9px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--hairline-strong);
+  background: var(--g-alt);
+  color: var(--ink);
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
 }
 
 .compare-row--diff td {

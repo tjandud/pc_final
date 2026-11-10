@@ -8,7 +8,7 @@ import { useThemeStore, type ThemeId } from '@/stores/theme'
 const route = useRoute()
 const menuOpen = ref(false)
 const themeStore = useThemeStore()
-const { current: currentTheme } = storeToRefs(themeStore)
+const { current: currentTheme, isWhite } = storeToRefs(themeStore)
 
 const links = [
   { to: '/products', label: '제품', path: '/products', category: null },
@@ -26,14 +26,8 @@ function isActive(l: (typeof links)[number]) {
 
 watch(
   () => route.query.theme,
-  (qTheme) => {
-    if (
-      qTheme === 'classic-blue' ||
-      qTheme === 'sky-blue' ||
-      qTheme === 'navy-blue'
-    ) {
-      themeStore.setTheme(qTheme as ThemeId)
-    }
+  (q) => {
+    if (themeStore.options.some((o) => o.id === q)) themeStore.setTheme(q as ThemeId)
   },
   { immediate: true },
 )
@@ -45,7 +39,7 @@ watch(
 </script>
 
 <template>
-  <header class="nav">
+  <header class="nav top-bar">
     <div class="wrap nav__inner">
       <RouterLink to="/" class="nav__brand" aria-label="TechCompare 홈">
         <span class="nav__mark" aria-hidden="true">TC</span>
@@ -65,22 +59,37 @@ watch(
       </nav>
 
       <div class="nav__actions">
-        <div class="theme-switch" role="group" aria-label="테마 선택">
-          <button
-            v-for="t in themeStore.options"
-            :key="t.id"
-            type="button"
-            class="theme-switch__btn"
-            :class="{ 'is-active': currentTheme === t.id }"
-            :aria-pressed="currentTheme === t.id"
-            @click="themeStore.setTheme(t.id)"
-          >
-            <span class="theme-switch__dot" :style="{ backgroundColor: t.swatch }" aria-hidden="true" />
-            <span>{{ t.label }}</span>
-          </button>
+        <!-- Uiverse Animated Dual-Theme Toggle + Mode Pill -->
+        <div class="theme-control" role="group" aria-label="Spotlight 테마 전환">
+          <span class="theme-control__label tech-mono">
+            {{ isWhite ? 'WHITE' : 'DARK' }}
+          </span>
+
+          <label class="uiverse-switch" :title="isWhite ? 'Spotlight Blue 다크 모드로 전환' : 'Spotlight White 라이트 모드로 전환'">
+            <input
+              type="checkbox"
+              class="uiverse-switch__input"
+              :checked="isWhite"
+              aria-label="다크/화이트 테마 토글"
+              @change="themeStore.toggleTheme()"
+            />
+            <span class="uiverse-switch__slider">
+              <span class="uiverse-switch__stars" aria-hidden="true">
+                <span class="star star--1"></span>
+                <span class="star star--2"></span>
+                <span class="star star--3"></span>
+              </span>
+              <span class="uiverse-switch__clouds" aria-hidden="true"></span>
+              <span class="uiverse-switch__knob" aria-hidden="true">
+                <!-- Moon craters (Dark mode) -->
+                <span class="crater crater--1"></span>
+                <span class="crater crater--2"></span>
+              </span>
+            </span>
+          </label>
         </div>
 
-        <RouterLink to="/products" class="btn btn--primary nav__cta">제품 찾기</RouterLink>
+        <RouterLink to="/products" class="btn btn--primary nav__cta">실시간 비교 시작</RouterLink>
         <button
           class="btn btn--secondary nav__menu"
           type="button"
@@ -98,17 +107,17 @@ watch(
     <div v-if="menuOpen" id="mobile-menu" class="sheet">
       <RouterLink v-for="l in links" :key="l.to" :to="l.to" class="sheet__link">{{ l.label }}</RouterLink>
       <div class="sheet__themes">
-        <p class="label">컬러 테마 선택</p>
+        <p class="label">SPOTLIGHT 테마 모드</p>
         <div class="sheet__theme-row">
           <button
             v-for="t in themeStore.options"
             :key="t.id"
             type="button"
-            class="theme-switch__btn"
+            class="mode-pill"
             :class="{ 'is-active': currentTheme === t.id }"
             @click="themeStore.setTheme(t.id)"
           >
-            <span class="theme-switch__dot" :style="{ backgroundColor: t.swatch }" aria-hidden="true" />
+            <span class="mode-pill__dot" :style="{ backgroundColor: t.swatch }" aria-hidden="true" />
             <span>{{ t.label }}</span>
           </button>
         </div>
@@ -122,9 +131,11 @@ watch(
   position: fixed;
   inset: 0 0 auto 0;
   height: var(--nav);
-  background: var(--g-main);
-  border-bottom: 1px solid var(--hairline);
-  z-index: 10;
+  background: var(--header-bg);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--divider);
+  z-index: 30;
 }
 
 .nav__inner {
@@ -137,23 +148,24 @@ watch(
 .nav__brand {
   display: inline-flex;
   align-items: center;
-  gap: var(--s-2);
-  font-size: 20px;
-  font-weight: 500;
-  letter-spacing: -0.02em;
+  gap: 10px;
+  font-size: 19px;
+  font-weight: 800;
+  letter-spacing: -0.03em;
 }
 
 .nav__mark {
   display: inline-grid;
   place-items: center;
-  width: 28px;
-  height: 28px;
-  border-radius: var(--r-sm);
-  background: var(--action);
-  color: var(--action-ink);
-  font-size: 12px;
-  font-weight: 600;
+  width: 32px;
+  height: 32px;
+  border-radius: 9px;
+  background: var(--accent);
+  color: var(--accent-text);
+  font-size: 13px;
+  font-weight: 800;
   font-family: var(--font-mono);
+  box-shadow: 0 6px 18px -4px rgba(0, 150, 255, 0.55);
 }
 
 .nav__links {
@@ -164,9 +176,9 @@ watch(
 
 .nav__link {
   position: relative;
-  font-size: 15px;
-  font-weight: 500;
-  color: var(--muted);
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-sub);
   white-space: nowrap;
   transition: color var(--m-in) var(--m-ease);
 }
@@ -176,16 +188,16 @@ watch(
   position: absolute;
   left: 0;
   right: 0;
-  bottom: -4px;
-  height: 1px;
-  background: currentColor;
+  bottom: -6px;
+  height: 2px;
+  background: var(--accent);
   transform: scaleX(0);
   transform-origin: left;
   transition: transform var(--m-out) var(--m-ease);
 }
 
 .nav__link:hover {
-  color: var(--ink);
+  color: var(--text-main);
 }
 
 .nav__link:hover::after {
@@ -193,13 +205,10 @@ watch(
 }
 
 .nav__link.is-active {
-  color: var(--ink);
+  color: var(--text-main);
 }
 
 .nav__link.is-active::after {
-  height: 2px;
-  bottom: -5px;
-  background: var(--action);
   transform: scaleX(1);
 }
 
@@ -210,59 +219,198 @@ watch(
   gap: var(--s-3);
 }
 
-.theme-switch {
+/* Uiverse Animated Theme Switch Container */
+.theme-control {
   display: inline-flex;
   align-items: center;
-  padding: 2px;
-  background: var(--g-alt);
-  border: 1px solid var(--hairline);
-  border-radius: var(--r-sm);
-  gap: 2px;
+  gap: 8px;
+  padding: 4px 6px 4px 10px;
+  border-radius: 999px;
+  background: var(--card-inner);
+  border: 1px solid var(--card-border);
 }
 
-.theme-switch__btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
+.theme-control__label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: var(--badge-text);
+  min-width: 40px;
+  text-align: center;
+}
+
+.uiverse-switch {
+  position: relative;
+  display: inline-block;
+  width: 58px;
   height: 30px;
-  padding: 0 10px;
-  border: 1px solid transparent;
-  border-radius: 4px;
-  background: transparent;
-  color: var(--muted);
-  font-size: 12px;
-  font-weight: 500;
   cursor: pointer;
-  white-space: nowrap;
+  user-select: none;
 }
 
-.theme-switch__btn:hover {
-  color: var(--ink);
+.uiverse-switch__input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+  position: absolute;
 }
 
-.theme-switch__btn.is-active {
-  background: var(--card);
-  color: var(--ink);
-  border-color: var(--action-border);
+.uiverse-switch__slider {
+  position: absolute;
+  inset: 0;
+  border-radius: 999px;
+  background: linear-gradient(135deg, #05070a 0%, #0d1b36 55%, #004e98 100%);
+  border: 1px solid rgba(0, 150, 255, 0.45);
+  overflow: hidden;
+  transition:
+    background 0.4s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.4s ease,
+    box-shadow 0.4s ease;
+  box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.6);
 }
 
-.theme-switch__dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 2px;
-  flex: none;
+.uiverse-switch__knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  background: #e2e8f0;
+  box-shadow:
+    inset -3px -2px 0 0 #94a3b8,
+    0 0 10px rgba(0, 150, 255, 0.6);
+  transition:
+    transform 0.42s cubic-bezier(0.34, 1.56, 0.64, 1),
+    background-color 0.35s ease,
+    box-shadow 0.35s ease;
+}
+
+.crater {
+  position: absolute;
+  background: #94a3b8;
+  border-radius: 50%;
+  transition: opacity 0.25s ease;
+}
+
+.crater--1 {
+  width: 5px;
+  height: 5px;
+  top: 5px;
+  left: 10px;
+}
+
+.crater--2 {
+  width: 3px;
+  height: 3px;
+  top: 12px;
+  left: 6px;
+}
+
+.uiverse-switch__stars {
+  position: absolute;
+  inset: 0;
+  transition:
+    transform 0.35s ease,
+    opacity 0.35s ease;
+}
+
+.star {
+  position: absolute;
+  background: #ffffff;
+  border-radius: 50%;
+  box-shadow: 0 0 4px #60bfff;
+}
+
+.star--1 {
+  width: 3px;
+  height: 3px;
+  top: 7px;
+  right: 12px;
+}
+
+.star--2 {
+  width: 2px;
+  height: 2px;
+  top: 16px;
+  right: 20px;
+}
+
+.star--3 {
+  width: 2.5px;
+  height: 2.5px;
+  top: 11px;
+  right: 7px;
+}
+
+.uiverse-switch__clouds {
+  position: absolute;
+  bottom: -10px;
+  left: 10px;
+  width: 24px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  box-shadow: 10px -2px 0 2px rgba(255, 255, 255, 0.75);
+  opacity: 0;
+  transform: translateY(6px);
+  transition:
+    opacity 0.35s ease,
+    transform 0.35s ease;
+}
+
+/* Checked = Spotlight White Mode */
+.uiverse-switch__input:checked + .uiverse-switch__slider {
+  background: linear-gradient(135deg, #0077ff 0%, #38bdf8 60%, #bae6fd 100%);
+  border-color: rgba(0, 119, 255, 0.45);
+  box-shadow: inset 0 1px 4px rgba(0, 65, 160, 0.35);
+}
+
+.uiverse-switch__input:checked + .uiverse-switch__slider .uiverse-switch__knob {
+  transform: translateX(28px);
+  background: #fde047;
+  box-shadow:
+    0 0 12px 2px rgba(250, 204, 21, 0.85),
+    inset 0 0 0 2px #fef08a;
+}
+
+.uiverse-switch__input:checked + .uiverse-switch__slider .crater {
+  opacity: 0;
+}
+
+.uiverse-switch__input:checked + .uiverse-switch__slider .uiverse-switch__stars {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.uiverse-switch__input:checked + .uiverse-switch__slider .uiverse-switch__clouds {
+  opacity: 1;
+  transform: translateY(-10px);
+}
+
+.uiverse-switch__input:focus-visible + .uiverse-switch__slider {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.nav__cta {
+  border-radius: 999px;
+  height: 38px;
+  padding: 0 18px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .nav__menu {
   display: none;
-  width: 44px;
+  width: 42px;
   padding: 0;
 }
 
 .sheet {
   position: fixed;
   inset: var(--nav) 0 0 0;
-  background: var(--g-main);
+  background: var(--bg-main);
   padding: var(--s-4) var(--gut);
   display: flex;
   flex-direction: column;
@@ -272,8 +420,9 @@ watch(
   height: 52px;
   display: flex;
   align-items: center;
-  border-bottom: 1px solid var(--hairline);
-  font-size: 17px;
+  border-bottom: 1px solid var(--divider);
+  font-size: 16px;
+  font-weight: 600;
 }
 
 .sheet__themes {
@@ -289,10 +438,30 @@ watch(
   gap: var(--s-2);
 }
 
-@media (max-width: 1120px) {
-  .theme-switch {
-    display: none;
-  }
+.mode-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 14px;
+  border-radius: 10px;
+  border: 1px solid var(--card-border);
+  background: var(--card-inner);
+  color: var(--text-sub);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.mode-pill.is-active {
+  background: var(--accent);
+  color: var(--accent-text);
+  border-color: var(--accent);
+}
+
+.mode-pill__dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
 }
 
 @media (max-width: 1023px) {
@@ -305,11 +474,12 @@ watch(
 }
 
 @media (max-width: 639px) {
-  .nav__cta {
+  .nav__cta,
+  .theme-control__label {
     display: none;
   }
-  .nav__menu {
-    width: 44px;
+  .theme-control {
+    padding: 3px;
   }
 }
 </style>
