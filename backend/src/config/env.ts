@@ -39,15 +39,21 @@ export const env = parsed.data;
 
 /** Non-secret status summary, safe to log or expose via health check. */
 export function configStatus() {
+  const isSupabase = Boolean(
+    env.SUPABASE_URL &&
+    env.SUPABASE_ANON_KEY &&
+    !env.SUPABASE_URL.includes('your-project-ref') &&
+    !env.SUPABASE_ANON_KEY.includes('your_supabase_anon_key'),
+  );
   return {
     techspecs: {
       credentialsConfigured: Boolean(env.TECHSPECS_API_ID && env.TECHSPECS_API_KEY),
       liveCallEnabled: env.TECHSPECS_LIVE_CALL_ENABLED,
     },
     supabase: {
-      configured: Boolean(env.SUPABASE_URL && env.SUPABASE_ANON_KEY),
-      adminConfigured: Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY),
-      dataMode: env.SUPABASE_URL && env.SUPABASE_ANON_KEY ? 'supabase_remote' : 'official_reference_seed',
+      configured: isSupabase,
+      adminConfigured: Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY && !env.SUPABASE_URL.includes('your-project-ref')),
+      dataMode: isSupabase ? 'supabase_remote' : 'official_reference_seed',
     },
   };
 }

@@ -47,19 +47,34 @@ const PRESETS = [
     items: 'iphone-16-pro-max,galaxy-s24-ultra',
   },
   {
-    title: 'iPhone 16 Pro vs iPhone 15 Pro vs Galaxy S24',
-    categoryLabel: '스마트폰 3종 비교',
-    items: 'iphone-16-pro,iphone-15-pro,galaxy-s24',
+    title: 'MacBook Pro 16 (M3 Max) vs Galaxy Book4 Ultra',
+    categoryLabel: '최상급 고사양 노트북 플래그십',
+    items: 'macbook-pro-16-m3-max,galaxy-book4-ultra',
+  },
+  {
+    title: 'LG gram Pro 16 vs Galaxy Book4 Pro 16',
+    categoryLabel: '초경량 16인치 프리미엄 노트북',
+    items: 'lg-gram-pro-16,galaxy-book4-pro-16',
+  },
+  {
+    title: 'AirPods Pro 2 vs Galaxy Buds3 Pro vs Sony WF-1000XM5',
+    categoryLabel: '3대 플래그십 노이즈 캔슬링 이어폰',
+    items: 'airpods-pro-2-usbc,galaxy-buds3-pro,sony-wf-1000xm5',
+  },
+  {
+    title: 'Sony WH-1000XM5 vs Bose QC Ultra Headphones',
+    categoryLabel: '하이엔드 노이즈 캔슬링 헤드폰 1:1',
+    items: 'sony-wh-1000xm5,bose-quietcomfort-ultra-headphones',
   },
   {
     title: 'iPad Pro 13 (M4) vs Galaxy Tab S10 Ultra',
-    categoryLabel: '태블릿 대화면',
+    categoryLabel: '태블릿 대화면 플래그십',
     items: 'ipad-pro-13-m4,galaxy-tab-s10-ultra',
   },
   {
-    title: 'Apple Watch Series 10 46mm vs Galaxy Watch7 44mm',
-    categoryLabel: '스마트워치',
-    items: 'apple-watch-series-10-46,galaxy-watch7-44',
+    title: 'Apple Watch Ultra 2 vs Galaxy Watch Ultra',
+    categoryLabel: '스마트워치 익스트림 플래그십',
+    items: 'apple-watch-ultra-2,galaxy-watch-ultra',
   },
 ]
 
@@ -94,15 +109,15 @@ async function loadCandidatesForCategory(cat: CategorySlug) {
   }
 }
 
-function switchCategoryAndCompare(cat: CategorySlug) {
+async function switchCategoryAndCompare(cat: CategorySlug) {
   browseCategory.value = cat
   compareStore.clear()
   compareData.value = null
   errorMsg.value = null
-  const nextQuery: Record<string, string> = {}
-  if (typeof route.query.theme === 'string') nextQuery.theme = route.query.theme
-  router.replace({ path: '/compare', query: nextQuery })
-  loadCandidatesForCategory(cat)
+  await loadCandidatesForCategory(cat)
+  if (quickSlotA.value && quickSlotB.value && quickSlotA.value !== quickSlotB.value) {
+    applyDirectTwoSlotCompare()
+  }
 }
 
 function applyDirectTwoSlotCompare() {
@@ -252,7 +267,7 @@ watch(
   },
 )
 
-onMounted(() => {
+onMounted(async () => {
   const queryTokens = parseQueryItems()
   if (queryTokens.length >= COMPARE_MIN) {
     runComparison(queryTokens)
@@ -262,7 +277,10 @@ onMounted(() => {
       items.value.map((i) => (i.variantId ? `${i.productSlug}:${i.variantId}` : i.productSlug)),
     )
   } else {
-    loadCandidatesForCategory(category.value ?? browseCategory.value)
+    await loadCandidatesForCategory(category.value ?? browseCategory.value)
+    if (quickSlotA.value && quickSlotB.value && quickSlotA.value !== quickSlotB.value) {
+      applyDirectTwoSlotCompare()
+    }
   }
 })
 </script>
@@ -303,7 +321,7 @@ onMounted(() => {
             :class="{ 'cat-tab--active': (category ?? browseCategory) === 'smartphone' }"
             @click="switchCategoryAndCompare('smartphone')"
           >
-            스마트폰 (26)
+            스마트폰 (30)
           </button>
           <button
             type="button"
@@ -311,7 +329,15 @@ onMounted(() => {
             :class="{ 'cat-tab--active': (category ?? browseCategory) === 'tablet' }"
             @click="switchCategoryAndCompare('tablet')"
           >
-            태블릿 (14)
+            태블릿 (19)
+          </button>
+          <button
+            type="button"
+            class="cat-tab"
+            :class="{ 'cat-tab--active': (category ?? browseCategory) === 'laptop' }"
+            @click="switchCategoryAndCompare('laptop')"
+          >
+            노트북 (20)
           </button>
           <button
             type="button"
@@ -320,6 +346,14 @@ onMounted(() => {
             @click="switchCategoryAndCompare('smartwatch')"
           >
             스마트워치 (10)
+          </button>
+          <button
+            type="button"
+            class="cat-tab"
+            :class="{ 'cat-tab--active': (category ?? browseCategory) === 'audio' }"
+            @click="switchCategoryAndCompare('audio')"
+          >
+            오디오/헤드셋 (20)
           </button>
         </div>
 

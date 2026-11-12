@@ -28,8 +28,20 @@ export interface HealthStatus {
   }
 }
 
-export type CategorySlug = 'smartphone' | 'tablet' | 'smartwatch'
-export type BrandSlug = 'apple' | 'samsung'
+export type CategorySlug = 'smartphone' | 'tablet' | 'laptop' | 'smartwatch' | 'audio'
+export type BrandSlug =
+  | 'apple'
+  | 'samsung'
+  | 'lg'
+  | 'sony'
+  | 'lenovo'
+  | 'asus'
+  | 'bose'
+  | 'sennheiser'
+  | 'beats'
+  | 'google'
+  | 'xiaomi'
+  | 'garmin'
 export type VerificationStatus = 'pending' | 'verified' | 'rejected' | 'needs_review'
 export type ProductSortOption = 'release_desc' | 'release_asc' | 'price_asc' | 'price_desc' | 'name_asc'
 export type ComparisonRule = 'higher_better' | 'lower_better' | 'neutral'

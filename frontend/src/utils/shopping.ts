@@ -1,3 +1,5 @@
+import type { BrandSlug } from '@/types/api'
+
 export interface ShoppingMallLink {
   id: 'danawa' | 'naver' | 'coupang' | 'official'
   mallName: string
@@ -10,11 +12,41 @@ export interface ShoppingMallLink {
 
 export interface ShoppingLinkInput {
   name: string
-  brandSlug: 'apple' | 'samsung'
+  brandSlug: BrandSlug
   baseModelNumber?: string | null
   storageCapacity?: string | null
   connectivity?: string | null
   officialUrl?: string | null
+}
+
+const OFFICIAL_MALL_NAMES: Record<BrandSlug, string> = {
+  apple: 'Apple 공식 스토어',
+  samsung: '삼성닷컴 공식몰',
+  lg: 'LGE.COM 공식몰',
+  sony: '소니 스토어 공식몰',
+  lenovo: '레노버 공식 스토어',
+  asus: 'ASUS 코리아 공식몰',
+  bose: 'Bose 코리아 공식몰',
+  sennheiser: '젠하이저 공식몰',
+  beats: 'Beats 공식몰',
+  google: 'Google Store',
+  xiaomi: '샤오미 공식몰',
+  garmin: '가민 코리아 공식몰',
+}
+
+const OFFICIAL_SEARCH_URLS: Record<BrandSlug, (name: string) => string> = {
+  apple: (name) => `https://www.apple.com/kr/search/${encodeURIComponent(name)}?src=globalnav`,
+  samsung: (name) => `https://www.samsung.com/sec/aisearch/?searchvalue=${encodeURIComponent(name)}`,
+  lg: (name) => `https://www.lge.co.kr/search/searchResult?search=${encodeURIComponent(name)}`,
+  sony: (name) => `https://store.sony.co.kr/search?keyword=${encodeURIComponent(name)}`,
+  lenovo: (name) => `https://www.lenovo.com/kr/ko/search?text=${encodeURIComponent(name)}`,
+  asus: (name) => `https://www.asus.com/kr/searchresult?searchType=products&searchKey=${encodeURIComponent(name)}`,
+  bose: (name) => `https://www.bose.co.kr/search?q=${encodeURIComponent(name)}`,
+  sennheiser: (name) => `https://www.sennheiser-korea.com/product/search.html?keyword=${encodeURIComponent(name)}`,
+  beats: (name) => `https://www.beatsbydre.com/kr/search?q=${encodeURIComponent(name)}`,
+  google: (name) => `https://store.google.com/search?q=${encodeURIComponent(name)}`,
+  xiaomi: (name) => `https://www.mi.com/kr/search/${encodeURIComponent(name)}`,
+  garmin: (name) => `https://www.garmin.co.kr/products/?search=${encodeURIComponent(name)}`,
 }
 
 /**
@@ -48,9 +80,8 @@ export function buildShoppingMallLinks(input: ShoppingLinkInput): ShoppingMallLi
     : undefined
 
   const defaultOfficial =
-    input.brandSlug === 'apple'
-      ? `https://www.apple.com/kr/search/${encodeURIComponent(cleanName)}?src=globalnav`
-      : `https://www.samsung.com/sec/aisearch/?searchvalue=${encodeURIComponent(cleanName)}`
+    OFFICIAL_SEARCH_URLS[input.brandSlug]?.(cleanName) ??
+    `https://search.naver.com/search.naver?query=${encodeURIComponent(cleanName)}`
 
   return [
     {
@@ -82,7 +113,7 @@ export function buildShoppingMallLinks(input: ShoppingLinkInput): ShoppingMallLi
     },
     {
       id: 'official',
-      mallName: input.brandSlug === 'apple' ? 'Apple 공식 스토어' : '삼성닷컴 공식몰',
+      mallName: OFFICIAL_MALL_NAMES[input.brandSlug] ?? '제조사 공식몰',
       badge: '공식출고가',
       description: '제조사 공식 출고가·보상판매 및 정품 사양서 확인',
       searchQuery: modelNo || cleanName,

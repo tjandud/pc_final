@@ -12,6 +12,7 @@ const props = defineProps<{
 
 const compareStore = useCompareStore()
 const feedbackMsg = ref<string | null>(null)
+const hasImgError = ref(false)
 
 const shoppingLinks = computed(() =>
   buildShoppingMallLinks({
@@ -72,14 +73,15 @@ function toggleCompare(e: Event) {
         </div>
 
         <img
-          v-if="product.thumbnailUrl"
+          v-if="product.thumbnailUrl && !hasImgError"
           :src="product.thumbnailUrl"
           :alt="product.name"
           class="pcard__img"
           loading="lazy"
+          @error="hasImgError = true"
         />
 
-        <!-- Hardware CAD Silhouette Render when official image is not attached -->
+        <!-- Hardware CAD Silhouette Render when official image is not attached or fails -->
         <div v-else class="pcard__cad" aria-hidden="true">
           <svg
             v-if="product.category.slug === 'smartphone'"
@@ -103,6 +105,29 @@ function toggleCompare(e: Event) {
             <rect x="18" y="14" width="124" height="92" rx="8" stroke="currentColor" stroke-width="1.5" />
             <rect x="24" y="20" width="112" height="80" rx="4" stroke="currentColor" stroke-opacity="0.35" />
             <circle cx="80" cy="17" r="1.5" fill="currentColor" fill-opacity="0.6" />
+          </svg>
+
+          <svg
+            v-else-if="product.category.slug === 'laptop'"
+            viewBox="0 0 160 120"
+            class="cad-svg"
+            fill="none"
+          >
+            <rect x="30" y="15" width="100" height="66" rx="4" stroke="currentColor" stroke-width="1.5" />
+            <rect x="34" y="19" width="92" height="58" rx="2" stroke="currentColor" stroke-opacity="0.35" />
+            <path d="M 18,85 L 142,85 L 150,98 L 10,98 Z" stroke="currentColor" stroke-width="1.5" />
+            <rect x="65" y="88" width="30" height="6" rx="1.5" stroke="currentColor" stroke-opacity="0.5" />
+          </svg>
+
+          <svg
+            v-else-if="product.category.slug === 'audio'"
+            viewBox="0 0 140 140"
+            class="cad-svg"
+            fill="none"
+          >
+            <path d="M 35,70 C 35,30 105,30 105,70" stroke="currentColor" stroke-width="2" />
+            <rect x="25" y="65" width="20" height="36" rx="10" stroke="currentColor" stroke-width="1.5" />
+            <rect x="95" y="65" width="20" height="36" rx="10" stroke="currentColor" stroke-width="1.5" />
           </svg>
 
           <svg v-else viewBox="0 0 120 140" class="cad-svg" fill="none">

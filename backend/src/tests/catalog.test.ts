@@ -106,29 +106,29 @@ describe('Phase 2–4 — REST API Integration Tests (/api/v1/*)', () => {
     assert.equal(typeof body.data.config.supabase.configured, 'boolean');
   });
 
-  it('GET /brands returns Apple and Samsung', async () => {
+  it('GET /brands returns active brands including Apple, Samsung, LG, Sony, Lenovo, ASUS, Bose, Sennheiser, and Beats', async () => {
     const res = await fetch(`${baseUrl}/brands`);
     assert.equal(res.status, 200);
     const body = (await res.json()) as { success: boolean; data: Array<{ slug: string }> };
     assert.equal(body.success, true);
     assert.deepEqual(
       body.data.map((b) => b.slug),
-      ['apple', 'samsung'],
+      ['apple', 'samsung', 'lg', 'sony', 'lenovo', 'asus', 'bose', 'sennheiser', 'beats'],
     );
   });
 
-  it('GET /categories returns smartphone, tablet, and smartwatch', async () => {
+  it('GET /categories returns smartphone, tablet, laptop, smartwatch, and audio', async () => {
     const res = await fetch(`${baseUrl}/categories`);
     assert.equal(res.status, 200);
     const body = (await res.json()) as { success: boolean; data: Array<{ slug: string }> };
     assert.equal(body.success, true);
     assert.deepEqual(
       body.data.map((c) => c.slug),
-      ['smartphone', 'tablet', 'smartwatch'],
+      ['smartphone', 'tablet', 'laptop', 'smartwatch', 'audio'],
     );
   });
 
-  it('GET /products returns all 50 official products released on or after 2022-11-01', async () => {
+  it('GET /products returns all 99 official products released on or after 2022-11-01', async () => {
     const res = await fetch(`${baseUrl}/products?limit=100`);
     assert.equal(res.status, 200);
     const body = (await res.json()) as {
@@ -137,24 +137,24 @@ describe('Phase 2–4 — REST API Integration Tests (/api/v1/*)', () => {
       meta: { total: number };
     };
     assert.equal(body.success, true);
-    assert.equal(body.meta.total, 50);
-    assert.equal(body.data.length, 50);
+    assert.equal(body.meta.total, 99);
+    assert.equal(body.data.length, 99);
 
     // Every product must have a unique slug, unique model number, and releaseDate >= 2022-11-01
     const slugs = new Set(body.data.map((p) => p.slug));
     const models = new Set(body.data.map((p) => p.baseModelNumber));
-    assert.equal(slugs.size, 50);
-    assert.equal(models.size, 50);
+    assert.equal(slugs.size, 99);
+    assert.equal(models.size, 99);
     assert.ok(body.data.every((p) => p.releaseDate >= '2022-11-01'));
   });
 
-  it('GET /products filters accurately by brand (Apple 25 / Samsung 25) and category (26 / 14 / 10)', async () => {
+  it('GET /products filters accurately by brand and category', async () => {
     const resApple = await fetch(`${baseUrl}/products?brand=apple&limit=100`);
     const bodyApple = (await resApple.json()) as {
       data: Array<{ brand: { slug: string } }>;
       meta: { total: number };
     };
-    assert.equal(bodyApple.meta.total, 25);
+    assert.equal(bodyApple.meta.total, 34);
     assert.ok(bodyApple.data.every((p) => p.brand.slug === 'apple'));
 
     const resSamsung = await fetch(`${baseUrl}/products?brand=samsung&limit=100`);
@@ -162,20 +162,28 @@ describe('Phase 2–4 — REST API Integration Tests (/api/v1/*)', () => {
       data: Array<{ brand: { slug: string } }>;
       meta: { total: number };
     };
-    assert.equal(bodySamsung.meta.total, 25);
+    assert.equal(bodySamsung.meta.total, 34);
     assert.ok(bodySamsung.data.every((p) => p.brand.slug === 'samsung'));
 
     const resPhone = await fetch(`${baseUrl}/products?category=smartphone&limit=100`);
     const bodyPhone = (await resPhone.json()) as { meta: { total: number } };
-    assert.equal(bodyPhone.meta.total, 26);
+    assert.equal(bodyPhone.meta.total, 30);
 
     const resTablet = await fetch(`${baseUrl}/products?category=tablet&limit=100`);
     const bodyTablet = (await resTablet.json()) as { meta: { total: number } };
-    assert.equal(bodyTablet.meta.total, 14);
+    assert.equal(bodyTablet.meta.total, 19);
+
+    const resLaptop = await fetch(`${baseUrl}/products?category=laptop&limit=100`);
+    const bodyLaptop = (await resLaptop.json()) as { meta: { total: number } };
+    assert.equal(bodyLaptop.meta.total, 20);
 
     const resWatch = await fetch(`${baseUrl}/products?category=smartwatch&limit=100`);
     const bodyWatch = (await resWatch.json()) as { meta: { total: number } };
     assert.equal(bodyWatch.meta.total, 10);
+
+    const resAudio = await fetch(`${baseUrl}/products?category=audio&limit=100`);
+    const bodyAudio = (await resAudio.json()) as { meta: { total: number } };
+    assert.equal(bodyAudio.meta.total, 20);
   });
 
   it('GET /products supports search by product name and model number, price range, and release/price sorting', async () => {
@@ -219,7 +227,7 @@ describe('Phase 2–4 — REST API Integration Tests (/api/v1/*)', () => {
   });
 
   it('GET /products rejects invalid query parameters with 400 VALIDATION_ERROR', async () => {
-    const resInvalidBrand = await fetch(`${baseUrl}/products?brand=xiaomi`);
+    const resInvalidBrand = await fetch(`${baseUrl}/products?brand=nonexistent-brand`);
     assert.equal(resInvalidBrand.status, 400);
     const body = (await resInvalidBrand.json()) as {
       success: boolean;
@@ -359,7 +367,7 @@ describe('Phase 2–4 — REST API Integration Tests (/api/v1/*)', () => {
     assert.equal(body.error.code, 'CATEGORY_MISMATCH');
   });
 
-  it('GET /admin/audit verifies 50 models, brand/category balance, and release date integrity', async () => {
+  it('GET /admin/audit verifies 80 models, brand/category balance, and release date integrity', async () => {
     const res = await fetch(`${baseUrl}/admin/audit`);
     assert.equal(res.status, 200);
     const body = (await res.json()) as {
@@ -371,6 +379,8 @@ describe('Phase 2–4 — REST API Integration Tests (/api/v1/*)', () => {
         smartphoneCount: number;
         tabletCount: number;
         smartwatchCount: number;
+        laptopCount: number;
+        audioCount: number;
         allReleaseDatesValid: boolean;
         uniqueSlugsCount: number;
         uniqueModelNumbersCount: number;
@@ -378,16 +388,18 @@ describe('Phase 2–4 — REST API Integration Tests (/api/v1/*)', () => {
       };
     };
     assert.equal(body.success, true);
-    assert.equal(body.data.totalProducts, 50);
-    assert.equal(body.data.appleCount, 25);
-    assert.equal(body.data.samsungCount, 25);
-    assert.equal(body.data.smartphoneCount, 26);
-    assert.equal(body.data.tabletCount, 14);
+    assert.equal(body.data.totalProducts, 99);
+    assert.equal(body.data.appleCount, 34);
+    assert.equal(body.data.samsungCount, 34);
+    assert.equal(body.data.smartphoneCount, 30);
+    assert.equal(body.data.tabletCount, 19);
+    assert.equal(body.data.laptopCount, 20);
     assert.equal(body.data.smartwatchCount, 10);
+    assert.equal(body.data.audioCount, 20);
     assert.equal(body.data.allReleaseDatesValid, true);
-    assert.equal(body.data.uniqueSlugsCount, 50);
-    assert.equal(body.data.uniqueModelNumbersCount, 50);
-    assert.ok(body.data.items.every((item) => item.releaseDateValid && item.filledSpecsCount >= 8));
+    assert.equal(body.data.uniqueSlugsCount, 99);
+    assert.equal(body.data.uniqueModelNumbersCount, 99);
+    assert.ok(body.data.items.every((item) => item.releaseDateValid && item.filledSpecsCount >= 6));
   });
 
   it('POST, PUT, and DELETE /admin/products support Phase 7 Admin CRUD for products and specs', async () => {

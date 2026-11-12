@@ -1,12 +1,16 @@
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from 'vue'
-import { Search, ArrowRight, Smartphone, Tablet, Watch, Scale } from 'lucide-vue-next'
+import { Search, ArrowRight, Smartphone, Tablet, Laptop, Watch, Headphones, Scale, ExternalLink, ShoppingBag } from 'lucide-vue-next'
 import { useRouter } from 'vue-router'
 import { api, ApiClientError } from '@/services/api'
 import type { CategorySlug, ProductSummaryRecord, ResolvedSpecItem } from '@/types/api'
 import ProductCard from '@/components/product/ProductCard.vue'
-import PrismBg from '@/components/common/PrismBg.vue'
+import LightRaysBg from '@/components/common/LightRaysBg.vue'
+import HeroTrophyStage from '@/components/common/HeroTrophyStage.vue'
+import FlexCarousel from '@/components/common/FlexCarousel.vue'
+import AiLaserAdvisor from '@/components/common/AiLaserAdvisor.vue'
 import TechIcon from '@/components/common/TechIcon.vue'
+import { buildShoppingMallLinks } from '@/utils/shopping'
 
 const router = useRouter()
 
@@ -138,27 +142,53 @@ const specCoverageComparison = computed(() => {
   }
 })
 
+// Dynamic Shopping Mall Links for Slot A (from ide.html)
+const slotAShoppingLinks = computed(() => {
+  if (!slotAProduct.value) return []
+  return buildShoppingMallLinks({
+    name: slotAProduct.value.name,
+    brandSlug: slotAProduct.value.brand.slug as 'apple' | 'samsung',
+    baseModelNumber: slotAProduct.value.baseModelNumber,
+  })
+})
+
 const brandLinks = [
   {
     slug: 'apple',
     name: 'Apple',
-    countLabel: '25종 수록',
-    desc: 'iPhone 17/16/15 · iPad Pro/Air · Apple Watch Series 11/10/Ultra 공식 사양',
-    series: ['iPhone', 'iPad', 'Apple Watch'],
+    countLabel: '34종 수록',
+    desc: 'iPhone 17/16 · MacBook Pro/Air M3 · iPad Pro · AirPods Pro/Max 공식 사양',
+    series: ['iPhone', 'MacBook', 'iPad', 'AirPods', 'Apple Watch'],
   },
   {
     slug: 'samsung',
     name: 'Samsung',
-    countLabel: '25종 수록',
-    desc: 'Galaxy S25/S24 · Z Fold7/Flip7 · Galaxy Tab S10/S9 · Watch8/7 공식 사양',
-    series: ['Galaxy S', 'Galaxy Z', 'Galaxy A', 'Galaxy Tab', 'Galaxy Watch'],
+    countLabel: '34종 수록',
+    desc: 'Galaxy S25/S24 · Galaxy Book4 Ultra/Pro · Tab S10 · Galaxy Buds3 Pro 공식 사양',
+    series: ['Galaxy S', 'Galaxy Book', 'Galaxy Tab', 'Galaxy Buds', 'Galaxy Watch'],
+  },
+  {
+    slug: 'lg',
+    name: 'LG Electronics',
+    countLabel: '4종 수록',
+    desc: 'LG gram Pro 16 · gram 16/14 · UltraGear 17 게이밍 등 대표 초경량 라인업',
+    series: ['LG gram', 'LG gram Pro', 'LG UltraGear'],
+  },
+  {
+    slug: 'sony',
+    name: 'Sony',
+    countLabel: '9종 수록',
+    desc: 'WH-1000XM5/XM4 · WF-1000XM5 · LinkBuds S · Xperia 1 VI 고음질 & 카메라 사양',
+    series: ['1000X 시리즈', 'LinkBuds', 'ULT WEAR', 'Xperia'],
   },
 ]
 
 const categoryShortcuts = [
-  { slug: 'smartphone' as CategorySlug, name: '스마트폰', count: 26, icon: Smartphone },
-  { slug: 'tablet' as CategorySlug, name: '태블릿', count: 14, icon: Tablet },
+  { slug: 'smartphone' as CategorySlug, name: '스마트폰', count: 30, icon: Smartphone },
+  { slug: 'tablet' as CategorySlug, name: '태블릿', count: 19, icon: Tablet },
+  { slug: 'laptop' as CategorySlug, name: '노트북', count: 20, icon: Laptop },
   { slug: 'smartwatch' as CategorySlug, name: '스마트워치', count: 10, icon: Watch },
+  { slug: 'audio' as CategorySlug, name: '오디오/헤드셋', count: 20, icon: Headphones },
 ]
 
 const presetComparisons = [
@@ -198,62 +228,72 @@ const presetComparisons = [
 </script>
 
 <template>
-  <!-- 1. Spotlight Hero Section + ReactBits Rotating Prism Backdrop -->
-  <section class="hero">
-    <PrismBg />
-    <div class="wrap hero__container">
-      <!-- Center Spotlight Headline + Search -->
-      <div class="hero__center">
-        <p class="hero__kicker tech-mono">
-          APPLE · SAMSUNG {{ totalCount || 50 }}종 공식 사양 &amp; 최저가 비교
-        </p>
-        <h1 class="hero__h1">
-          원하는 두 기기를 골라<br />
-          <span class="text-accent">스펙과 최저가를 한눈에 비교하세요</span>
-        </h1>
-        <p class="hero__lead">
-          프로세서·디스플레이·주사율·배터리·무게·출고가 비교부터 다나와·네이버쇼핑·쿠팡 최저가 조회까지 가장 객관적인 데이터로 비교합니다.
-        </p>
+  <!-- 1. HERO: Official ReactBits WebGL2 LightRays + Pure 3D Smartphone Trophy Stage (from ide.html) -->
+  <section id="top" class="hero">
+    <LightRaysBg />
 
-        <form class="search glass-card" role="search" @submit.prevent="submit">
-          <Search :size="18" class="search__icon" aria-hidden="true" />
-          <label for="home-search" class="sr-only">제품명 또는 모델 번호 검색</label>
-          <input
-            id="home-search"
-            v-model="query"
-            class="search__input"
-            type="search"
-            placeholder="제품명 또는 모델 번호 검색 (예: iPhone 17 Pro, SM-S938N, A2925)"
-            autocomplete="off"
-          />
-          <button class="btn btn--primary search__btn" type="submit">
-            <span>검색</span>
-            <ArrowRight :size="16" aria-hidden="true" />
-          </button>
-        </form>
+    <div class="hero__content">
+      <div class="hero__badge tech-mono">
+        <span class="pulse-dot"></span>
+        <span>REACTBITS WEBGL2 LIGHT RAYS · 3D SMARTPHONE TROPHY</span>
+      </div>
+      <h1 class="hero__title">
+        빛으로 조각된 두 거인의 대결,<br />
+        <span class="accent">스펙과 최저가를 한눈에 비교하세요</span>
+      </h1>
+      <p class="hero__desc">
+        마우스 커서가 볼류메트릭 광선을 조종하며 실시간 그림자를 드리우고, 광선 중앙의 3D 스마트폰 트로피를 드래그해 360°로 회전해 볼 수 있습니다.
+      </p>
 
-        <div class="hero__cats" aria-label="카테고리 바로가기">
-          <RouterLink
-            v-for="cat in categoryShortcuts"
-            :key="cat.slug"
-            :to="{ name: 'catalog', query: { category: cat.slug } }"
-            class="cat-link inner-box"
-          >
-            <component :is="cat.icon" :size="15" aria-hidden="true" />
-            <span>{{ cat.name }}</span>
-            <span class="tech-mono cat-link__count">{{ cat.count }}</span>
-          </RouterLink>
-        </div>
+      <!-- Fast Search Bar -->
+      <form class="search glass-card" role="search" @submit.prevent="submit">
+        <Search :size="18" class="search__icon" aria-hidden="true" />
+        <label for="home-search" class="sr-only">제품명 또는 모델 번호 검색</label>
+        <input
+          id="home-search"
+          v-model="query"
+          class="search__input"
+          type="search"
+          placeholder="제품명 또는 모델 번호 검색 (예: iPhone 17 Pro, SM-S938N, A2925)"
+          autocomplete="off"
+        />
+        <button class="btn btn--primary search__btn" type="submit">
+          <span>검색</span>
+          <ArrowRight :size="16" aria-hidden="true" />
+        </button>
+      </form>
+
+      <!-- Category Quick Links -->
+      <div class="hero__cats" aria-label="카테고리 바로가기">
+        <RouterLink
+          v-for="cat in categoryShortcuts"
+          :key="cat.slug"
+          :to="{ name: 'catalog', query: { category: cat.slug } }"
+          class="cat-link inner-box"
+        >
+          <component :is="cat.icon" :size="15" aria-hidden="true" />
+          <span>{{ cat.name }}</span>
+          <span class="tech-mono cat-link__count">{{ cat.count }}</span>
+        </RouterLink>
       </div>
     </div>
+
+    <!-- 3D Smartphone Trophy Stage (Three.js Floating Flagships with 360° Drag) -->
+    <HeroTrophyStage />
   </section>
 
-  <!-- 2. Bento Grid: IT Device 1:1 Matchup Dashboard (7 Cols + 5 Cols) -->
-  <section class="wrap bento-section">
+  <!-- 2. FLEX CAROUSEL: Infinite Image Row through Invisible Liquid Glass Edges (from ide.html) -->
+  <FlexCarousel :products="allProducts" />
+
+  <!-- 3. AI HARDWARE ADVISOR & VOLUMETRIC LASERFLOW (Replacing Drift Wall with AI & Lightning!) -->
+  <AiLaserAdvisor />
+
+  <!-- 4. BENTO 1:1 SPEC MATCHUP & SHOPPING MALLS (from ide.html & Phase 6 Core) -->
+  <section id="matchup" class="wrap bento-section">
     <div class="section-head">
       <div>
-        <p class="label tech-mono">HARDWARE ARCHITECTURE MATCHUP</p>
-        <h2 class="section-h2">스마트폰 · 태블릿 · 워치 1:1 스펙 매치업 대시보드</h2>
+        <p class="section-kicker tech-mono">PRECISION 12-SPEC MATRIX &amp; LIVE PRICE</p>
+        <h2 class="section-title">스마트폰 · 태블릿 · 워치 1:1 스펙 매치업 대시보드</h2>
       </div>
 
       <div class="cat-Step-tabs" role="tablist" aria-label="비교할 기기 카테고리 선택">
@@ -338,7 +378,7 @@ const presetComparisons = [
             </div>
           </div>
 
-          <!-- Dual Comparison Progress Bars (Spotlight Reference Structure) -->
+          <!-- Dual Comparison Progress Bars (from ide.html) -->
           <div class="bar-group">
             <div class="bar-item">
               <div class="bar-item__head">
@@ -401,9 +441,9 @@ const presetComparisons = [
             <span class="label tech-mono">CATALOG COVERAGE</span>
             <div class="mini-card__body">
               <div class="mini-card__val tech-mono">
-                {{ totalCount || 50 }}<span class="mini-card__unit">종</span>
+                {{ totalCount || 99 }}<span class="mini-card__unit">종</span>
               </div>
-              <div class="text-sub mini-card__sub">Apple 25 · Samsung 25</div>
+              <div class="text-sub mini-card__sub">노트북·오디오 포함 9대 브랜드 99종 수록</div>
             </div>
             <div class="bar-track mini-card__bar">
               <div class="bar-primary" style="width: 100%"></div>
@@ -424,12 +464,47 @@ const presetComparisons = [
           </div>
         </div>
 
+        <!-- Real-Time Shopping Mall Quick Links Card (from ide.html) -->
+        <div class="glass-card mall-search-card">
+          <div class="mall-search-head">
+            <div class="mall-title-box">
+              <span class="section-kicker tech-mono">REAL-TIME SHOPPING LINKS</span>
+              <h3 class="mall-h3">
+                <span>{{ slotAProduct ? slotAProduct.name : '4대 쇼핑몰' }}</span>
+                <span class="text-accent">최저가 즉시 검색</span>
+              </h3>
+            </div>
+            <span class="badge-style tech-mono mall-badge">
+              <ShoppingBag :size="11" />
+              <span>실시간 연동</span>
+            </span>
+          </div>
+
+          <p class="mall-desc">
+            선택된 모델명과 공식 모델 번호({{ slotAProduct?.baseModelNumber ?? 'SM-S938N' }})로 각 쇼핑몰의 최저가 검색 결과를 바로 엽니다.
+          </p>
+
+          <div class="mall-list">
+            <a
+              v-for="link in slotAShoppingLinks"
+              :key="link.id"
+              :href="link.url"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="mall-item"
+            >
+              <span>{{ link.mallName }}</span>
+              <ExternalLink :size="13" class="text-accent" />
+            </a>
+          </div>
+        </div>
+
         <!-- Bottom Brand Index & AI Comparison Summary Card -->
         <div class="glass-card coaching-card">
           <div>
             <div class="coaching-card__head">
               <span class="text-accent coaching-card__title">✦ TechCompare 라인업 색인 & 코칭</span>
-              <span class="badge-style coaching-card__badge tech-mono">실시간 최저가 연동</span>
+              <span class="badge-style coaching-card__badge tech-mono">제조사 정식 라인업</span>
             </div>
 
             <div v-for="b in brandLinks" :key="b.slug" class="brand-ledger__row">
@@ -463,7 +538,7 @@ const presetComparisons = [
       </div>
     </div>
 
-    <!-- Preset Matchup Ledger -->
+    <!-- Preset Matchup Ledger (from ide.html) -->
     <div class="glass-card matchup-ledger" role="list">
       <RouterLink
         v-for="m in presetComparisons"
@@ -489,15 +564,15 @@ const presetComparisons = [
     </div>
   </section>
 
-  <!-- 3. Recent Verified Products Grid -->
+  <!-- 5. Recent Verified Products Grid -->
   <section class="wrap section-block">
     <div class="section-head">
       <div>
-        <p class="label tech-mono">LATEST VERIFIED RELEASES</p>
-        <h2 class="section-h2">최근 출시 제품</h2>
+        <p class="section-kicker tech-mono">LATEST VERIFIED RELEASES</p>
+        <h2 class="section-title">최근 출시 제품</h2>
       </div>
       <RouterLink :to="{ name: 'catalog', query: { sort: 'release_desc' } }" class="btn btn--secondary tech-mono">
-        전체 카탈로그 보기 ({{ totalCount || 50 }})
+        전체 카탈로그 보기 ({{ totalCount || 99 }})
       </RouterLink>
     </div>
 
@@ -510,64 +585,86 @@ const presetComparisons = [
 </template>
 
 <style scoped>
+/* 1. HERO SECTION (from ide.html) */
 .hero {
   position: relative;
+  min-height: 880px;
+  padding-top: 56px;
+  padding-bottom: 48px;
   overflow: hidden;
-  padding: var(--s-7) 0 var(--s-8);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
   border-bottom: 1px solid var(--divider);
 }
 
-.hero__container {
+.hero__content {
   position: relative;
-  z-index: 1;
-  display: flex;
-  flex-direction: column;
-  gap: var(--s-6);
-}
-
-.hero__center {
+  z-index: 2;
   text-align: center;
-  max-width: 780px;
-  margin-inline: auto;
+  max-width: 820px;
+  padding: 0 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
 }
 
-.hero__kicker {
+.hero__badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--badge-bg);
+  color: var(--badge-text);
+  border: 1px solid var(--card-border);
   font-size: 12px;
   font-weight: 700;
-  letter-spacing: 0.08em;
-  color: var(--badge-text);
-  margin-bottom: var(--s-2);
+  margin-bottom: 16px;
 }
 
-.hero__h1 {
-  font-family: var(--font-sans);
-  font-size: var(--t-h1);
-  font-weight: 800;
-  line-height: 1.12;
+.pulse-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent);
+}
+
+.hero__title {
+  font-size: clamp(34px, 3.8vw + 14px, 58px);
+  font-weight: 900;
+  line-height: 1.1;
   letter-spacing: -0.035em;
 }
 
-.hero__lead {
-  margin-top: var(--s-4);
-  font-size: var(--t-lead);
-  line-height: 1.6;
+.hero__title .accent {
+  color: var(--accent);
+  text-shadow: 0 0 32px rgba(0, 150, 255, 0.35);
+}
+
+.hero__desc {
+  margin-top: 14px;
+  font-size: 16px;
   color: var(--text-sub);
   max-width: 58ch;
+  line-height: 1.6;
 }
 
 .search {
-  margin-top: var(--s-5);
+  margin-top: 24px;
   display: flex;
   align-items: center;
   gap: var(--s-2);
   width: 100%;
   max-width: 640px;
-  height: 54px;
+  height: 52px;
   padding: 0 6px 0 var(--s-4);
   border-radius: 999px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: var(--card-shadow);
 }
 
 .search:focus-within {
@@ -596,18 +693,19 @@ const presetComparisons = [
 }
 
 .search__btn {
-  height: 42px;
+  height: 40px;
   padding: 0 20px;
   border-radius: 999px;
-  font-size: 14px;
+  font-size: 13px;
+  font-weight: 700;
 }
 
 .hero__cats {
-  margin-top: var(--s-4);
+  margin-top: 16px;
   display: flex;
   flex-wrap: wrap;
   justify-content: center;
-  gap: var(--s-3);
+  gap: 10px;
 }
 
 .cat-link {
@@ -620,28 +718,87 @@ const presetComparisons = [
   font-size: 13px;
   font-weight: 600;
   color: var(--text-main);
+  background: var(--card-inner);
+  border: 1px solid var(--card-border);
+  transition: all 0.2s;
 }
 
 .cat-link:hover {
   border-color: var(--accent);
   color: var(--accent);
+  transform: translateY(-2px);
 }
 
 .cat-link__count {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-sub);
 }
 
-/* 2. Bento Grid Section */
+/* 4. BENTO SECTION & 1:1 MATCHUP (from ide.html) */
 .bento-section {
-  padding-top: var(--s-8);
+  padding-top: 88px;
+  padding-bottom: 64px;
+}
+
+.section-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  gap: 20px;
+  flex-wrap: wrap;
+  margin-bottom: 32px;
+}
+
+.section-kicker {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+}
+
+.section-title {
+  font-size: clamp(24px, 2vw + 14px, 36px);
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  margin-top: 4px;
+}
+
+.cat-Step-tabs {
+  display: flex;
+  gap: 8px;
+  padding: 4px;
+  background: var(--card-inner);
+  border: 1px solid var(--card-border);
+  border-radius: 999px;
+}
+
+.cat-step-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border-radius: 999px;
+  border: 0;
+  background: transparent;
+  color: var(--text-sub);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.cat-step-btn.is-active {
+  background: var(--accent);
+  color: #fff;
+  font-weight: 700;
 }
 
 .bento-grid {
   display: grid;
   grid-template-columns: repeat(12, 1fr);
-  gap: var(--grid-gap);
-  margin-bottom: var(--s-6);
+  gap: 24px;
+  margin-bottom: 28px;
 }
 
 .bento-main {
@@ -649,14 +806,15 @@ const presetComparisons = [
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: var(--s-5);
+  gap: 24px;
+  padding: 28px;
 }
 
 .bento-main__head {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: var(--s-4);
+  margin-bottom: 16px;
 }
 
 .bento-badge {
@@ -669,15 +827,18 @@ const presetComparisons = [
 .device-pair {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--s-4);
-  margin-bottom: var(--s-5);
+  gap: 16px;
+  margin-bottom: 20px;
 }
 
 .device-slot {
   padding: 16px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
   gap: 10px;
+  background: var(--card-inner);
+  border: 1px solid var(--card-border);
 }
 
 .device-slot__top {
@@ -700,13 +861,13 @@ const presetComparisons = [
 }
 
 .device-slot__select {
-  height: 40px;
+  height: 38px;
   padding: 0 10px;
-  border-radius: var(--r-sm);
+  border-radius: 8px;
   border: 1px solid var(--card-border);
   background: var(--bg-main);
   color: var(--text-main);
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 600;
 }
 
@@ -718,8 +879,8 @@ const presetComparisons = [
 }
 
 .device-slot__thumb {
-  width: 64px;
-  height: 64px;
+  width: 60px;
+  height: 60px;
   border-radius: 10px;
   background: radial-gradient(circle at 50% 42%, #ffffff 0%, #f1f5f9 100%);
   border: 1px solid var(--divider);
@@ -745,7 +906,7 @@ const presetComparisons = [
 }
 
 .device-slot__name {
-  font-size: 16px;
+  font-size: 15px;
   font-weight: 800;
   white-space: nowrap;
   overflow: hidden;
@@ -758,7 +919,7 @@ const presetComparisons = [
 }
 
 .device-slot__price {
-  font-size: 17px;
+  font-size: 16px;
   font-weight: 800;
   margin-top: 2px;
 }
@@ -781,12 +942,13 @@ const presetComparisons = [
 
 .bar-item__track {
   width: 100%;
-  height: 12px;
+  height: 11px;
   border-radius: 999px;
   overflow: hidden;
   display: flex;
   gap: 4px;
   padding: 2px;
+  background: var(--track-bg);
 }
 
 .bar-item__track > div {
@@ -795,12 +957,12 @@ const presetComparisons = [
 }
 
 .bento-main__foot {
-  padding-top: var(--s-4);
+  padding-top: 16px;
   border-top: 1px solid var(--divider);
   display: flex;
   justify-content: space-between;
   align-items: center;
-  gap: var(--s-3);
+  gap: 12px;
   flex-wrap: wrap;
   font-size: 12px;
 }
@@ -809,13 +971,13 @@ const presetComparisons = [
   grid-column: span 5;
   display: flex;
   flex-direction: column;
-  gap: var(--grid-gap);
+  gap: 24px;
 }
 
 .mini-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: var(--s-4);
+  gap: 16px;
 }
 
 .mini-card {
@@ -826,24 +988,24 @@ const presetComparisons = [
 }
 
 .mini-card__body {
-  margin: 10px 0;
+  margin: 8px 0;
 }
 
 .mini-card__val {
-  font-size: 28px;
+  font-size: 26px;
   font-weight: 800;
   line-height: 1.1;
 }
 
 .mini-card__unit {
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 500;
   color: var(--text-sub);
   margin-left: 2px;
 }
 
 .mini-card__sub {
-  font-size: 12px;
+  font-size: 11px;
   margin-top: 4px;
 }
 
@@ -852,6 +1014,7 @@ const presetComparisons = [
   height: 6px;
   border-radius: 999px;
   overflow: hidden;
+  background: var(--track-bg);
 }
 
 .mini-card__bar > div {
@@ -859,12 +1022,85 @@ const presetComparisons = [
   border-radius: 999px;
 }
 
+/* Mall Search Card (from ide.html) */
+.mall-search-card {
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.mall-search-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.mall-title-box {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.mall-h3 {
+  font-size: 18px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.mall-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+.mall-desc {
+  font-size: 12px;
+  color: var(--text-sub);
+  line-height: 1.5;
+}
+
+.mall-list {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.mall-item {
+  padding: 12px 14px;
+  border-radius: 12px;
+  background: var(--card-inner);
+  border: 1px solid var(--card-border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-decoration: none;
+  color: var(--text-main);
+  font-size: 13px;
+  font-weight: 700;
+  transition: transform 0.2s, border-color 0.2s;
+}
+
+.mall-item:hover {
+  transform: translateY(-2px);
+  border-color: var(--accent);
+}
+
+/* Coaching Card */
 .coaching-card {
-  flex: 1;
+  padding: 24px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  gap: var(--s-4);
+  gap: 16px;
 }
 
 .coaching-card__head {
@@ -872,7 +1108,7 @@ const presetComparisons = [
   justify-content: space-between;
   align-items: center;
   gap: 8px;
-  margin-bottom: var(--s-3);
+  margin-bottom: 12px;
 }
 
 .coaching-card__title {
@@ -888,7 +1124,7 @@ const presetComparisons = [
 }
 
 .brand-ledger__row {
-  padding: 12px 0;
+  padding: 10px 0;
 }
 
 .brand-ledger__row + .brand-ledger__row {
@@ -899,14 +1135,15 @@ const presetComparisons = [
   display: flex;
   justify-content: space-between;
   align-items: center;
+  margin-bottom: 4px;
 }
 
 .brand-ledger__title {
+  font-size: 14px;
+  font-weight: 800;
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  font-size: 16px;
-  font-weight: 700;
 }
 
 .brand-ledger__title[data-brand='samsung'] {
@@ -914,38 +1151,35 @@ const presetComparisons = [
 }
 
 .brand-ledger__all {
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
   color: var(--accent);
+  text-decoration: none;
 }
 
 .brand-ledger__desc {
-  margin-top: 4px;
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-sub);
+  margin-bottom: 6px;
+  line-height: 1.4;
 }
 
 .brand-ledger__series {
-  list-style: none;
-  margin: 8px 0 0;
-  padding: 0;
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
+  gap: 5px;
+  list-style: none;
 }
 
 .series-tag {
-  display: inline-flex;
-  align-items: center;
-  height: 26px;
-  padding: 0 10px;
-  border: 1px solid var(--divider);
+  display: inline-block;
+  padding: 2px 8px;
   border-radius: 6px;
-  font-size: 11px;
-  font-weight: 600;
-  color: var(--c-text);
   background: var(--card-inner);
-  transition: border-color 0.2s ease;
+  border: 1px solid var(--divider);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--text-sub);
+  text-decoration: none;
 }
 
 .series-tag:hover {
@@ -954,200 +1188,111 @@ const presetComparisons = [
 }
 
 .coaching-card__cta {
-  width: 100%;
-  height: 44px;
-  border-radius: var(--r-md);
+  height: 40px;
   font-size: 12px;
   font-weight: 700;
-}
-
-.cat-Step-tabs {
-  display: inline-flex;
-  gap: var(--s-2);
-  flex-wrap: wrap;
-}
-
-.cat-step-btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  height: 38px;
-  padding: 0 var(--s-4);
-  border-radius: 999px;
-  border: 1px solid var(--card-border);
-  background: var(--card-inner);
-  color: var(--c-text);
-  font-size: 13px;
-  font-weight: 600;
+  border-radius: 12px;
   cursor: pointer;
 }
 
-.cat-step-btn.is-active {
-  border-color: var(--accent);
-  background: var(--accent);
-  color: var(--accent-text);
-}
-
-.quick-action__btn {
-  position: relative;
-  overflow: hidden;
-  border-radius: 999px;
-  height: 40px;
-  padding: 0 20px;
-  font-size: 13px;
-  font-weight: 700;
-}
-
-.section-block {
-  padding-top: var(--s-8);
-}
-
-.section-head {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-end;
-  gap: var(--s-4);
-  flex-wrap: wrap;
-  margin-bottom: var(--s-5);
-}
-
-.section-h2 {
-  font-size: var(--t-h2);
-  margin-top: 4px;
-}
-
+/* Preset Matchup Ledger */
 .matchup-ledger {
-  padding: var(--s-3) var(--s-5);
+  display: flex;
+  flex-direction: column;
+  padding: 12px;
+  border-radius: 18px;
 }
 
 .matchup-row {
   display: grid;
-  grid-template-columns: 180px 1fr 160px;
+  grid-template-columns: 180px 1fr 150px;
   align-items: center;
-  gap: var(--s-4);
-  padding: var(--s-3) var(--s-2);
-  border-bottom: 1px solid var(--divider);
-  transition: background-color 0.2s ease;
-}
-
-.matchup-row:last-child {
-  border-bottom: 0;
+  gap: 16px;
+  padding: 14px 18px;
+  border-radius: 12px;
+  text-decoration: none;
+  color: var(--text-main);
+  transition: all 0.2s;
 }
 
 .matchup-row:hover {
-  background: var(--diff-row-bg);
+  background: var(--card-inner);
+}
+
+.matchup-row + .matchup-row {
+  border-top: 1px solid var(--divider);
 }
 
 .matchup-row__cat {
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   color: var(--text-sub);
 }
 
 .matchup-row__pair {
   display: flex;
   align-items: center;
-  gap: var(--s-4);
-  flex-wrap: wrap;
+  gap: 14px;
 }
 
 .matchup-row__device {
-  display: inline-flex;
-  align-items: baseline;
-  gap: var(--s-2);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
 }
 
 .matchup-row__device strong {
-  font-size: 15px;
-  font-weight: 700;
-  color: var(--text-main);
+  font-size: 14px;
+  font-weight: 800;
 }
 
 .matchup-row__device small {
-  font-size: 12px;
+  font-size: 11px;
   color: var(--text-sub);
 }
 
 .matchup-row__vs {
-  font-size: 11px;
-  font-weight: 700;
-  padding: 2px 8px;
-  border-radius: 999px;
-  border: 1px solid var(--card-border);
-  background: var(--badge-bg);
-  color: var(--badge-text);
+  font-size: 12px;
+  font-weight: 800;
+  color: var(--accent);
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: rgba(0, 150, 255, 0.1);
 }
 
 .matchup-row__cta {
   text-align: right;
-  font-size: 13px;
+  font-size: 12px;
   font-weight: 700;
   color: var(--accent);
 }
 
+/* 5. Recent products block */
+.section-block {
+  padding: 64px 0 96px;
+}
+
 .product-grid {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: var(--grid-gap);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 20px;
+  margin-top: 24px;
 }
 
-.state-line {
-  padding: var(--s-6) 0;
-  color: var(--text-sub);
-}
-
-.bad {
-  color: var(--price-rise);
-}
-
-@media (max-width: 1023px) {
+@media (max-width: 980px) {
+  .bento-grid {
+    grid-template-columns: 1fr;
+  }
   .bento-main,
   .bento-side {
-    grid-column: 1 / -1;
-  }
-  .device-pair {
-    grid-template-columns: 1fr;
-  }
-  .matchup-row {
-    grid-template-columns: 1fr auto;
-  }
-  .matchup-row__cat {
-    grid-column: 1 / -1;
-  }
-  .product-grid {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (max-width: 639px) {
-  .swatch-grid,
-  .mini-grid,
-  .product-grid {
-    grid-template-columns: 1fr;
-  }
-  .palette-badge__desc {
-    display: none;
+    grid-column: span 12;
   }
   .matchup-row {
     grid-template-columns: 1fr;
-    gap: var(--s-2);
+    gap: 8px;
   }
   .matchup-row__cta {
     text-align: left;
-  }
-  .search {
-    height: auto;
-    border-radius: var(--r-md);
-    flex-wrap: wrap;
-    padding: var(--s-2);
-  }
-  .search__icon {
-    display: none;
-  }
-  .search__input {
-    height: 40px;
-    flex-basis: 100%;
-    padding: 0 var(--s-2);
   }
 }
 </style>

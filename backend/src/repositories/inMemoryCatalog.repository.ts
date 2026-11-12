@@ -39,6 +39,62 @@ const BRANDS: BrandRecord[] = [
     logoUrl: null,
     displayOrder: 2,
   },
+  {
+    id: 'b0000000-0000-4000-8000-000000000008',
+    slug: 'lg',
+    name: 'LG',
+    officialWebsite: 'https://www.lge.co.kr',
+    logoUrl: null,
+    displayOrder: 3,
+  },
+  {
+    id: 'b0000000-0000-4000-8000-000000000005',
+    slug: 'sony',
+    name: 'Sony',
+    officialWebsite: 'https://store.sony.co.kr',
+    logoUrl: null,
+    displayOrder: 4,
+  },
+  {
+    id: 'b0000000-0000-4000-8000-000000000006',
+    slug: 'lenovo',
+    name: 'Lenovo',
+    officialWebsite: 'https://www.lenovo.com/kr',
+    logoUrl: null,
+    displayOrder: 5,
+  },
+  {
+    id: 'b0000000-0000-4000-8000-000000000009',
+    slug: 'asus',
+    name: 'ASUS',
+    officialWebsite: 'https://www.asus.com/kr',
+    logoUrl: null,
+    displayOrder: 6,
+  },
+  {
+    id: 'b0000000-0000-4000-8000-000000000010',
+    slug: 'bose',
+    name: 'Bose',
+    officialWebsite: 'https://www.bose.co.kr',
+    logoUrl: null,
+    displayOrder: 7,
+  },
+  {
+    id: 'b0000000-0000-4000-8000-000000000011',
+    slug: 'sennheiser',
+    name: 'Sennheiser',
+    officialWebsite: 'https://www.sennheiser-korea.com',
+    logoUrl: null,
+    displayOrder: 8,
+  },
+  {
+    id: 'b0000000-0000-4000-8000-000000000012',
+    slug: 'beats',
+    name: 'Beats',
+    officialWebsite: 'https://www.beatsbydre.com/kr',
+    logoUrl: null,
+    displayOrder: 9,
+  },
 ];
 
 const CATEGORIES: CategoryRecord[] = [
@@ -57,11 +113,25 @@ const CATEGORIES: CategoryRecord[] = [
     displayOrder: 2,
   },
   {
+    id: 'c0000000-0000-4000-8000-000000000004',
+    slug: 'laptop',
+    name: '노트북',
+    nameEn: 'Laptops',
+    displayOrder: 3,
+  },
+  {
     id: 'c0000000-0000-4000-8000-000000000003',
     slug: 'smartwatch',
     name: '스마트워치',
     nameEn: 'Smartwatches',
-    displayOrder: 3,
+    displayOrder: 4,
+  },
+  {
+    id: 'c0000000-0000-4000-8000-000000000005',
+    slug: 'audio',
+    name: '오디오',
+    nameEn: 'Audio',
+    displayOrder: 5,
   },
 ];
 
@@ -105,6 +175,28 @@ const SPEC_DEFINITIONS: SpecDefinitionRecord[] = [
   { id: 'sd-sw-8', categorySlug: 'smartwatch', specKey: 'dimensions', displayName: '크기', unit: 'mm', dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: false, displayOrder: 8 },
   { id: 'sd-sw-9', categorySlug: 'smartwatch', specKey: 'connectivity', displayName: '연결 방식', unit: null, dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: true, displayOrder: 9 },
   { id: 'sd-sw-10', categorySlug: 'smartwatch', specKey: 'os', displayName: '운영체제', unit: null, dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: false, displayOrder: 10 },
+
+  // Laptop (12 specs)
+  { id: 'sd-lt-1', categorySlug: 'laptop', specKey: 'processor', displayName: '프로세서', unit: null, dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: false, displayOrder: 1 },
+  { id: 'sd-lt-2', categorySlug: 'laptop', specKey: 'memory', displayName: '메모리', unit: 'GB', dataType: 'number', comparisonRule: 'higher_better', isComparable: true, isVariantSpecific: true, displayOrder: 2 },
+  { id: 'sd-lt-3', categorySlug: 'laptop', specKey: 'storage', displayName: '저장 공간', unit: 'GB', dataType: 'number', comparisonRule: 'higher_better', isComparable: true, isVariantSpecific: true, displayOrder: 3 },
+  { id: 'sd-lt-4', categorySlug: 'laptop', specKey: 'display', displayName: '디스플레이', unit: '인치', dataType: 'number', comparisonRule: 'higher_better', isComparable: true, isVariantSpecific: false, displayOrder: 4 },
+  { id: 'sd-lt-5', categorySlug: 'laptop', specKey: 'resolution', displayName: '해상도', unit: 'px', dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: false, displayOrder: 5 },
+  { id: 'sd-lt-6', categorySlug: 'laptop', specKey: 'refresh_rate', displayName: '주사율', unit: 'Hz', dataType: 'number', comparisonRule: 'higher_better', isComparable: true, isVariantSpecific: false, displayOrder: 6 },
+  { id: 'sd-lt-7', categorySlug: 'laptop', specKey: 'battery', displayName: '배터리', unit: 'Wh', dataType: 'number', comparisonRule: 'higher_better', isComparable: true, isVariantSpecific: false, displayOrder: 7 },
+  { id: 'sd-lt-8', categorySlug: 'laptop', specKey: 'camera', displayName: '웹캠', unit: 'MP', dataType: 'number', comparisonRule: 'higher_better', isComparable: true, isVariantSpecific: false, displayOrder: 8 },
+  { id: 'sd-lt-9', categorySlug: 'laptop', specKey: 'weight', displayName: '무게', unit: 'g', dataType: 'number', comparisonRule: 'lower_better', isComparable: true, isVariantSpecific: false, displayOrder: 9 },
+  { id: 'sd-lt-10', categorySlug: 'laptop', specKey: 'dimensions', displayName: '크기', unit: 'mm', dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: false, displayOrder: 10 },
+  { id: 'sd-lt-11', categorySlug: 'laptop', specKey: 'connectivity', displayName: '연결 방식', unit: null, dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: true, displayOrder: 11 },
+  { id: 'sd-lt-12', categorySlug: 'laptop', specKey: 'os', displayName: '운영체제', unit: null, dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: false, displayOrder: 12 },
+
+  // Audio (6 specs)
+  { id: 'sd-au-1', categorySlug: 'audio', specKey: 'processor', displayName: '오디오 칩셋', unit: null, dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: false, displayOrder: 1 },
+  { id: 'sd-au-2', categorySlug: 'audio', specKey: 'battery', displayName: '재생 시간', unit: '시간', dataType: 'number', comparisonRule: 'higher_better', isComparable: true, isVariantSpecific: false, displayOrder: 2 },
+  { id: 'sd-au-3', categorySlug: 'audio', specKey: 'weight', displayName: '무게', unit: 'g', dataType: 'number', comparisonRule: 'lower_better', isComparable: true, isVariantSpecific: false, displayOrder: 3 },
+  { id: 'sd-au-4', categorySlug: 'audio', specKey: 'dimensions', displayName: '크기', unit: 'mm', dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: false, displayOrder: 4 },
+  { id: 'sd-au-5', categorySlug: 'audio', specKey: 'connectivity', displayName: '블루투스/코덱', unit: null, dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: true, displayOrder: 5 },
+  { id: 'sd-au-6', categorySlug: 'audio', specKey: 'os', displayName: '지원 환경', unit: null, dataType: 'text', comparisonRule: 'neutral', isComparable: true, isVariantSpecific: false, displayOrder: 6 },
 ];
 
 interface ProductsDatasetFile {
@@ -276,6 +368,8 @@ export class InMemoryCatalogRepository implements ICatalogRepository {
       smartphoneCount: this.products.filter((p) => p.category.slug === 'smartphone').length,
       tabletCount: this.products.filter((p) => p.category.slug === 'tablet').length,
       smartwatchCount: this.products.filter((p) => p.category.slug === 'smartwatch').length,
+      laptopCount: this.products.filter((p) => p.category.slug === 'laptop').length,
+      audioCount: this.products.filter((p) => p.category.slug === 'audio').length,
       allReleaseDatesValid: items.every((i) => i.releaseDateValid),
       uniqueSlugsCount: slugs.size,
       uniqueModelNumbersCount: models.size,

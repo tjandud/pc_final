@@ -1,7 +1,26 @@
 import { z } from 'zod';
 
-export const brandSlugSchema = z.enum(['apple', 'samsung']);
-export const categorySlugSchema = z.enum(['smartphone', 'tablet', 'smartwatch']);
+export const brandSlugSchema = z.enum([
+  'apple',
+  'samsung',
+  'sony',
+  'lenovo',
+  'lg',
+  'asus',
+  'bose',
+  'sennheiser',
+  'beats',
+  'google',
+  'xiaomi',
+  'garmin',
+]);
+export const categorySlugSchema = z.enum([
+  'smartphone',
+  'tablet',
+  'smartwatch',
+  'laptop',
+  'audio',
+]);
 export const specKeySchema = z.enum([
   'processor',
   'memory',

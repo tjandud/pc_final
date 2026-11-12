@@ -1,5 +1,17 @@
-export type BrandSlug = 'apple' | 'samsung';
-export type CategorySlug = 'smartphone' | 'tablet' | 'smartwatch';
+export type BrandSlug =
+  | 'apple'
+  | 'samsung'
+  | 'sony'
+  | 'lenovo'
+  | 'lg'
+  | 'asus'
+  | 'bose'
+  | 'sennheiser'
+  | 'beats'
+  | 'google'
+  | 'xiaomi'
+  | 'garmin';
+export type CategorySlug = 'smartphone' | 'tablet' | 'smartwatch' | 'laptop' | 'audio';
 export type VerificationStatus = 'pending' | 'verified' | 'rejected' | 'needs_review';
 export type SpecKey =
   | 'processor'
@@ -228,6 +240,8 @@ export interface DataAuditSummary {
   smartphoneCount: number;
   tabletCount: number;
   smartwatchCount: number;
+  laptopCount: number;
+  audioCount: number;
   allReleaseDatesValid: boolean;
   uniqueSlugsCount: number;
   uniqueModelNumbersCount: number;

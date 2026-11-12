@@ -8,11 +8,21 @@ let adminClient: SupabaseClient | null = null;
  * Checks whether the dedicated TechCompare Supabase project credentials are configured.
  */
 export function isSupabaseConfigured(): boolean {
-  return Boolean(env.SUPABASE_URL && env.SUPABASE_ANON_KEY);
+  return Boolean(
+    env.SUPABASE_URL &&
+    env.SUPABASE_ANON_KEY &&
+    !env.SUPABASE_URL.includes('your-project-ref') &&
+    !env.SUPABASE_ANON_KEY.includes('your_supabase_anon_key'),
+  );
 }
 
 export function isSupabaseAdminConfigured(): boolean {
-  return Boolean(env.SUPABASE_URL && env.SUPABASE_SERVICE_ROLE_KEY);
+  return Boolean(
+    env.SUPABASE_URL &&
+    env.SUPABASE_SERVICE_ROLE_KEY &&
+    !env.SUPABASE_URL.includes('your-project-ref') &&
+    !env.SUPABASE_SERVICE_ROLE_KEY.includes('your_supabase_service_role_key'),
+  );
 }
 
 /**

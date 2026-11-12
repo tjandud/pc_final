@@ -11,11 +11,13 @@ const themeStore = useThemeStore()
 const { current: currentTheme, isWhite } = storeToRefs(themeStore)
 
 const links = [
-  { to: '/products', label: '제품', path: '/products', category: null },
+  { to: '/products', label: '전체', path: '/products', category: null },
   { to: '/products?category=smartphone', label: '스마트폰', path: '/products', category: 'smartphone' },
   { to: '/products?category=tablet', label: '태블릿', path: '/products', category: 'tablet' },
+  { to: '/products?category=laptop', label: '노트북', path: '/products', category: 'laptop' },
   { to: '/products?category=smartwatch', label: '워치', path: '/products', category: 'smartwatch' },
-  { to: '/compare', label: '비교', path: '/compare', category: null },
+  { to: '/products?category=audio', label: '오디오', path: '/products', category: 'audio' },
+  { to: '/compare', label: '스펙 비교', path: '/compare', category: null },
 ] as const
 
 function isActive(l: (typeof links)[number]) {

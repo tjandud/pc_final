@@ -153,19 +153,28 @@ const activeFilterCount = computed(() => {
         <div class="field-group">
           <label for="filter-brand" class="label">브랜드</label>
           <select id="filter-brand" v-model="brand" class="select" @change="syncQueryToUrl">
-            <option value="">전체 브랜드</option>
+            <option value="">전체 브랜드 (9개사)</option>
             <option value="apple">Apple</option>
             <option value="samsung">Samsung</option>
+            <option value="lg">LG</option>
+            <option value="sony">Sony</option>
+            <option value="lenovo">Lenovo</option>
+            <option value="asus">ASUS</option>
+            <option value="bose">Bose</option>
+            <option value="sennheiser">Sennheiser</option>
+            <option value="beats">Beats</option>
           </select>
         </div>
 
         <div class="field-group">
           <label for="filter-category" class="label">카테고리</label>
           <select id="filter-category" v-model="category" class="select" @change="syncQueryToUrl">
-            <option value="">전체 카테고리</option>
-            <option value="smartphone">스마트폰</option>
-            <option value="tablet">태블릿</option>
-            <option value="smartwatch">스마트워치</option>
+            <option value="">전체 카테고리 (5종)</option>
+            <option value="smartphone">스마트폰 (30)</option>
+            <option value="tablet">태블릿 (19)</option>
+            <option value="laptop">노트북 (20)</option>
+            <option value="smartwatch">스마트워치 (10)</option>
+            <option value="audio">오디오/이어폰·헤드폰 (20)</option>
           </select>
         </div>
 
