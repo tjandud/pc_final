@@ -1,0 +1,2111 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechCompare — Interactive Concept Showcase (ide.html)</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-main: #05070A;
+      --bg-spotlight: radial-gradient(circle at 50% 45%, rgba(0, 150, 255, 0.24) 0%, rgba(0, 75, 170, 0.08) 45%, #05070A 78%);
+      --card-bg: rgba(11, 15, 23, 0.88);
+      --card-inner: rgba(255, 255, 255, 0.04);
+      --card-border: rgba(0, 150, 255, 0.25);
+      --card-shadow: 0 20px 50px -15px rgba(0, 150, 255, 0.18);
+      --text-main: #FFFFFF;
+      --text-sub: #94A3B8;
+      --accent: #0096FF;
+      --accent-hover: #26A7FF;
+      --accent-glow: rgba(0, 150, 255, 0.65);
+      --badge-bg: rgba(0, 150, 255, 0.15);
+      --badge-text: #60BFFF;
+      --divider: rgba(255, 255, 255, 0.09);
+      --header-bg: rgba(5, 7, 10, 0.82);
+    }
+
+    [data-theme="white"] {
+      --bg-main: #EDF2F9;
+      --bg-spotlight: radial-gradient(circle at 50% 40%, rgba(10, 132, 255, 0.16) 0%, rgba(56, 189, 248, 0.10) 42%, #EDF2F9 76%);
+      --card-bg: #FFFFFF;
+      --card-inner: #F1F5F9;
+      --card-border: rgba(10, 132, 255, 0.28);
+      --card-shadow: 0 16px 36px -10px rgba(15, 23, 42, 0.09);
+      --text-main: #0F172A;
+      --text-sub: #334155;
+      --accent: #0A84FF;
+      --accent-hover: #0066CC;
+      --accent-glow: rgba(10, 132, 255, 0.45);
+      --badge-bg: rgba(10, 132, 255, 0.12);
+      --badge-text: #0055D4;
+      --divider: rgba(15, 23, 42, 0.10);
+      --header-bg: rgba(255, 255, 255, 0.90);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body {
+      background-color: var(--bg-main);
+      color: var(--text-main);
+      font-family: 'Pretendard Variable', 'Pretendard', 'Inter', -apple-system, sans-serif;
+      line-height: 1.6;
+      word-break: keep-all;
+      overflow-x: hidden;
+      transition: background-color 0.3s ease, color 0.3s ease;
+    }
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      z-index: -1;
+      pointer-events: none;
+      background-image: var(--bg-spotlight);
+    }
+
+    .tech-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.01em;
+    }
+
+    .wrap {
+      width: min(100% - 64px, 1260px);
+      margin-inline: auto;
+    }
+
+    /* ── Header ── */
+    .nav {
+      position: fixed;
+      inset: 0 0 auto 0;
+      height: 70px;
+      background: var(--header-bg);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--divider);
+      z-index: 50;
+    }
+    .nav__inner {
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 24px;
+    }
+    .nav__brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 19px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: var(--text-main);
+      text-decoration: none;
+    }
+    .nav__mark {
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 9px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 800;
+      box-shadow: 0 0 18px var(--accent-glow);
+    }
+    .nav__links {
+      display: flex;
+      gap: 24px;
+    }
+    .nav__links a {
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+    .nav__links a:hover { color: var(--accent); }
+    .nav__right {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    /* Uiverse Switch */
+    .uiverse-switch {
+      position: relative;
+      display: inline-block;
+      width: 56px;
+      height: 28px;
+      cursor: pointer;
+    }
+    .uiverse-switch input { opacity: 0; width: 0; height: 0; }
+    .uiverse-slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #05070a, #003e7e);
+      border: 1px solid var(--card-border);
+      transition: 0.35s;
+    }
+    .uiverse-knob {
+      position: absolute;
+      top: 3px;
+      left: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      box-shadow: 0 0 10px var(--accent-glow);
+      transition: transform 0.38s cubic-bezier(0.34, 1.56, 0.64, 1), background 0.3s;
+    }
+    .uiverse-switch input:checked + .uiverse-slider {
+      background: linear-gradient(135deg, #0A84FF, #7dd3fc);
+    }
+    .uiverse-switch input:checked + .uiverse-slider .uiverse-knob {
+      transform: translateX(26px);
+      background: #fde047;
+    }
+
+    .btn-primary {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      height: 40px;
+      padding: 0 20px;
+      border-radius: 999px;
+      background: var(--accent);
+      color: #fff;
+      font-size: 13px;
+      font-weight: 700;
+      border: 0;
+      cursor: pointer;
+      text-decoration: none;
+      box-shadow: 0 8px 24px -6px var(--accent-glow);
+      transition: transform 0.2s, background 0.2s;
+    }
+    .btn-primary:hover {
+      background: var(--accent-hover);
+      transform: translateY(-2px);
+    }
+
+    /* ── 1. HERO: ReactBits WebGL2 LightRays + 3D Smartphone Trophy Stage ── */
+    .hero {
+      position: relative;
+      min-height: 920px;
+      padding-top: 112px;
+      padding-bottom: 48px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      border-bottom: 1px solid var(--divider);
+    }
+    .light-rays {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .light-rays__canvas {
+      position: absolute;
+      inset: 0;
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .hero__content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      max-width: 820px;
+      padding: 0 20px;
+    }
+    .hero__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      border-radius: 999px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      border: 1px solid var(--card-border);
+      font-size: 12px;
+      font-weight: 700;
+      margin-bottom: 16px;
+    }
+    .pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 10px var(--accent);
+    }
+    .hero__title {
+      font-size: clamp(34px, 3.8vw + 14px, 60px);
+      font-weight: 900;
+      line-height: 1.08;
+      letter-spacing: -0.035em;
+    }
+    .hero__title .accent {
+      color: var(--accent);
+      text-shadow: 0 0 32px rgba(0, 150, 255, 0.35);
+    }
+    .hero__desc {
+      margin-top: 14px;
+      font-size: 16px;
+      color: var(--text-sub);
+      max-width: 56ch;
+      margin-inline: auto;
+    }
+
+    /* Pure 3D Smartphone Trophy Stage (No Text Labels) */
+    .trophy-stage {
+      position: relative;
+      z-index: 2;
+      margin-top: 8px;
+      width: 100%;
+      max-width: 1120px;
+      height: 540px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+    }
+    .trophy-stage:active {
+      cursor: grabbing;
+    }
+    #phone3dCanvas {
+      width: 100%;
+      height: 100%;
+      display: block;
+    }
+    .trophy-podium-glow {
+      position: absolute;
+      bottom: 18px;
+      width: 720px;
+      height: 115px;
+      border-radius: 50%;
+      background: radial-gradient(ellipse at center, rgba(0, 150, 255, 0.52) 0%, rgba(0, 150, 255, 0.14) 50%, transparent 76%);
+      transform: rotateX(76deg);
+      filter: blur(12px);
+      pointer-events: none;
+    }
+    [data-theme="white"] .trophy-podium-glow {
+      background: radial-gradient(ellipse at center, rgba(10, 132, 255, 0.28) 0%, rgba(56, 189, 248, 0.12) 52%, transparent 78%);
+    }
+
+    /* Header Electric Logo Mark */
+    .nav__mark-wrap {
+      position: relative;
+      width: 44px;
+      height: 44px;
+      display: grid;
+      place-items: center;
+    }
+    #headerElectricCanvas {
+      position: absolute;
+      inset: -6px;
+      width: 56px;
+      height: 56px;
+      pointer-events: none;
+    }
+
+    /* ── 2. FLEX CAROUSEL (Infinite Image Row through Invisible Liquid Glass Edges) ── */
+    .flex-carousel-section {
+      padding: 84px 0;
+      border-bottom: 1px solid var(--divider);
+    }
+    .flex-carousel-shell {
+      position: relative;
+      height: 310px;
+      border-radius: 28px;
+      overflow: hidden;
+      border: 1px solid var(--card-border);
+      background: var(--card-bg);
+      box-shadow: var(--card-shadow);
+      display: flex;
+      align-items: center;
+    }
+    /* Invisible Liquid Glass Refractive Edge Lenses */
+    .liquid-edge {
+      position: absolute;
+      top: 0;
+      bottom: 0;
+      width: 145px;
+      z-index: 6;
+      pointer-events: none;
+      backdrop-filter: blur(18px) saturate(190%) contrast(112%);
+      -webkit-backdrop-filter: blur(18px) saturate(190%) contrast(112%);
+    }
+    .liquid-edge--left {
+      left: 0;
+      mask-image: linear-gradient(90deg, #000 0%, rgba(0,0,0,0.85) 45%, transparent 100%);
+      -webkit-mask-image: linear-gradient(90deg, #000 0%, rgba(0,0,0,0.85) 45%, transparent 100%);
+      border-right: 1px solid rgba(255, 255, 255, 0.14);
+      background: linear-gradient(90deg, rgba(0, 150, 255, 0.14) 0%, rgba(255, 255, 255, 0.03) 65%, transparent 100%);
+      box-shadow: inset -14px 0 28px -12px rgba(0, 150, 255, 0.35);
+    }
+    .liquid-edge--right {
+      right: 0;
+      mask-image: linear-gradient(270deg, #000 0%, rgba(0,0,0,0.85) 45%, transparent 100%);
+      -webkit-mask-image: linear-gradient(270deg, #000 0%, rgba(0,0,0,0.85) 45%, transparent 100%);
+      border-left: 1px solid rgba(255, 255, 255, 0.14);
+      background: linear-gradient(270deg, rgba(0, 150, 255, 0.14) 0%, rgba(255, 255, 255, 0.03) 65%, transparent 100%);
+      box-shadow: inset 14px 0 28px -12px rgba(0, 150, 255, 0.35);
+    }
+    [data-theme="white"] .liquid-edge--left {
+      border-right: 1px solid rgba(10, 132, 255, 0.22);
+      background: linear-gradient(90deg, rgba(255, 255, 255, 0.85) 0%, rgba(224, 242, 254, 0.45) 65%, transparent 100%);
+      box-shadow: inset -14px 0 28px -12px rgba(10, 132, 255, 0.22);
+    }
+    [data-theme="white"] .liquid-edge--right {
+      border-left: 1px solid rgba(10, 132, 255, 0.22);
+      background: linear-gradient(270deg, rgba(255, 255, 255, 0.85) 0%, rgba(224, 242, 254, 0.45) 65%, transparent 100%);
+      box-shadow: inset 14px 0 28px -12px rgba(10, 132, 255, 0.22);
+    }
+
+    .flex-carousel-track {
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      width: max-content;
+      padding: 0 24px;
+      animation: flex-flow 32s linear infinite;
+    }
+    .flex-carousel-shell:hover .flex-carousel-track {
+      animation-play-state: paused;
+    }
+    @keyframes flex-flow {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-50%, 0, 0); }
+    }
+
+    .flex-card {
+      width: 195px;
+      height: 256px;
+      border-radius: 22px;
+      background: var(--card-inner);
+      border: 1px solid var(--card-border);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      cursor: pointer;
+      overflow: hidden;
+      transition:
+        width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+        border-color 0.3s ease,
+        box-shadow 0.3s ease,
+        transform 0.3s ease;
+    }
+    .flex-card:hover {
+      width: 310px;
+      border-color: var(--accent);
+      box-shadow: 0 18px 40px -12px var(--accent-glow);
+      transform: translateY(-4px);
+    }
+    .flex-card__stage {
+      height: 145px;
+      border-radius: 16px;
+      background: radial-gradient(circle at 50% 42%, #ffffff 0%, #e2e8f0 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+    .flex-card__stage img {
+      max-height: 124px;
+      max-width: 100%;
+      object-fit: contain;
+      mix-blend-mode: multiply;
+      transition: transform 0.4s cubic-bezier(0.22, 1, 0.36, 1);
+    }
+    .flex-card:hover .flex-card__stage img {
+      transform: scale(1.1);
+    }
+    .flex-card__meta {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 10px;
+    }
+    .flex-card__title {
+      font-size: 14px;
+      font-weight: 800;
+      white-space: nowrap;
+    }
+    .flex-card__spec {
+      font-size: 11px;
+      color: var(--text-sub);
+      white-space: nowrap;
+    }
+    .flex-card__price {
+      font-size: 12px;
+      font-weight: 800;
+      color: var(--accent);
+      white-space: nowrap;
+    }
+
+    /* ── 3. ELECTRIC LOGO SECTION ── */
+    .electric-section {
+      padding: 88px 0;
+      border-bottom: 1px solid var(--divider);
+      position: relative;
+    }
+    .section-head {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 20px;
+      flex-wrap: wrap;
+      margin-bottom: 36px;
+    }
+    .section-kicker {
+      font-size: 12px;
+      font-weight: 700;
+      color: var(--accent);
+      letter-spacing: 0.08em;
+    }
+    .section-title {
+      font-size: clamp(24px, 2vw + 14px, 36px);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-top: 4px;
+    }
+    .section-desc {
+      color: var(--text-sub);
+      font-size: 15px;
+      max-width: 54ch;
+    }
+
+    .electric-grid {
+      display: grid;
+      grid-template-columns: 380px 1fr;
+      gap: 28px;
+      align-items: stretch;
+    }
+    .electric-stage {
+      position: relative;
+      border-radius: 24px;
+      background: #04070d;
+      border: 1px solid rgba(0, 150, 255, 0.38);
+      box-shadow: 0 20px 50px -15px rgba(0, 150, 255, 0.25);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 310px;
+      overflow: hidden;
+    }
+    #electricLogoCanvas {
+      width: 320px;
+      height: 220px;
+      display: block;
+    }
+    .electric-stage__caption {
+      font-size: 11px;
+      color: #60BFFF;
+      letter-spacing: 0.08em;
+      margin-top: 6px;
+    }
+
+    .brand-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .glass-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--card-shadow);
+      border-radius: 22px;
+      padding: 28px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 16px;
+    }
+    .brand-card__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .brand-card__title {
+      font-size: 22px;
+      font-weight: 800;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .brand-card__count {
+      padding: 4px 10px;
+      border-radius: 999px;
+      background: var(--badge-bg);
+      color: var(--badge-text);
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .brand-card__list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      list-style: none;
+    }
+    .brand-card__tag {
+      padding: 5px 12px;
+      border-radius: 8px;
+      background: var(--card-inner);
+      border: 1px solid var(--divider);
+      font-size: 12px;
+      font-weight: 600;
+    }
+
+    /* ── 4. DRIFT WALL SECTION (Endless 3D Perspective Wall) ── */
+    .drift-section {
+      padding: 92px 0;
+      border-bottom: 1px solid var(--divider);
+      overflow: hidden;
+    }
+    .drift-viewport {
+      position: relative;
+      width: 100%;
+      height: 520px;
+      perspective: 1100px;
+      overflow: hidden;
+      border-radius: 26px;
+      border: 1px solid var(--card-border);
+      background: radial-gradient(circle at 50% 50%, rgba(0, 150, 255, 0.14) 0%, rgba(5, 7, 10, 0.94) 85%);
+      box-shadow: var(--card-shadow);
+      margin: 28px 0;
+    }
+    [data-theme="white"] .drift-viewport {
+      background: radial-gradient(circle at 50% 50%, rgba(10, 132, 255, 0.14) 0%, #E2ECF8 88%);
+    }
+    .drift-viewport::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(90deg, var(--bg-main) 0%, transparent 14%, transparent 86%, var(--bg-main) 100%);
+      z-index: 4;
+    }
+    .drift-plane {
+      position: absolute;
+      inset: -60px -120px;
+      transform: rotateX(22deg) rotateZ(-9deg) rotateY(8deg) scale(1.04);
+      transform-style: preserve-3d;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 20px;
+    }
+    .drift-row {
+      display: flex;
+      gap: 20px;
+      width: max-content;
+      transform-style: preserve-3d;
+    }
+    .drift-row--left {
+      animation: drift-left 36s linear infinite;
+    }
+    .drift-row--right {
+      animation: drift-right 40s linear infinite;
+    }
+    .drift-viewport:hover .drift-row {
+      animation-play-state: paused;
+    }
+    @keyframes drift-left {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-50%, 0, 0); }
+    }
+    @keyframes drift-right {
+      0% { transform: translate3d(-50%, 0, 0); }
+      100% { transform: translate3d(0, 0, 0); }
+    }
+
+    .drift-tile {
+      width: 230px;
+      height: 196px;
+      border-radius: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      box-shadow: var(--card-shadow);
+      padding: 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      color: var(--text-main);
+      cursor: pointer;
+      transform-style: preserve-3d;
+      transition: transform 0.32s cubic-bezier(0.22, 1, 0.36, 1), border-color 0.25s, box-shadow 0.25s;
+    }
+    .drift-tile:hover {
+      transform: translateZ(46px) translateY(-10px) scale(1.05);
+      border-color: var(--accent);
+      box-shadow: 0 24px 48px rgba(0, 0, 0, 0.35), 0 0 28px var(--accent-glow);
+      z-index: 10;
+    }
+    .drift-tile__img {
+      height: 108px;
+      border-radius: 12px;
+      background: radial-gradient(circle at 50% 42%, #ffffff 0%, #f1f5f9 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px;
+    }
+    .drift-tile__img img {
+      max-height: 92px;
+      max-width: 100%;
+      object-fit: contain;
+      mix-blend-mode: multiply;
+    }
+    .drift-tile__info {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      gap: 8px;
+    }
+    .drift-tile__name {
+      font-size: 13px;
+      font-weight: 800;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .drift-tile__sub {
+      font-size: 11px;
+      color: var(--text-sub);
+    }
+    .drift-tile__badge {
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--accent);
+    }
+
+    .drift-caption-bar {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      margin-top: 24px;
+    }
+    .drift-stat {
+      padding: 20px 24px;
+      border-radius: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .drift-stat__num {
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--accent);
+    }
+
+    /* ── 5. BENTO 1:1 SPEC MATCHUP & SHOPPING MALLS ── */
+    .bento-section {
+      padding: 88px 0 110px;
+    }
+    .bento-grid {
+      display: grid;
+      grid-template-columns: 7fr 5fr;
+      gap: 24px;
+    }
+    .bar-row {
+      margin-top: 16px;
+    }
+    .bar-row__head {
+      display: flex;
+      justify-content: space-between;
+      font-size: 13px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+    .bar-track {
+      height: 11px;
+      border-radius: 999px;
+      background: rgba(0, 0, 0, 0.35);
+      display: flex;
+      gap: 4px;
+      padding: 2px;
+      overflow: hidden;
+    }
+    [data-theme="white"] .bar-track { background: #DCE5F2; }
+    .bar-fill-a { background: var(--accent); border-radius: 999px; }
+    .bar-fill-b { background: rgba(148, 163, 184, 0.45); border-radius: 999px; }
+
+    .mall-list {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 12px;
+    }
+    .mall-item {
+      padding: 14px 16px;
+      border-radius: 14px;
+      background: var(--card-inner);
+      border: 1px solid var(--card-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      text-decoration: none;
+      color: var(--text-main);
+      font-size: 13px;
+      font-weight: 700;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+    .mall-item:hover {
+      transform: translateY(-2px);
+      border-color: var(--accent);
+    }
+
+    @media (max-width: 980px) {
+      .trophy-trio { transform: scale(0.78); }
+      .electric-grid, .bento-grid, .brand-cards, .drift-caption-bar {
+        grid-template-columns: 1fr;
+      }
+      .nav__links { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="nav">
+    <div class="wrap nav__inner">
+      <a href="#top" class="nav__brand">
+        <span class="nav__mark-wrap">
+          <canvas id="headerElectricCanvas" width="56" height="56" aria-hidden="true"></canvas>
+          <span class="nav__mark tech-mono">TC</span>
+        </span>
+        <span>TechCompare</span>
+      </a>
+      <nav class="nav__links">
+        <a href="#top">Light Rays &amp; 3D 트로피</a>
+        <a href="#flex-carousel">플렉스 캐러셀</a>
+        <a href="#drift">드리프트 월 (50종)</a>
+        <a href="#matchup">1:1 매치업</a>
+      </nav>
+      <div class="nav__right">
+        <span id="themeText" class="tech-mono" style="font-size:11px;font-weight:700;color:var(--badge-text);">DARK</span>
+        <label class="uiverse-switch" title="Spotlight 다크 / 라이트 전환">
+          <input type="checkbox" id="themeToggle" />
+          <span class="uiverse-slider"><span class="uiverse-knob"></span></span>
+        </label>
+        <a href="#matchup" class="btn-primary">1:1 비교 체험</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- 1. HERO: Official ReactBits WebGL2 LightRays + Pure 3D Smartphone Trophy Trio -->
+  <section id="top" class="hero">
+    <div id="lightRaysContainer" class="light-rays">
+      <canvas id="lightRaysCanvas" class="light-rays__canvas" aria-hidden="true"></canvas>
+    </div>
+
+    <div class="hero__content">
+      <div class="hero__badge tech-mono">
+        <span class="pulse-dot"></span>
+        <span>REACTBITS WEBGL2 LIGHT RAYS · 3D SMARTPHONE TROPHY</span>
+      </div>
+      <h1 class="hero__title">
+        빛으로 조각된 두 거인의 대결,<br />
+        <span class="accent">스펙과 최저가를 한눈에 비교하세요</span>
+      </h1>
+      <p class="hero__desc">
+        마우스 커서가 볼류메트릭 광선을 조종하며 실시간 그림자를 드리우고, 광선 중앙의 3D 스마트폰 트로피를 드래그해 360°로 회전해 볼 수 있습니다.
+      </p>
+    </div>
+
+    <!-- Pure 3D Smartphone Trophy Trio (No Text Labels) -->
+    <div class="trophy-stage" id="trophyStage" title="드래그하여 3D 스마트폰 360° 회전">
+      <div class="trophy-podium-glow"></div>
+      <canvas id="phone3dCanvas"></canvas>
+    </div>
+  </section>
+
+  <!-- 2. FLEX CAROUSEL SECTION (Infinite Image Row through Invisible Liquid Glass Edges) -->
+  <section id="flex-carousel" class="flex-carousel-section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="section-kicker tech-mono">FLEX CAROUSEL · LIQUID GLASS EDGES</p>
+          <h2 class="section-title">리퀴드 글래스 엣지를 통과하는 플렉스 캐러셀</h2>
+        </div>
+        <p class="section-desc">
+          양쪽 끝의 투명한 액체 유리(Liquid Glass) 굴절 영역을 통과하며 무한히 흐르는 이미지 캐러셀입니다. 기기 카드에 마우스를 올리면 부드럽게 확장(Flex)됩니다.
+        </p>
+      </div>
+
+      <div class="flex-carousel-shell">
+        <div class="liquid-edge liquid-edge--left" aria-hidden="true"></div>
+        <div class="flex-carousel-track" id="flexCarouselTrack"></div>
+        <div class="liquid-edge liquid-edge--right" aria-hidden="true"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 3. DRIFT WALL SECTION (Endless 3D Perspective Wall of IT Devices) -->
+  <section id="drift" class="drift-section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="section-kicker tech-mono">ENDLESS PERSPECTIVE DRIFT WALL</p>
+          <h2 class="section-title">한눈에 흐르는 50종 IT 기기 드리프트 월</h2>
+        </div>
+        <p class="section-desc">
+          스마트폰 26종 · 태블릿 14종 · 스마트워치 10종의 실제 고화질 스튜디오 이미지를 원근감 있는 타일 월로 구성했습니다. 원하는 기기 타일에 마우스를 올리면 입체적으로 떠오릅니다.
+        </p>
+      </div>
+
+      <div class="drift-viewport">
+        <div class="drift-plane">
+          <div class="drift-row drift-row--left" id="driftRow1"></div>
+          <div class="drift-row drift-row--right" id="driftRow2"></div>
+        </div>
+      </div>
+
+      <div class="drift-caption-bar">
+        <div class="drift-stat">
+          <div>
+            <div style="font-size:15px;font-weight:800;">스마트폰 공식 라인업</div>
+            <div style="font-size:12px;color:var(--text-sub);">iPhone 17~15 · Galaxy S25~S23 · Z Fold7/Flip7</div>
+          </div>
+          <span class="drift-stat__num tech-mono">26종</span>
+        </div>
+        <div class="drift-stat">
+          <div>
+            <div style="font-size:15px;font-weight:800;">태블릿 공식 라인업</div>
+            <div style="font-size:12px;color:var(--text-sub);">iPad Pro M4 · Air M3 · Galaxy Tab S10/S9</div>
+          </div>
+          <span class="drift-stat__num tech-mono">14종</span>
+        </div>
+        <div class="drift-stat">
+          <div>
+            <div style="font-size:15px;font-weight:800;">스마트워치 공식 라인업</div>
+            <div style="font-size:12px;color:var(--text-sub);">Apple Watch S11/Ultra 2 · Galaxy Watch8/Ultra</div>
+          </div>
+          <span class="drift-stat__num tech-mono">10종</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5. BENTO 1:1 SPEC MATCHUP & SHOPPING MALL QUICK LINKS -->
+  <section id="matchup" class="bento-section">
+    <div class="wrap">
+      <div class="section-head">
+        <div>
+          <p class="section-kicker tech-mono">PRECISION 12-SPEC MATRIX &amp; LIVE PRICE</p>
+          <h2 class="section-title">플래그십 1:1 스펙 대조 및 최저가 쇼핑몰 연동</h2>
+        </div>
+        <p class="section-desc">
+          프로세서, 주사율, 배터리, 무게, 출고가 비교부터 다나와·네이버쇼핑·쿠팡 자동 검색까지 한 화면에서 제공합니다.
+        </p>
+      </div>
+
+      <div class="bento-grid">
+        <div class="glass-card">
+          <div style="display:flex;justify-content:space-between;align-items:center;">
+            <span class="tech-mono" style="font-size:12px;font-weight:700;color:var(--accent);">iPhone 17 Pro Max (A3526) vs Galaxy S25 Ultra (SM-S938N)</span>
+            <span class="brand-card__count tech-mono">12 / 12 SPECS VERIFIED</span>
+          </div>
+
+          <div class="bar-row">
+            <div class="bar-row__head">
+              <span>공식 출고가 비교</span>
+              <span class="tech-mono" style="color:var(--accent);">₩1,990,000 vs ₩1,698,400</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill-a" style="width:54%"></div>
+              <div class="bar-fill-b" style="width:46%"></div>
+            </div>
+          </div>
+
+          <div class="bar-row">
+            <div class="bar-row__head">
+              <span>디스플레이 주사율 (가변 ProMotion / Dynamic AMOLED 2X)</span>
+              <span class="tech-mono" style="color:var(--accent);">120Hz vs 120Hz</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill-a" style="width:50%"></div>
+              <div class="bar-fill-b" style="width:50%"></div>
+            </div>
+          </div>
+
+          <div class="bar-row">
+            <div class="bar-row__head">
+              <span>메인 카메라 화소 &amp; 휴대성(무게) 밸런스</span>
+              <span class="tech-mono" style="color:var(--accent);">48MP (227g) vs 200MP (218g)</span>
+            </div>
+            <div class="bar-track">
+              <div class="bar-fill-a" style="width:48%"></div>
+              <div class="bar-fill-b" style="width:52%"></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="glass-card">
+          <div>
+            <span class="section-kicker tech-mono">REAL-TIME SHOPPING LINKS</span>
+            <h3 style="font-size:20px;font-weight:800;margin-top:4px;">4대 쇼핑몰 최저가 즉시 검색</h3>
+            <p style="font-size:13px;color:var(--text-sub);margin-top:6px;">
+              모델명과 공식 모델 번호(SM-S938N, A3526)로 각 쇼핑몰 최저가 페이지를 바로 엽니다.
+            </p>
+          </div>
+          <div class="mall-list">
+            <a class="mall-item" href="https://search.danawa.com/dsearch.php?k1=iPhone+17+Pro+Max" target="_blank" rel="noopener">
+              <span>다나와 최저가</span>
+              <span class="tech-mono" style="color:var(--accent);">↗</span>
+            </a>
+            <a class="mall-item" href="https://search.shopping.naver.com/search/all?query=iPhone+17+Pro+Max" target="_blank" rel="noopener">
+              <span>네이버쇼핑</span>
+              <span class="tech-mono" style="color:var(--accent);">↗</span>
+            </a>
+            <a class="mall-item" href="https://www.coupang.com/np/search?q=iPhone+17+Pro+Max" target="_blank" rel="noopener">
+              <span>쿠팡 로켓배송</span>
+              <span class="tech-mono" style="color:var(--accent);">↗</span>
+            </a>
+            <a class="mall-item" href="https://www.apple.com/kr/iphone/" target="_blank" rel="noopener">
+              <span>공식 스토어</span>
+              <span class="tech-mono" style="color:var(--accent);">↗</span>
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <script>
+    // =========================================================================
+    // 1. Official ReactBits <LightRays /> WebGL2 Engine (Exact Shader & Logic)
+    // =========================================================================
+    const PIXEL_BUDGET = 2.4e6;
+    const MAX_PULSES = 4;
+
+    const ORIGINS = {
+      'top-left': { anchor: [0, -0.2], dir: [0, 1] },
+      'top-center': { anchor: [0.5, -0.2], dir: [0, 1] },
+      'top-right': { anchor: [1, -0.2], dir: [0, 1] },
+      left: { anchor: [-0.2, 0.5], dir: [1, 0] },
+      right: { anchor: [1.2, 0.5], dir: [-1, 0] },
+      'bottom-left': { anchor: [0, 1.2], dir: [0, -1] },
+      'bottom-center': { anchor: [0.5, 1.2], dir: [0, -1] },
+      'bottom-right': { anchor: [1, 1.2], dir: [0, -1] }
+    };
+
+    const VERTEX = `#version 300 es
+const vec2 corners[3] = vec2[3](vec2(-1.0, -1.0), vec2(3.0, -1.0), vec2(-1.0, 3.0));
+void main() {
+  gl_Position = vec4(corners[gl_VertexID], 0.0, 1.0);
+}`;
+
+    const FRAGMENT = `#version 300 es
+precision highp float;
+uniform vec2 uResolution;
+uniform float uScale;
+uniform float uTime;
+uniform vec2 uSource;
+uniform vec2 uAim;
+uniform float uReach;
+uniform vec3 uColor;
+uniform float uSpread;
+uniform float uLength;
+uniform float uFade;
+uniform float uSaturation;
+uniform float uPulsating;
+uniform float uNoise;
+uniform float uDistortion;
+uniform float uDensity;
+uniform float uSharpness;
+uniform float uGlow;
+uniform float uHaze;
+uniform float uAtmosphere;
+uniform float uIntensity;
+uniform vec4 uShadow;
+uniform vec4 uPulses[${MAX_PULSES}];
+uniform vec2 uIntro;
+uniform float uLight;
+uniform float uOpacity;
+out vec4 fragColor;
+
+float hash(vec2 p) {
+  p = fract(p * vec2(123.34, 456.21));
+  p += dot(p, p + 45.32);
+  return fract(p.x * p.y);
+}
+
+float valueNoise(vec2 p) {
+  vec2 i = floor(p);
+  vec2 f = p - i;
+  vec2 w = f * f * f * (f * (f * 6.0 - 15.0) + 10.0);
+  return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), w.x), mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), w.x), w.y);
+}
+
+float shape(float strength, float width) {
+  float edge = max(mix(0.5, 0.08, uSharpness), width);
+  return mix(strength, smoothstep(0.62 - edge, 0.62 + edge, strength), uSharpness);
+}
+
+void main() {
+  vec2 coord = vec2(gl_FragCoord.x, uResolution.y - gl_FragCoord.y) / uScale;
+  vec2 delta = coord - uSource;
+  float distance = length(delta);
+  vec2 dir = delta / max(distance, 1e-4);
+  float cosAngle = dot(dir, uAim);
+  float angle = cosAngle + uDistortion * sin(uTime * 2.0 + distance * 0.02) * 0.2;
+  float slope = fwidth(angle);
+  float depth = distance / uReach;
+
+  float source = exp(-depth * depth * 9.0) * 0.9 + exp(-depth * 3.2) * 0.25;
+  float glowLight = uGlow * source * smoothstep(-0.2, 0.6, cosAngle);
+  float spread = pow(max(angle, 0.0), 1.0 / uSpread);
+  float lengthFalloff = clamp(1.0 - distance / (uReach * uLength), 0.0, 1.0);
+  float fadeFalloff = clamp(1.0 - distance / (uReach * uFade), 0.5, 1.0);
+  float envelope = spread * lengthFalloff * fadeFalloff;
+  float reveal = uIntensity * uIntro.y * (1.0 - smoothstep(uIntro.x - 0.35, uIntro.x, depth));
+  if ((envelope * 1.6 + glowLight) * reveal < 0.0015) {
+    fragColor = vec4(0.0);
+    return;
+  }
+
+  float phaseA = angle * 36.2214 * uDensity + uTime * 1.5;
+  float phaseB = -angle * 21.11349 * uDensity + uTime * 1.5;
+  float phaseC = angle * 22.3991 * uDensity + uTime * 1.1;
+  float phaseD = -angle * 18.0234 * uDensity + uTime * 1.1;
+  float strengthA = clamp(0.75 + 0.15 * sin(phaseA) + 0.2 * cos(phaseB), 0.0, 1.0);
+  float strengthB = clamp(0.75 + 0.15 * sin(phaseC) + 0.2 * cos(phaseD), 0.0, 1.0);
+  float widthA = abs(0.15 * 36.2214 * cos(phaseA) + 0.2 * 21.11349 * sin(phaseB)) * uDensity * slope;
+  float widthB = abs(0.15 * 22.3991 * cos(phaseC) + 0.2 * 18.0234 * sin(phaseD)) * uDensity * slope;
+  float pulseA = uPulsating > 0.5 ? 0.8 + 0.2 * sin(uTime * 4.5) : 1.0;
+  float pulseB = uPulsating > 0.5 ? 0.8 + 0.2 * sin(uTime * 3.3) : 1.0;
+  float rayLight = envelope * (0.5 * shape(strengthA, widthA) * pulseA + 0.4 * shape(strengthB, widthB) * pulseB);
+
+  if (uHaze > 0.0) {
+    float around = atan(uAim.x * dir.y - uAim.y * dir.x, cosAngle);
+    vec2 drift = vec2(around * 2.2 + uTime * 0.035, depth * 2.6 - uTime * 0.11);
+    float fog = 0.65 * valueNoise(drift * vec2(3.0, 1.0)) + 0.35 * valueNoise(drift * vec2(7.0, 2.3) + 4.1);
+    rayLight *= mix(1.0, 0.25 + 1.2 * fog, uHaze);
+  }
+
+  if (uShadow.z > 0.0) {
+    vec2 toCursor = uShadow.xy - uSource;
+    float cursorDistance = length(toCursor);
+    float along = dot(delta, toCursor) / max(cursorDistance * cursorDistance, 1e-4);
+    float side = abs(delta.x * toCursor.y - delta.y * toCursor.x) / max(cursorDistance, 1e-4);
+    float trail = max(along - 1.0, 0.0);
+    float width = uShadow.w * along + 0.22 * trail * cursorDistance;
+    float behind = smoothstep(0.97, 1.25, along) * exp(-trail * 1.1);
+    float shade = (1.0 - smoothstep(width * 0.3, width * 1.6, side)) * behind;
+    rayLight *= 1.0 - uShadow.z * 0.62 * shade;
+  }
+
+  float boost = 0.0;
+  for (int i = 0; i < ${MAX_PULSES}; i++) {
+    vec4 wave = uPulses[i];
+    if (wave.z <= 0.0) continue;
+    float x = (depth - wave.x) / wave.y;
+    boost += wave.z * exp(-x * x);
+  }
+  float light = (rayLight * (1.0 + boost) + glowLight) * reveal;
+
+  if (uNoise > 0.0) {
+    float n = fract(sin(dot(coord * 0.02 + uTime * 0.1, vec2(12.9898, 78.233))) * 43758.5453123);
+    light *= 1.0 - uNoise + uNoise * n;
+  }
+
+  float near = clamp(1.2 - distance / (uResolution.y / uScale), 0.0, 1.0);
+  vec3 tint = mix(vec3(0.9), vec3(0.1, 0.3, 0.5) + near * vec3(0.8, 0.6, 0.5), uAtmosphere);
+  float gray = dot(tint, vec3(0.299, 0.587, 0.114));
+  vec3 hue = max(mix(vec3(gray), tint, uSaturation), 0.0) * uColor;
+
+  float grain = (fract(52.9829189 * fract(dot(gl_FragCoord.xy, vec2(0.06711056, 0.00583715)))) - 0.5) / 255.0;
+  if (uLight > 0.5) {
+    float level = clamp(light * 0.78, 0.0, 1.0);
+    vec3 skyTint = mix(vec3(0.04, 0.52, 1.0), vec3(0.22, 0.76, 1.0), near);
+    float density = clamp(level * 0.46 * uOpacity + grain, 0.0, 0.55);
+    fragColor = vec4(skyTint * density, density);
+    return;
+  }
+  float level = light < 0.75 ? light : 0.75 + 0.25 * (1.0 - exp(-(light - 0.75) / 0.25));
+  float top = max(hue.r, max(hue.g, hue.b));
+  hue = mix(hue, vec3(top), smoothstep(0.8, 1.0, level) * 0.45);
+  vec3 shown = clamp(hue * level, 0.0, 1.0) * level;
+  fragColor = vec4(clamp(shown + grain, 0.0, level) * uOpacity, level * uOpacity);
+}`;
+
+    const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+    const smoother = t => {
+      const x = clamp(t, 0, 1);
+      return x * x * x * (x * (x * 6 - 15) + 10);
+    };
+
+    const parseColor = value => {
+      const hex = /^#?([0-9a-f]{3}|[0-9a-f]{6})$/i.exec(String(value || '').trim());
+      if (!hex) return [1, 1, 1];
+      const full = hex[1].length === 3 ? hex[1].replace(/./g, d => d + d) : hex[1];
+      return [0, 2, 4].map(i => parseInt(full.slice(i, i + 2), 16) / 255);
+    };
+
+    const compile = (gl, type, source) => {
+      const shader = gl.createShader(type);
+      if (!shader) return null;
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        console.error(gl.getShaderInfoLog(shader));
+        gl.deleteShader(shader);
+        return null;
+      }
+      return shader;
+    };
+
+    const link = gl => {
+      const vertex = compile(gl, gl.VERTEX_SHADER, VERTEX);
+      const fragment = compile(gl, gl.FRAGMENT_SHADER, FRAGMENT);
+      const program = vertex && fragment ? gl.createProgram() : null;
+      if (!vertex || !fragment || !program) return null;
+      gl.attachShader(program, vertex);
+      gl.attachShader(program, fragment);
+      gl.linkProgram(program);
+      gl.deleteShader(vertex);
+      gl.deleteShader(fragment);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) return null;
+      const uniforms = {};
+      const count = gl.getProgramParameter(program, gl.ACTIVE_UNIFORMS);
+      for (let i = 0; i < count; i++) {
+        const info = gl.getActiveUniform(program, i);
+        if (info) uniforms[info.name.replace(/\[0\]$/, '')] = gl.getUniformLocation(program, info.name);
+      }
+      return { program, uniforms };
+    };
+
+    // Mount ReactBits LightRays onto #lightRaysContainer
+    const container = document.getElementById('lightRaysContainer');
+    const canvas = document.getElementById('lightRaysCanvas');
+
+    const raySettings = {
+      origin: ORIGINS['top-center'],
+      color: parseColor('#58B8FF'),
+      speed: 1,
+      spread: 0.52,
+      length: 3,
+      density: 1.15,
+      tilt: 0,
+      sharpness: 0.35,
+      glow: 0.68,
+      haze: 0.25,
+      atmosphere: 1,
+      intensity: 1.05,
+      pulsating: true,
+      fade: 1,
+      saturation: 1,
+      follow: true,
+      influence: 0.14,
+      cursorShadow: true,
+      clickPulse: true,
+      noise: 0,
+      distortion: 0,
+      intro: true,
+      light: false,
+      opacity: 1,
+      maxRatio: 2
+    };
+
+    let wakeLightRays = () => {};
+
+    (() => {
+      const gl = canvas.getContext('webgl2', {
+        alpha: true,
+        premultipliedAlpha: true,
+        antialias: false,
+        depth: false,
+        stencil: false,
+        powerPreference: 'high-performance'
+      });
+      const shader = gl ? link(gl) : null;
+      if (!gl || !shader) return;
+
+      const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const vao = gl.createVertexArray();
+      const size = { width: 1, height: 1, ratio: 1 };
+      const pointer = { x: 0.5, y: 0.5, inside: false, seen: false };
+      const aim = { x: 0.5, y: 0.5 };
+      const shade = { x: 0.5, y: 0.5, presence: 0 };
+      const pulses = [];
+      const pulseData = new Float32Array(MAX_PULSES * 4);
+      let time = 0;
+      let opening = raySettings.intro && !reduced ? 0 : 1;
+      let raf = 0;
+      let last = 0;
+      let resizePending = true;
+
+      const applyResize = () => {
+        const s = raySettings;
+        const rect = container.getBoundingClientRect();
+        const cssWidth = Math.max(1, rect.width);
+        const cssHeight = Math.max(1, rect.height);
+        const detail = s.density * (0.35 + 0.65 * s.sharpness);
+        const sampling = Math.max(clamp(0.35 + 0.3 * detail, 0.5, 2), s.noise > 0 ? 1 : 0);
+        const ratio = Math.min(
+          window.devicePixelRatio || 1,
+          s.maxRatio,
+          sampling,
+          Math.sqrt(PIXEL_BUDGET / (cssWidth * cssHeight))
+        );
+        const width = Math.max(1, Math.round(cssWidth * ratio));
+        const height = Math.max(1, Math.round(cssHeight * ratio));
+        if (canvas.width !== width || canvas.height !== height) {
+          canvas.width = width;
+          canvas.height = height;
+        }
+        size.width = cssWidth;
+        size.height = cssHeight;
+        size.ratio = width / cssWidth;
+      };
+
+      const frame = now => {
+        raf = 0;
+        if (resizePending) {
+          resizePending = false;
+          applyResize();
+        }
+        const s = raySettings;
+        const dt = clamp((now - last) / 1000 || 0, 0, 0.05);
+        last = Math.max(last, now);
+        time += dt * s.speed * (reduced ? 0.35 : 1);
+        if (opening < 1) opening = Math.min(1, opening + dt / 1.8);
+
+        const steer = 1 - Math.exp(-dt / 0.2);
+        const aimX = s.follow && pointer.seen ? pointer.x : 0.5;
+        const aimY = s.follow && pointer.seen ? pointer.y : 0.5;
+        aim.x += (aimX - aim.x) * steer;
+        aim.y += (aimY - aim.y) * steer;
+        const glide = 1 - Math.exp(-dt / 0.08);
+        shade.x += (pointer.x - shade.x) * glide;
+        shade.y += (pointer.y - shade.y) * glide;
+        const shading = pointer.inside && s.cursorShadow && !reduced;
+        shade.presence += ((shading ? 1 : 0) - shade.presence) * (1 - Math.exp(-dt / (shading ? 0.25 : 0.5)));
+
+        for (let i = pulses.length - 1; i >= 0; i--) {
+          pulses[i].age += dt;
+          if (pulses[i].age >= 2) pulses.splice(i, 1);
+        }
+        pulseData.fill(0);
+        pulses.forEach((pulse, index) => {
+          const t = pulse.age;
+          pulseData[index * 4] = 0.05 + t * 1.05;
+          pulseData[index * 4 + 1] = 0.14 + t * 0.14;
+          pulseData[index * 4 + 2] = 0.9 * smoother(t / 0.15) * (1 - smoother(t / 2));
+        });
+
+        const width = size.width;
+        const height = size.height;
+        const sourceX = s.origin.anchor[0] * width;
+        const sourceY = s.origin.anchor[1] * height;
+        const cos = Math.cos(s.tilt);
+        const sin = Math.sin(s.tilt);
+        let dirX = s.origin.dir[0] * cos - s.origin.dir[1] * sin;
+        let dirY = s.origin.dir[0] * sin + s.origin.dir[1] * cos;
+        if (s.follow && s.influence > 0) {
+          const mx = aim.x * width - sourceX;
+          const my = aim.y * height - sourceY;
+          const ml = Math.hypot(mx, my) || 1;
+          const bx = dirX + (mx / ml - dirX) * s.influence;
+          const by = dirY + (my / ml - dirY) * s.influence;
+          const bl = Math.hypot(bx, by) || 1;
+          dirX = bx / bl;
+          dirY = by / bl;
+        }
+        const eased = 1 - Math.pow(1 - opening, 3);
+
+        gl.viewport(0, 0, canvas.width, canvas.height);
+        gl.clearColor(0, 0, 0, 0);
+        gl.clear(gl.COLOR_BUFFER_BIT);
+        gl.useProgram(shader.program);
+        gl.bindVertexArray(vao);
+        const u = shader.uniforms;
+        gl.uniform2f(u.uResolution, canvas.width, canvas.height);
+        gl.uniform1f(u.uScale, size.ratio);
+        gl.uniform1f(u.uTime, time);
+        gl.uniform2f(u.uSource, sourceX, sourceY);
+        gl.uniform2f(u.uAim, dirX, dirY);
+        gl.uniform1f(u.uReach, Math.max(width, height));
+        gl.uniform3f(u.uColor, s.color[0], s.color[1], s.color[2]);
+        gl.uniform1f(u.uSpread, s.spread);
+        gl.uniform1f(u.uLength, s.length);
+        gl.uniform1f(u.uFade, s.fade);
+        gl.uniform1f(u.uSaturation, s.saturation);
+        gl.uniform1f(u.uPulsating, s.pulsating ? 1 : 0);
+        gl.uniform1f(u.uNoise, s.noise);
+        gl.uniform1f(u.uDistortion, s.distortion);
+        gl.uniform1f(u.uDensity, s.density);
+        gl.uniform1f(u.uSharpness, s.sharpness);
+        gl.uniform1f(u.uGlow, s.glow);
+        gl.uniform1f(u.uHaze, s.haze);
+        gl.uniform1f(u.uAtmosphere, s.atmosphere);
+        gl.uniform1f(u.uIntensity, s.intensity);
+        gl.uniform4f(u.uShadow, shade.x * width, shade.y * height, shade.presence, 16);
+        gl.uniform4fv(u.uPulses, pulseData);
+        gl.uniform2f(u.uIntro, eased * 2.6, smoother(opening / 0.5));
+        gl.uniform1f(u.uLight, s.light ? 1 : 0);
+        gl.uniform1f(u.uOpacity, s.opacity);
+        gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+        raf = requestAnimationFrame(frame);
+      };
+
+      const wake = () => {
+        if (raf) return;
+        last = performance.now();
+        raf = requestAnimationFrame(frame);
+      };
+      wakeLightRays = () => {
+        resizePending = true;
+        wake();
+      };
+
+      const locate = event => {
+        const rect = container.getBoundingClientRect();
+        return {
+          x: (event.clientX - rect.left) / Math.max(1, rect.width),
+          y: (event.clientY - rect.top) / Math.max(1, rect.height),
+          inside:
+            event.clientX >= rect.left &&
+            event.clientX <= rect.right &&
+            event.clientY >= rect.top &&
+            event.clientY <= rect.bottom
+        };
+      };
+
+      window.addEventListener('pointermove', event => {
+        const spot = locate(event);
+        if (!pointer.inside && spot.inside) {
+          shade.x = spot.x;
+          shade.y = spot.y;
+        }
+        pointer.x = spot.x;
+        pointer.y = spot.y;
+        pointer.inside = spot.inside;
+        pointer.seen = true;
+        wake();
+      }, { passive: true });
+
+      window.addEventListener('pointerdown', event => {
+        const spot = locate(event);
+        if (!spot.inside || !raySettings.clickPulse || reduced) return;
+        pulses.push({ age: 0 });
+        if (pulses.length > MAX_PULSES) pulses.shift();
+        wake();
+      }, { passive: true });
+
+      new ResizeObserver(() => {
+        resizePending = true;
+        wake();
+      }).observe(container);
+
+      wake();
+    })();
+
+    // Theme Toggle ([data-theme="white"]) + LightRays lightMode sync
+    const themeToggle = document.getElementById('themeToggle');
+    const themeText = document.getElementById('themeText');
+    themeToggle.addEventListener('change', () => {
+      if (themeToggle.checked) {
+        document.documentElement.setAttribute('data-theme', 'white');
+        themeText.textContent = 'WHITE';
+        raySettings.light = true;
+        raySettings.color = parseColor('#0A84FF');
+      } else {
+        document.documentElement.removeAttribute('data-theme');
+        themeText.textContent = 'DARK';
+        raySettings.light = false;
+        raySettings.color = parseColor('#58B8FF');
+      }
+      wakeLightRays();
+    });
+
+    // =========================================================================
+    // 2. Populate Flex Carousel & Drift Wall using Local Product Images
+    // =========================================================================
+    const catalogDevices = [
+      { name: 'iPhone 17 Pro Max', code: 'A3526 · 6.9" 120Hz', price: '₩1,990,000', img: 'iphone-17-pro-max.jpg' },
+      { name: 'Galaxy S25 Ultra', code: 'SM-S938N · 200MP', price: '₩1,698,400', img: 'galaxy-s25-ultra.jpg' },
+      { name: 'iPad Pro 13 (M4)', code: 'A2925 · Tandem OLED', price: '₩1,999,000', img: 'ipad-pro-13-m4.jpg' },
+      { name: 'Galaxy Z Fold7', code: 'SM-F966N · 8.0" Fold', price: '₩2,379,300', img: 'galaxy-z-fold7.jpg' },
+      { name: 'iPhone Air', code: 'A3517 · Ultra-Thin', price: '₩1,590,000', img: 'iphone-17-air.jpg' },
+      { name: 'Galaxy Tab S10 Ultra', code: 'SM-X920 · 14.6" 120Hz', price: '₩1,598,300', img: 'galaxy-tab-s10-ultra.jpg' },
+      { name: 'Apple Watch Ultra 2', code: 'A2986 · 49mm Titanium', price: '₩1,149,000', img: 'apple-watch-ultra-2.jpg' },
+      { name: 'Galaxy Watch Ultra', code: 'SM-L705N · 47mm', price: '₩899,800', img: 'galaxy-watch-ultra.jpg' },
+      { name: 'iPhone 16 Pro Max', code: 'A3296 · A18 Pro', price: '₩1,900,000', img: 'iphone-16-pro-max.jpg' },
+      { name: 'Galaxy Z Flip7', code: 'SM-F766N · FlexWindow', price: '₩1,485,000', img: 'galaxy-z-flip7.jpg' },
+      { name: 'iPad Air 13 (M3)', code: 'A3268 · Apple M3', price: '₩1,249,000', img: 'ipad-air-13-m3.jpg' },
+      { name: 'Apple Watch Series 11', code: 'A3331 · 46mm', price: '₩639,000', img: 'apple-watch-series-11-46.jpg' },
+    ];
+
+    // Render Flex Carousel
+    const flexItems = [...catalogDevices, ...catalogDevices];
+    document.getElementById('flexCarouselTrack').innerHTML = flexItems.map(d => `
+      <article class="flex-card">
+        <div class="flex-card__stage">
+          <img src="./frontend/public/images/products/${d.img}" alt="${d.name}" loading="lazy" />
+        </div>
+        <div class="flex-card__meta">
+          <div>
+            <div class="flex-card__title">${d.name}</div>
+            <div class="flex-card__spec tech-mono">${d.code}</div>
+          </div>
+          <span class="flex-card__price tech-mono">${d.price}</span>
+        </div>
+      </article>
+    `).join('');
+
+    // Render Drift Wall
+    function buildDriftTiles(list) {
+      return [...list, ...list].map(d => `
+        <div class="drift-tile">
+          <div class="drift-tile__img">
+            <img src="./frontend/public/images/products/${d.img}" alt="${d.name}" loading="lazy" />
+          </div>
+          <div class="drift-tile__info">
+            <div>
+              <div class="drift-tile__name">${d.name}</div>
+              <div class="drift-tile__sub tech-mono">${d.code}</div>
+            </div>
+            <span class="drift-tile__badge tech-mono">${d.price}</span>
+          </div>
+        </div>
+      `).join('');
+    }
+    document.getElementById('driftRow1').innerHTML = buildDriftTiles(catalogDevices.slice(0, 6));
+    document.getElementById('driftRow2').innerHTML = buildDriftTiles(catalogDevices.slice(6, 12));
+
+    // =========================================================================
+    // 3. Header Electric Logo (Living Lightning Outline on Header Logo Mark)
+    // =========================================================================
+    const hCanvas = document.getElementById('headerElectricCanvas');
+    const hCtx = hCanvas.getContext('2d');
+    const hPts = [[11, 11], [45, 11], [45, 45], [11, 45]];
+
+    function drawMiniArc(x1, y1, x2, y2, disp) {
+      if (disp < 1.2) {
+        hCtx.moveTo(x1, y1);
+        hCtx.lineTo(x2, y2);
+        return;
+      }
+      const mx = (x1 + x2) * 0.5 + (Math.random() - 0.5) * disp;
+      const my = (y1 + y2) * 0.5 + (Math.random() - 0.5) * disp;
+      drawMiniArc(x1, y1, mx, my, disp * 0.5);
+      drawMiniArc(mx, my, x2, y2, disp * 0.5);
+    }
+
+    function tickHeaderElectric() {
+      hCtx.clearRect(0, 0, 56, 56);
+      hCtx.save();
+      hCtx.beginPath();
+      hCtx.strokeStyle = '#38BDF8';
+      hCtx.lineWidth = 1.3;
+      hCtx.shadowColor = '#0096FF';
+      hCtx.shadowBlur = 8;
+      for (let i = 0; i < 4; i++) {
+        const [x1, y1] = hPts[i];
+        const [x2, y2] = hPts[(i + 1) % 4];
+        drawMiniArc(x1, y1, x2, y2, 6.5);
+      }
+      const [bx, by] = hPts[Math.floor(Math.random() * 4)];
+      drawMiniArc(bx, by, bx + (Math.random() - 0.5) * 18, by + (Math.random() - 0.5) * 18, 5);
+      hCtx.stroke();
+      hCtx.restore();
+      setTimeout(() => requestAnimationFrame(tickHeaderElectric), 60);
+    }
+    tickHeaderElectric();
+  </script>
+
+  <!-- =========================================================================
+       4. Three.js WebGL 3D Smartphone Trophy Trio + Luxury 3D Showroom Pedestal
+       ========================================================================= -->
+  <script type="module">
+    import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js';
+
+    const stageEl = document.getElementById('trophyStage');
+    const canvas3d = document.getElementById('phone3dCanvas');
+
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas3d,
+      alpha: true,
+      antialias: true,
+      powerPreference: 'high-performance'
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2));
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.32;
+
+    const scene = new THREE.Scene();
+    const camera = new THREE.PerspectiveCamera(33, 1, 0.1, 100);
+    camera.position.set(0, 0.55, 9.6);
+    camera.lookAt(0, -0.22, 0);
+
+    // Build Procedural Studio Softbox Environment Map (IBL) for Realistic Titanium & Glass Reflections
+    const pmrem = new THREE.PMREMGenerator(renderer);
+    const envScene = new THREE.Scene();
+    const envBoxMat = new THREE.MeshBasicMaterial({ color: 0x0b1324, side: THREE.BackSide });
+    envScene.add(new THREE.Mesh(new THREE.BoxGeometry(20, 20, 20), envBoxMat));
+
+    const addSoftbox = (w, h, color, x, y, z, rx, ry) => {
+      const m = new THREE.Mesh(
+        new THREE.PlaneGeometry(w, h),
+        new THREE.MeshBasicMaterial({ color, side: THREE.DoubleSide })
+      );
+      m.position.set(x, y, z);
+      m.rotation.set(rx, ry, 0);
+      envScene.add(m);
+    };
+    addSoftbox(12, 6, 0xffffff, 0, 8, 2, Math.PI / 2, 0);
+    addSoftbox(6, 12, 0x38bdf8, -8, 2, 2, 0, Math.PI / 2);
+    addSoftbox(6, 12, 0x60a5fa, 8, 2, 2, 0, -Math.PI / 2);
+    addSoftbox(10, 4, 0xe0f2fe, 0, 2, 8, 0, Math.PI);
+    scene.environment = pmrem.fromScene(envScene, 0.04).texture;
+
+    // Direct Studio & Volumetric Rim Lights
+    const ambient = new THREE.AmbientLight(0xe0f2fe, 1.15);
+    scene.add(ambient);
+
+    const keyLight = new THREE.DirectionalLight(0xffffff, 3.2);
+    keyLight.position.set(2.5, 9, 6.5);
+    scene.add(keyLight);
+
+    const blueRimLeft = new THREE.PointLight(0x0096ff, 12, 16);
+    blueRimLeft.position.set(-4.8, 2.4, 3.5);
+    scene.add(blueRimLeft);
+
+    const blueRimRight = new THREE.PointLight(0x38bdf8, 12, 16);
+    blueRimRight.position.set(4.8, 2.4, 3.5);
+    scene.add(blueRimRight);
+
+    const podiumUpLight = new THREE.PointLight(0x0096ff, 14, 10);
+    podiumUpLight.position.set(0, -1.2, 1.2);
+    scene.add(podiumUpLight);
+
+    // Helper: Rounded Rectangle Shape
+    function roundedRectShape(w, h, r) {
+      const s = new THREE.Shape();
+      const x = -w / 2, y = -h / 2;
+      s.moveTo(x + r, y);
+      s.lineTo(x + w - r, y);
+      s.quadraticCurveTo(x + w, y, x + w, y + r);
+      s.lineTo(x + w, y + h - r);
+      s.quadraticCurveTo(x + w, y + h, x + w - r, y + h);
+      s.lineTo(x + r, y + h);
+      s.quadraticCurveTo(x, y + h, x, y + h - r);
+      s.lineTo(x, y + r);
+      s.quadraticCurveTo(x, y, x + r, y);
+      return s;
+    }
+
+    // Helper: Crisp 1024x2048 OLED Display Wallpaper + Realistic Lockscreen UI (No Device Names)
+    function createOLEDTexture(palette, isUltra = false) {
+      const c = document.createElement('canvas');
+      c.width = 512;
+      c.height = 1024;
+      const ctx = c.getContext('2d');
+
+      const bg = ctx.createLinearGradient(0, 0, 512, 1024);
+      bg.addColorStop(0, palette[0]);
+      bg.addColorStop(0.48, palette[1]);
+      bg.addColorStop(1, palette[2]);
+      ctx.fillStyle = bg;
+      ctx.fillRect(0, 0, 512, 1024);
+
+      // Luminous 3D silk/aurora waves on the OLED display
+      for (let i = 0; i < 4; i++) {
+        ctx.save();
+        ctx.translate(256, 440 + i * 70);
+        ctx.rotate((i - 1.5) * 0.28);
+        const g = ctx.createRadialGradient(0, 0, 10, 0, 0, 290);
+        g.addColorStop(0, palette[3]);
+        g.addColorStop(0.5, palette[4]);
+        g.addColorStop(1, 'transparent');
+        ctx.fillStyle = g;
+        ctx.beginPath();
+        ctx.ellipse(0, 0, 280, 130, 0, 0, Math.PI * 2);
+        ctx.fill();
+        ctx.restore();
+      }
+
+      // Specular diagonal glass sheen across the OLED panel
+      const sheen = ctx.createLinearGradient(0, 0, 512, 720);
+      sheen.addColorStop(0, 'rgba(255,255,255,0.16)');
+      sheen.addColorStop(0.35, 'rgba(255,255,255,0.03)');
+      sheen.addColorStop(0.5, 'transparent');
+      ctx.fillStyle = sheen;
+      ctx.fillRect(0, 0, 512, 1024);
+
+      // Status bar icons (signal bars & battery pill)
+      ctx.fillStyle = 'rgba(255,255,255,0.85)';
+      for (let b = 0; b < 4; b++) {
+        ctx.fillRect(382 + b * 8, 52 - b * 3, 5, 8 + b * 3);
+      }
+      ctx.strokeStyle = 'rgba(255,255,255,0.85)';
+      ctx.lineWidth = 2.5;
+      ctx.strokeRect(426, 42, 36, 17);
+      ctx.fillRect(429, 45, 27, 11);
+
+      // Lockscreen Date & Clock
+      ctx.fillStyle = 'rgba(226,232,240,0.85)';
+      ctx.font = '600 22px "Inter", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('THU · NOV 12', 256, 162);
+
+      ctx.fillStyle = 'rgba(255,255,255,0.95)';
+      ctx.font = isUltra ? '800 116px "Inter", sans-serif' : '800 124px "Inter", sans-serif';
+      ctx.fillText('09:41', 256, 275);
+
+      // Glassmorphic Lockscreen Widgets (2 circular + 1 pill)
+      ctx.fillStyle = 'rgba(255,255,255,0.12)';
+      ctx.strokeStyle = 'rgba(255,255,255,0.24)';
+      ctx.lineWidth = 2;
+      ctx.beginPath();
+      ctx.roundRect(86, 318, 158, 68, 22);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.roundRect(264, 318, 80, 68, 22);
+      ctx.fill();
+      ctx.stroke();
+
+      ctx.beginPath();
+      ctx.roundRect(358, 318, 68, 68, 22);
+      ctx.fill();
+      ctx.stroke();
+
+      // Bottom Flashlight & Camera Quick Shortcuts + Home Indicator
+      ctx.beginPath();
+      ctx.arc(102, 916, 30, 0, Math.PI * 2);
+      ctx.arc(410, 916, 30, 0, Math.PI * 2);
+      ctx.fill();
+
+      ctx.fillStyle = 'rgba(255,255,255,0.82)';
+      ctx.beginPath();
+      ctx.roundRect(176, 986, 160, 10, 5);
+      ctx.fill();
+
+      const tex = new THREE.CanvasTexture(c);
+      tex.colorSpace = THREE.SRGBColorSpace;
+      tex.anisotropy = 4;
+      return tex;
+    }
+
+    // Build a Hyper-Detailed 3D Smartphone Model
+    function createSmartphone3D(opts) {
+      const group = new THREE.Group();
+      const {
+        w = 1.68,
+        h = 3.48,
+        depth = 0.165,
+        radius = 0.25,
+        frameColor = 0xcbd5e1,
+        backColor = 0x1e293b,
+        style = 'iphone',
+        wallpaperPalette
+      } = opts;
+
+      // 1. Brushed Titanium Frame Band + Polished Chamfered Bevel
+      const bodyGeo = new THREE.ExtrudeGeometry(roundedRectShape(w, h, radius), {
+        depth,
+        bevelEnabled: true,
+        bevelSegments: 6,
+        steps: 1,
+        bevelSize: 0.034,
+        bevelThickness: 0.034
+      });
+      bodyGeo.center();
+
+      const frameMat = new THREE.MeshPhysicalMaterial({
+        color: frameColor,
+        metalness: 0.94,
+        roughness: 0.20,
+        clearcoat: 0.45,
+        clearcoatRoughness: 0.18,
+        reflectivity: 1.0
+      });
+      const chassis = new THREE.Mesh(bodyGeo, frameMat);
+      group.add(chassis);
+
+      // Polished Inner Rim Highlight around the Front Screen
+      const rimShape = roundedRectShape(w + 0.01, h + 0.01, radius);
+      const holeShape = roundedRectShape(w - 0.05, h - 0.05, Math.max(0.03, radius - 0.03));
+      rimShape.holes.push(holeShape);
+      const rimGeo = new THREE.ShapeGeometry(rimShape);
+      const chromeMat = new THREE.MeshStandardMaterial({
+        color: 0xf8fafc,
+        metalness: 1.0,
+        roughness: 0.08
+      });
+      const frontRim = new THREE.Mesh(rimGeo, chromeMat);
+      frontRim.position.z = depth / 2 + 0.0345;
+      group.add(frontRim);
+
+      // 2. Frosted Matte Glass Backplate
+      const backGeo = new THREE.ShapeGeometry(roundedRectShape(w - 0.04, h - 0.04, Math.max(0.04, radius - 0.02)));
+      const backMat = new THREE.MeshPhysicalMaterial({
+        color: backColor,
+        metalness: 0.42,
+        roughness: 0.26,
+        clearcoat: 0.9,
+        clearcoatRoughness: 0.14
+      });
+      const backPlate = new THREE.Mesh(backGeo, backMat);
+      backPlate.position.z = -depth / 2 - 0.0345;
+      backPlate.rotation.y = Math.PI;
+      group.add(backPlate);
+
+      // Subtle Metallic Brand Crest on Center of Backplate
+      const emblemGeo = new THREE.CircleGeometry(0.14, 32);
+      const emblem = new THREE.Mesh(emblemGeo, chromeMat);
+      emblem.position.set(0, 0.08, -depth / 2 - 0.036);
+      emblem.rotation.y = Math.PI;
+      group.add(emblem);
+
+      // 3. Ultra-Thin Front Bezel + High-Res OLED Screen with Specular Glass Clearcoat
+      const bezelGeo = new THREE.ShapeGeometry(roundedRectShape(w - 0.04, h - 0.04, Math.max(0.04, radius - 0.02)));
+      const bezel = new THREE.Mesh(bezelGeo, new THREE.MeshBasicMaterial({ color: 0x020408 }));
+      bezel.position.z = depth / 2 + 0.034;
+      group.add(bezel);
+
+      const sw = w - 0.095, sh = h - 0.095;
+      const screenGeo = new THREE.ShapeGeometry(roundedRectShape(sw, sh, Math.max(0.03, radius - 0.035)));
+      const pos = screenGeo.attributes.position;
+      const uvs = new Float32Array(pos.count * 2);
+      for (let i = 0; i < pos.count; i++) {
+        uvs[i * 2] = (pos.getX(i) + sw / 2) / sw;
+        uvs[i * 2 + 1] = (pos.getY(i) + sh / 2) / sh;
+      }
+      screenGeo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2));
+
+      const screenMat = new THREE.MeshPhysicalMaterial({
+        map: createOLEDTexture(wallpaperPalette, style === 'ultra'),
+        emissive: new THREE.Color(0x1e40af),
+        emissiveIntensity: 0.25,
+        roughness: 0.04,
+        metalness: 0.08,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.03,
+        reflectivity: 1.0
+      });
+      const screen = new THREE.Mesh(screenGeo, screenMat);
+      screen.position.z = depth / 2 + 0.036;
+      group.add(screen);
+
+      // 4. Front Dynamic Island (with Dual Optical Sensors) or Infinity-O Punch-Hole
+      const cutoutMat = new THREE.MeshBasicMaterial({ color: 0x010204 });
+      const sensorGlassMat = new THREE.MeshBasicMaterial({ color: 0x1d4ed8 });
+      if (style === 'iphone') {
+        const islandGeo = new THREE.ShapeGeometry(roundedRectShape(0.46, 0.115, 0.057));
+        const island = new THREE.Mesh(islandGeo, cutoutMat);
+        island.position.set(0, h / 2 - 0.19, depth / 2 + 0.038);
+        group.add(island);
+
+        const camEye = new THREE.Mesh(new THREE.CircleGeometry(0.032, 24), sensorGlassMat);
+        camEye.position.set(0.145, h / 2 - 0.19, depth / 2 + 0.039);
+        group.add(camEye);
+
+        const irDot = new THREE.Mesh(new THREE.CircleGeometry(0.022, 20), new THREE.MeshBasicMaterial({ color: 0x312e81 }));
+        irDot.position.set(-0.13, h / 2 - 0.19, depth / 2 + 0.039);
+        group.add(irDot);
+      } else {
+        const punch = new THREE.Mesh(new THREE.CircleGeometry(0.046, 24), cutoutMat);
+        punch.position.set(0, h / 2 - 0.16, depth / 2 + 0.038);
+        group.add(punch);
+
+        const innerLens = new THREE.Mesh(new THREE.CircleGeometry(0.022, 20), sensorGlassMat);
+        innerLens.position.set(0, h / 2 - 0.16, depth / 2 + 0.039);
+        group.add(innerLens);
+      }
+
+      // 5. Tactile 3D Side Buttons + Bottom USB-C Port
+      const makeBtn = (bx, by, bh) => {
+        const b = new THREE.Mesh(new THREE.BoxGeometry(0.034, bh, 0.058), frameMat);
+        b.position.set(bx, by, 0);
+        group.add(b);
+      };
+      makeBtn(w / 2 + 0.036, 0.52, 0.38);  // Power / Side button
+      makeBtn(-w / 2 - 0.036, 0.96, 0.16); // Action button
+      makeBtn(-w / 2 - 0.036, 0.64, 0.28); // Volume Up
+      makeBtn(-w / 2 - 0.036, 0.28, 0.28); // Volume Down
+
+      const usbPort = new THREE.Mesh(
+        new THREE.BoxGeometry(0.24, 0.02, 0.065),
+        new THREE.MeshBasicMaterial({ color: 0x020617 })
+      );
+      usbPort.position.set(0, -h / 2 - 0.034, 0);
+      group.add(usbPort);
+
+      // 6. Multi-Element 3D Rear Camera Barrels (Sapphire AR Glass + Aperture + Titanium Bezel)
+      const darkHousingMat = new THREE.MeshStandardMaterial({
+        color: 0x090d16,
+        metalness: 0.75,
+        roughness: 0.28
+      });
+      const sapphireLensMat = new THREE.MeshPhysicalMaterial({
+        color: 0x040914,
+        metalness: 0.15,
+        roughness: 0.02,
+        clearcoat: 1.0,
+        clearcoatRoughness: 0.02,
+        reflectivity: 1.0
+      });
+      const arCoatingMat = new THREE.MeshStandardMaterial({
+        color: 0x0ea5e9,
+        emissive: 0x0284c7,
+        emissiveIntensity: 0.35,
+        metalness: 0.95,
+        roughness: 0.1
+      });
+
+      function addCameraBarrel(cx, cy, r, barrelDepth) {
+        const bg = new THREE.Group();
+
+        // Outer Brushed Titanium Cylinder
+        const outerGeo = new THREE.CylinderGeometry(r, r * 1.04, barrelDepth, 36);
+        outerGeo.rotateX(Math.PI / 2);
+        bg.add(new THREE.Mesh(outerGeo, frameMat));
+
+        // Chrome Torus Bezel Rim
+        const rimTorus = new THREE.Mesh(new THREE.TorusGeometry(r * 0.94, r * 0.08, 16, 36), chromeMat);
+        rimTorus.position.z = -barrelDepth / 2;
+        bg.add(rimTorus);
+
+        // Dark Recessed Inner Housing
+        const housingGeo = new THREE.CylinderGeometry(r * 0.82, r * 0.82, barrelDepth + 0.005, 32);
+        housingGeo.rotateX(Math.PI / 2);
+        bg.add(new THREE.Mesh(housingGeo, darkHousingMat));
+
+        // Sapphire AR Optical Glass
+        const glassGeo = new THREE.CylinderGeometry(r * 0.66, r * 0.66, barrelDepth + 0.009, 32);
+        glassGeo.rotateX(Math.PI / 2);
+        bg.add(new THREE.Mesh(glassGeo, sapphireLensMat));
+
+        // Inner Optical Element Ring
+        const opticGeo = new THREE.CylinderGeometry(r * 0.28, r * 0.28, barrelDepth + 0.013, 24);
+        opticGeo.rotateX(Math.PI / 2);
+        bg.add(new THREE.Mesh(opticGeo, arCoatingMat));
+
+        bg.position.set(cx, cy, -depth / 2 - 0.034 - barrelDepth / 2);
+        group.add(bg);
+      }
+
+      if (style === 'iphone') {
+        // Sculpted 3D Glass Camera Plateau
+        const plateauGeo = new THREE.ExtrudeGeometry(roundedRectShape(0.86, 0.88, 0.19), {
+          depth: 0.048,
+          bevelEnabled: true,
+          bevelSegments: 4,
+          steps: 1,
+          bevelSize: 0.014,
+          bevelThickness: 0.014
+        });
+        plateauGeo.center();
+        const plateau = new THREE.Mesh(plateauGeo, backMat);
+        const px = 0.28, py = h / 2 - 0.56;
+        plateau.position.set(px, py, -depth / 2 - 0.052);
+        group.add(plateau);
+
+        // Triple Pro Camera Array
+        addCameraBarrel(px + 0.19, py + 0.21, 0.168, 0.095);
+        addCameraBarrel(px + 0.19, py - 0.21, 0.168, 0.095);
+        addCameraBarrel(px - 0.18, py, 0.168, 0.095);
+
+        // TrueTone Frosted Flash & LiDAR Scanner
+        const flashGeo = new THREE.CylinderGeometry(0.068, 0.068, 0.065, 24);
+        flashGeo.rotateX(Math.PI / 2);
+        const flash = new THREE.Mesh(flashGeo, new THREE.MeshStandardMaterial({
+          color: 0xfef9c3,
+          emissive: 0xfde047,
+          emissiveIntensity: 0.25,
+          roughness: 0.2
+        }));
+        flash.position.set(px - 0.18, py + 0.25, -depth / 2 - 0.055);
+        group.add(flash);
+
+        const lidarGeo = new THREE.CylinderGeometry(0.062, 0.062, 0.062, 24);
+        lidarGeo.rotateX(Math.PI / 2);
+        const lidar = new THREE.Mesh(lidarGeo, new THREE.MeshStandardMaterial({
+          color: 0x1e1b4b,
+          metalness: 0.8,
+          roughness: 0.2
+        }));
+        lidar.position.set(px - 0.18, py - 0.25, -depth / 2 - 0.055);
+        group.add(lidar);
+      } else {
+        // Galaxy S25 Ultra Iconic 5-Ring Floating Titanium Camera Array
+        const gx = 0.44, gy = h / 2 - 0.34;
+        addCameraBarrel(gx, gy, 0.16, 0.09);
+        addCameraBarrel(gx, gy - 0.37, 0.16, 0.09);
+        addCameraBarrel(gx, gy - 0.74, 0.16, 0.09);
+        addCameraBarrel(gx - 0.31, gy - 0.18, 0.11, 0.07);
+        addCameraBarrel(gx - 0.31, gy - 0.55, 0.11, 0.07);
+      }
+
+      return group;
+    }
+
+    // =========================================================================
+    // Assemble 3D Smartphone Trophy Trio + Subtle Minimalist Glowing Rings Pedestal
+    // =========================================================================
+    const trophyGroup = new THREE.Group();
+    scene.add(trophyGroup);
+
+    // 1. Center Trophy Smartphone (iPhone 17 Pro Max — Elevated Centerpiece)
+    const centerPhone = createSmartphone3D({
+      w: 1.74,
+      h: 3.58,
+      depth: 0.17,
+      radius: 0.26,
+      frameColor: 0xd6c7b2,
+      backColor: 0x27272a,
+      style: 'iphone',
+      wallpaperPalette: ['#040b1a', '#0a2e6e', '#030712', 'rgba(0, 150, 255, 0.92)', 'rgba(251, 191, 36, 0.42)']
+    });
+    centerPhone.position.set(0, 0.36, 0.65);
+    trophyGroup.add(centerPhone);
+
+    // 2. Left Smartphone (Galaxy S25 Ultra — Sharp Cornered Titanium)
+    const leftPhone = createSmartphone3D({
+      w: 1.66,
+      h: 3.44,
+      depth: 0.165,
+      radius: 0.065,
+      frameColor: 0x93c5fd,
+      backColor: 0x1e293b,
+      style: 'ultra',
+      wallpaperPalette: ['#020617', '#0c4a6e', '#082f49', 'rgba(56, 189, 248, 0.92)', 'rgba(14, 165, 233, 0.45)']
+    });
+    leftPhone.position.set(-2.22, -0.05, -0.15);
+    trophyGroup.add(leftPhone);
+
+    // 3. Right Smartphone (Pro Flagship — Deep Titanium Blue)
+    const rightPhone = createSmartphone3D({
+      w: 1.64,
+      h: 3.40,
+      depth: 0.165,
+      radius: 0.24,
+      frameColor: 0x60a5fa,
+      backColor: 0x0f172a,
+      style: 'iphone',
+      wallpaperPalette: ['#05070a', '#1e1b4b', '#090d16', 'rgba(96, 165, 250, 0.92)', 'rgba(129, 140, 248, 0.45)']
+    });
+    rightPhone.position.set(2.22, -0.05, -0.15);
+    trophyGroup.add(rightPhone);
+
+    // Subtle Minimalist Glowing Trophy Floor Rings (원래처럼 살짝만 보이는 받침대)
+    const ringMat = new THREE.MeshBasicMaterial({ color: 0x0096ff, transparent: true, opacity: 0.58 });
+    const outerRing = new THREE.Mesh(new THREE.TorusGeometry(2.85, 0.020, 16, 100), ringMat);
+    outerRing.rotation.x = Math.PI / 2;
+    outerRing.position.y = -2.02;
+    trophyGroup.add(outerRing);
+
+    const innerRingMat = new THREE.MeshBasicMaterial({ color: 0x7dd3fc, transparent: true, opacity: 0.40 });
+    const innerRing = new THREE.Mesh(new THREE.TorusGeometry(1.95, 0.015, 16, 80), innerRingMat);
+    innerRing.rotation.x = Math.PI / 2;
+    innerRing.position.y = -1.96;
+    trophyGroup.add(innerRing);
+
+    // Sync subtle rings & exposure with Dark / White Mode
+    const sync3DTheme = () => {
+      const isWhite = document.documentElement.getAttribute('data-theme') === 'white';
+      if (isWhite) {
+        ringMat.color.setHex(0x0a84ff);
+        ringMat.opacity = 0.42;
+        innerRingMat.color.setHex(0x0284c7);
+        innerRingMat.opacity = 0.30;
+        renderer.toneMappingExposure = 1.42;
+      } else {
+        ringMat.color.setHex(0x0096ff);
+        ringMat.opacity = 0.58;
+        innerRingMat.color.setHex(0x7dd3fc);
+        innerRingMat.opacity = 0.40;
+        renderer.toneMappingExposure = 1.32;
+      }
+    };
+    document.getElementById('themeToggle').addEventListener('change', sync3DTheme);
+    sync3DTheme();
+
+    // Resize Handling
+    function resize3D() {
+      const rect = stageEl.getBoundingClientRect();
+      const w = Math.max(1, rect.width);
+      const h = Math.max(1, rect.height);
+      renderer.setSize(w, h, false);
+      camera.aspect = w / h;
+      camera.position.z = w < 720 ? 11.8 : 9.2;
+      camera.lookAt(0, -0.05, 0);
+      camera.updateProjectionMatrix();
+    }
+    new ResizeObserver(resize3D).observe(stageEl);
+    resize3D();
+
+    // Interactive Mouse Parallax + Drag-to-Rotate 360°
+    let dragging = false;
+    let prevX = 0;
+    let userYaw = 0;
+    let targetYaw = 0;
+    let pointerX = 0;
+    let pointerY = 0;
+
+    stageEl.addEventListener('pointerdown', e => {
+      dragging = true;
+      prevX = e.clientX;
+    });
+    window.addEventListener('pointerup', () => { dragging = false; });
+    window.addEventListener('pointermove', e => {
+      const rect = stageEl.getBoundingClientRect();
+      pointerX = ((e.clientX - rect.left) / Math.max(1, rect.width) - 0.5) * 2;
+      pointerY = ((e.clientY - rect.top) / Math.max(1, rect.height) - 0.5) * 2;
+      if (dragging) {
+        const dx = e.clientX - prevX;
+        prevX = e.clientX;
+        targetYaw += dx * 0.012;
+      }
+    }, { passive: true });
+
+    // Animation Loop: Levitating 3D Smartphone Trophy Trio
+    const clock = new THREE.Clock();
+    function animate3D() {
+      const t = clock.getElapsedTime();
+      userYaw += (targetYaw - userYaw) * 0.08;
+
+      // 1. Center phone (iPhone 17 Pro Max)
+      centerPhone.position.y = 0.34 + Math.sin(t * 1.6) * 0.10;
+      centerPhone.rotation.y = Math.sin(t * 0.85) * 0.42 + userYaw + pointerX * 0.22;
+      centerPhone.rotation.x = Math.cos(t * 0.7) * 0.05 - pointerY * 0.09;
+      centerPhone.rotation.z = Math.sin(t * 0.6) * 0.025;
+
+      // 2. Left phone (Galaxy S25 Ultra)
+      leftPhone.position.y = -0.06 + Math.sin(t * 1.45 + 1.2) * 0.09;
+      leftPhone.rotation.y = 0.56 + Math.sin(t * 0.75 + 0.8) * 0.44 + userYaw + pointerX * 0.2;
+      leftPhone.rotation.x = 0.04 - pointerY * 0.08;
+      leftPhone.rotation.z = 0.06;
+
+      // 3. Right phone (Pro Flagship — showing rear 3D camera bump & titanium rail)
+      rightPhone.position.y = -0.06 + Math.sin(t * 1.5 + 2.5) * 0.09;
+      rightPhone.rotation.y = -2.46 + Math.cos(t * 0.8) * 0.44 + userYaw + pointerX * 0.2;
+      rightPhone.rotation.x = 0.04 - pointerY * 0.08;
+      rightPhone.rotation.z = -0.06;
+
+      renderer.render(scene, camera);
+      requestAnimationFrame(animate3D);
+    }
+    animate3D();
+  </script>
+</body>
+</html>

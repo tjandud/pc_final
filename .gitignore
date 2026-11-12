@@ -27,7 +27,6 @@ shots/
 .agents/
 backups/
 gemini-code-1794289047371.html
-ide.html
 
 # IDE & OS
 .vscode/
