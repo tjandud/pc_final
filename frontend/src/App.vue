@@ -1,16 +1,19 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router'
 import AppHeader from '@/components/layout/AppHeader.vue'
 import AppFooter from '@/components/layout/AppFooter.vue'
 import CompareTray from '@/components/layout/CompareTray.vue'
+
+const route = useRoute()
 </script>
 
 <template>
   <a class="skip-link" href="#main">본문으로 건너뛰기</a>
   <AppHeader />
-  <main id="main" class="app-main">
+  <main id="main" class="app-main" :class="{ 'is-full-bleed': Boolean(route.meta.fullBleed) }">
     <RouterView />
   </main>
-  <AppFooter />
+  <AppFooter v-if="!route.meta.fullBleed" />
   <CompareTray />
 </template>
 

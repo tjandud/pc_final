@@ -1,0 +1,256 @@
+/* ==========================================================================
+   PC_BIT Unified Design System — Synced 1:1 with 예시_영상맞춤 Design Tokens
+   Bridges Home (/), Catalog (/products), Compare (/compare),
+   MyPage (/mypage), Product Detail, and Admin under Dark & White themes.
+   ========================================================================== */
+
+:root,
+:root[data-theme='dark'] {
+  color-scheme: dark;
+  --bg: #05070a;
+  --text: #ffffff;
+  --text2: #f1f5f9;
+  --mute: #cbd5e1;
+  --dim: #94a3b8;
+  --acc: #0096ff;
+  --acc-rgb: 0, 150, 255;
+  --acc2: #7cc8ff;
+  --acc-d: #0068d6;
+  --on-acc: #ffffff;
+  --badge-dark: #070b12;
+  --glass: rgba(8, 13, 23, 0.91);
+  --glass-s: rgba(7, 11, 20, 0.96);
+  --line: rgba(255, 255, 255, 0.11);
+  --line2: rgba(255, 255, 255, 0.2);
+  --fill: rgba(255, 255, 255, 0.06);
+  --fill2: rgba(255, 255, 255, 0.13);
+  --chip: rgba(12, 18, 30, 0.94);
+  --node: rgba(14, 20, 33, 0.98);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.09) inset, 0 20px 44px -20px rgba(0, 0, 0, 0.78);
+  --heat: linear-gradient(90deg, #1a2333, #334259 60%, #1a2333);
+  --nav-bg: rgba(5, 7, 10, 0.94);
+  --a08: rgba(var(--acc-rgb), 0.08);
+  --a15: rgba(var(--acc-rgb), 0.14);
+  --a25: rgba(var(--acc-rgb), 0.24);
+  --a40: rgba(var(--acc-rgb), 0.38);
+  --a60: rgba(var(--acc-rgb), 0.58);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* Unified cross-route bridge tokens */
+  --bg-main: var(--bg);
+  --bg-spotlight: radial-gradient(ellipse 80% 50% at 50% -8%, rgba(0, 150, 255, 0.15), transparent 72%);
+  --surface: #0b1018;
+  --surface-2: #111926;
+  --card: var(--glass);
+  --card-bg: var(--glass);
+  --card-inner: rgba(255, 255, 255, 0.055);
+  --card-border: var(--line);
+  --card-shadow: var(--shadow);
+  --header-bg: var(--nav-bg);
+  --hairline: var(--line);
+  --hairline-strong: var(--line2);
+  --divider: var(--line);
+
+  --ink: var(--text);
+  --text-main: var(--text);
+  --text-sub: var(--mute);
+  --muted: var(--dim);
+  --c-text: var(--text);
+
+  --accent: var(--acc);
+  --accent-hover: var(--acc2);
+  --accent-text: var(--acc2);
+  --accent-glow: var(--a25);
+  --action: var(--acc);
+  --action-ink: #ffffff;
+  --action-subtle: var(--a15);
+  --action-border: var(--a40);
+  --badge-bg: var(--a15);
+  --badge-text: var(--acc2);
+  --track-bg: var(--fill2);
+  --diff-row-bg: var(--a08);
+  --spec-win: #34d399;
+  --spec-win-bg: rgba(16, 185, 129, 0.16);
+  --price-drop: #34d399;
+  --price-rise: #f87171;
+  --emerald: #10b981;
+  --amber: #f59e0b;
+  --rose: #fb7185;
+
+  --font-sans: 'Pretendard Variable', Pretendard, 'Inter', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+}
+
+:root[data-theme='white'] {
+  color-scheme: light;
+  --bg: #edf2f9;
+  --text: #090d16;
+  --text2: #0f172a;
+  --mute: #334155;
+  --dim: #475569;
+  --acc: #0072e5;
+  --acc-rgb: 0, 114, 229;
+  --acc2: #0066cc;
+  --acc-d: #0052a3;
+  --on-acc: #ffffff;
+  --badge-dark: #0f172a;
+  --glass: rgba(255, 255, 255, 0.94);
+  --glass-s: rgba(255, 255, 255, 0.98);
+  --line: rgba(15, 23, 42, 0.1);
+  --line2: rgba(15, 23, 42, 0.18);
+  --fill: rgba(15, 23, 42, 0.05);
+  --fill2: rgba(15, 23, 42, 0.11);
+  --chip: rgba(255, 255, 255, 0.97);
+  --node: rgba(248, 250, 252, 0.99);
+  --shadow: 0 1px 0 rgba(255, 255, 255, 0.98) inset, 0 18px 40px -18px rgba(15, 23, 42, 0.16);
+  --heat: linear-gradient(90deg, #cbd5e1, #94a3b8 60%, #cbd5e1);
+  --nav-bg: rgba(237, 242, 249, 0.96);
+
+  --bg-main: var(--bg);
+  --bg-spotlight: radial-gradient(ellipse 80% 50% at 50% -8%, rgba(0, 114, 229, 0.11), transparent 72%);
+  --surface: #ffffff;
+  --surface-2: #f1f5fa;
+  --card: var(--glass);
+  --card-bg: var(--glass);
+  --card-inner: #f1f5fa;
+  --card-border: var(--line);
+  --card-shadow: var(--shadow);
+  --header-bg: var(--nav-bg);
+  --hairline: var(--line);
+  --hairline-strong: var(--line2);
+  --divider: var(--line);
+
+  --ink: var(--text);
+  --text-main: var(--text);
+  --text-sub: var(--mute);
+  --muted: var(--dim);
+  --c-text: var(--text);
+
+  --accent: var(--acc);
+  --accent-hover: var(--acc2);
+  --accent-text: var(--acc2);
+  --accent-glow: var(--a25);
+  --action: var(--acc);
+  --action-ink: #ffffff;
+  --action-subtle: var(--a15);
+  --action-border: var(--a40);
+  --badge-bg: var(--a15);
+  --badge-text: var(--acc2);
+  --track-bg: var(--fill2);
+  --diff-row-bg: var(--a08);
+  --spec-win: #047857;
+  --spec-win-bg: rgba(16, 185, 129, 0.14);
+  --price-drop: #047857;
+  --price-rise: #dc2626;
+  --emerald: #059669;
+  --amber: #d97706;
+  --rose: #e11d48;
+}
+
+html,
+body {
+  font-family: var(--font-sans);
+  color: var(--text);
+  background-color: var(--bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  font-synthesis-weight: none;
+  text-rendering: optimizeLegibility;
+}
+
+body {
+  word-break: keep-all;
+}
+
+.app-main.is-full-bleed {
+  padding-top: 0 !important;
+  min-height: 0 !important;
+}
+
+html.snap-lock,
+html.snap-lock body {
+  overflow: hidden !important;
+  height: 100vh !important;
+  padding-bottom: 0 !important;
+}
+
+.glass-card {
+  background: var(--glass);
+  border: 1px solid var(--line);
+  box-shadow: var(--shadow);
+  contain: layout style;
+  transition:
+    border-color 0.3s,
+    background 0.35s;
+}
+
+.btn--primary {
+  background: var(--acc);
+  color: #ffffff;
+  border: 1px solid transparent;
+  font-weight: 700;
+  box-shadow: 0 8px 24px -6px var(--a40);
+}
+
+.btn--primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 26px -6px var(--a60);
+}
+
+.btn--secondary {
+  background: var(--fill);
+  color: var(--text);
+  border: 1px solid var(--line2);
+  font-weight: 600;
+}
+
+.btn--secondary:hover:not(:disabled) {
+  background: var(--fill2);
+  transform: translateY(-2px);
+}
+
+.hero-acc,
+.eyebrow-acc {
+  font-family: var(--font-sans);
+  font-style: normal;
+  font-weight: 800;
+  color: var(--acc2);
+  letter-spacing: -0.04em;
+}
+
+input,
+select,
+textarea,
+button {
+  font-family: inherit;
+  color: inherit;
+}
+
+.nav__mark {
+  background: var(--acc) !important;
+  color: #ffffff !important;
+  display: inline-grid !important;
+  place-items: center !important;
+}
+
+/* Eliminate expensive multi-layer compositor Gaussian blur across weak/integrated GPUs */
+.glass-card,
+.glass,
+.card,
+.nav,
+.drawer,
+.sheet,
+.tray {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

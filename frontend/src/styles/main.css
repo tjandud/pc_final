@@ -183,7 +183,7 @@ button {
 .btn--primary,
 .btn-accent {
   background-color: var(--accent);
-  color: var(--accent-text);
+  color: var(--on-acc, #ffffff);
 }
 
 .btn--secondary {

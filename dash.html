@@ -1,0 +1,1427 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>TechCompare — MyPage Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Dark Theme (Admin Dashboard V2 Exact Atmospheric Palette) ── */
+    :root {
+      --bg-ambient:
+        radial-gradient(ellipse 68% 58% at 18% 18%, rgba(14, 165, 233, 0.24) 0%, transparent 62%),
+        radial-gradient(ellipse 60% 54% at 84% 78%, rgba(6, 182, 212, 0.20) 0%, transparent 60%),
+        radial-gradient(ellipse 48% 42% at 50% 50%, rgba(30, 58, 138, 0.16) 0%, transparent 70%),
+        #070c14;
+      --shell-bg: rgba(13, 21, 32, 0.95);
+      --sidebar-bg: rgba(10, 16, 26, 0.92);
+      --card-bg: rgba(21, 32, 46, 0.88);
+      --card-hover: rgba(27, 41, 59, 0.96);
+      --card-inner: rgba(255, 255, 255, 0.045);
+      --border: rgba(255, 255, 255, 0.085);
+      --border-hover: rgba(56, 189, 248, 0.34);
+      --border-accent: rgba(56, 189, 248, 0.38);
+      --text-main: #F8FAFC;
+      --text-sub: #94A3B8;
+      --text-muted: #64748B;
+      --accent: #38BDF8;
+      --accent-strong: #0EA5E9;
+      --accent-soft: rgba(56, 189, 248, 0.13);
+      --accent-glow: rgba(14, 165, 233, 0.42);
+      --emerald: #34D399;
+      --emerald-soft: rgba(52, 211, 153, 0.13);
+      --amber: #FBBF24;
+      --amber-soft: rgba(251, 191, 36, 0.13);
+      --rose: #FB7185;
+      --rose-soft: rgba(251, 113, 133, 0.13);
+      --card-shadow: 0 10px 30px -12px rgba(0, 0, 0, 0.45);
+      --shadow-shell: 0 36px 90px -22px rgba(0, 0, 0, 0.88), 0 0 0 1px rgba(255, 255, 255, 0.07);
+      --spring: cubic-bezier(0.22, 1, 0.36, 1);
+      --spring-bounce: cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    /* ── White Theme (Spotlight White) ── */
+    [data-theme="white"] {
+      --bg-ambient:
+        radial-gradient(ellipse 68% 58% at 18% 18%, rgba(10, 132, 255, 0.16) 0%, transparent 62%),
+        radial-gradient(ellipse 60% 54% at 84% 78%, rgba(56, 189, 248, 0.15) 0%, transparent 60%),
+        #E9EFF7;
+      --shell-bg: rgba(255, 255, 255, 0.96);
+      --sidebar-bg: rgba(244, 247, 252, 0.98);
+      --card-bg: #FFFFFF;
+      --card-hover: #F8FAFC;
+      --card-inner: #F1F5F9;
+      --border: rgba(15, 23, 42, 0.085);
+      --border-hover: rgba(10, 132, 255, 0.32);
+      --border-accent: rgba(10, 132, 255, 0.32);
+      --text-main: #0F172A;
+      --text-sub: #475569;
+      --text-muted: #64748B;
+      --accent: #0A84FF;
+      --accent-strong: #0070E0;
+      --accent-soft: rgba(10, 132, 255, 0.10);
+      --accent-glow: rgba(10, 132, 255, 0.28);
+      --emerald: #059669;
+      --emerald-soft: rgba(5, 150, 105, 0.10);
+      --amber: #D97706;
+      --amber-soft: rgba(217, 119, 6, 0.11);
+      --rose: #E11D48;
+      --rose-soft: rgba(225, 29, 72, 0.10);
+      --card-shadow: 0 6px 20px -6px rgba(15, 23, 42, 0.08);
+      --shadow-shell: 0 30px 76px -20px rgba(15, 23, 42, 0.15), 0 0 0 1px rgba(15, 23, 42, 0.06);
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      min-height: 100vh;
+      background: var(--bg-ambient);
+      color: var(--text-main);
+      font-family: 'Pretendard Variable', 'Pretendard', 'Inter', -apple-system, sans-serif;
+      padding: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background 0.35s ease, color 0.25s ease;
+      overflow-x: hidden;
+    }
+
+    .tech-mono {
+      font-family: 'JetBrains Mono', monospace;
+      font-variant-numeric: tabular-nums;
+      letter-spacing: -0.02em;
+    }
+
+    /* ── Floating Dashboard Window Shell (GPU-friendly: no full-shell backdrop-filter) ── */
+    .dash-shell {
+      width: min(100%, 1380px);
+      min-height: 820px;
+      border-radius: 24px;
+      background: var(--shell-bg);
+      border: 1px solid var(--border);
+      box-shadow: var(--shadow-shell);
+      display: grid;
+      grid-template-columns: 236px 1fr;
+      overflow: hidden;
+      contain: layout style;
+      animation: shellEnter 0.45s var(--spring) both;
+    }
+
+    @keyframes shellEnter {
+      from { opacity: 0; transform: translateY(14px) scale(0.978); }
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Left Sidebar ── */
+    .sidebar {
+      background: var(--sidebar-bg);
+      border-right: 1px solid var(--border);
+      padding: 22px 14px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      gap: 24px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      padding: 4px 8px 14px;
+      text-decoration: none;
+      color: var(--text-main);
+      border-bottom: 1px solid var(--border);
+      margin-bottom: 14px;
+    }
+    .brand__mark {
+      width: 34px;
+      height: 34px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, var(--accent-strong), #06b6d4);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 13px;
+      color: #fff;
+      box-shadow: 0 8px 20px -4px var(--accent-glow);
+      flex-shrink: 0;
+    }
+    .brand__name { font-weight: 800; font-size: 14.5px; letter-spacing: -0.02em; }
+    .brand__sub { font-size: 11px; color: var(--text-muted); }
+
+    .nav-label {
+      font-size: 10.5px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      padding: 0 10px;
+      margin-bottom: 8px;
+    }
+
+    /* Framer-Motion layoutId="activeNav" Sliding Pill */
+    .nav-list {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .nav-indicator {
+      position: absolute;
+      left: 0;
+      right: 0;
+      height: 40px;
+      border-radius: 11px;
+      background: var(--accent-soft);
+      border: 1px solid var(--border-accent);
+      box-shadow: 0 4px 16px -6px var(--accent-glow);
+      transition: transform 0.36s var(--spring-bounce), height 0.25s ease, opacity 0.2s ease;
+      pointer-events: none;
+      z-index: 0;
+    }
+    .nav-indicator::before {
+      content: "";
+      position: absolute;
+      left: 0;
+      top: 8px;
+      bottom: 8px;
+      width: 3px;
+      border-radius: 0 4px 4px 0;
+      background: var(--accent);
+    }
+
+    .nav-item {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px;
+      height: 40px;
+      padding: 0 12px;
+      border-radius: 11px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: var(--text-sub);
+      font-family: inherit;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: color 0.2s ease;
+      text-align: left;
+      width: 100%;
+    }
+    .nav-item__left { display: flex; align-items: center; gap: 10px; }
+    .nav-item svg { width: 16px; height: 16px; flex-shrink: 0; opacity: 0.78; transition: opacity 0.2s, transform 0.2s; }
+    .nav-item:hover { color: var(--text-main); }
+    .nav-item:hover svg { opacity: 1; transform: translateX(1px); }
+    .nav-item.active { color: var(--accent); font-weight: 700; }
+    .nav-item.active svg { opacity: 1; }
+    .nav-badge {
+      padding: 2px 7px;
+      border-radius: 999px;
+      background: var(--accent-strong);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+    }
+
+    .sidebar-footer { display: flex; flex-direction: column; gap: 10px; }
+    .sidebar-link {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 9px 12px;
+      border-radius: 11px;
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      color: var(--text-sub);
+      text-decoration: none;
+      font-size: 12px;
+      font-weight: 600;
+      transition: all 0.2s var(--spring);
+    }
+    .sidebar-link:hover { border-color: var(--border-accent); color: var(--accent); transform: translateY(-2px); }
+
+    .sidebar-user {
+      padding: 11px;
+      border-radius: 14px;
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #0ea5e9, #6366f1);
+      display: grid;
+      place-items: center;
+      font-weight: 800;
+      font-size: 12.5px;
+      color: #fff;
+      flex-shrink: 0;
+    }
+    .sidebar-user__name { font-size: 12.5px; font-weight: 700; }
+    .sidebar-user__meta { font-size: 11px; color: var(--text-muted); }
+
+    /* ── Main Content ── */
+    .main {
+      padding: 26px 28px 30px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      min-width: 0;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      flex-wrap: wrap;
+    }
+    .topbar__title { font-size: 22px; font-weight: 800; letter-spacing: -0.03em; }
+    .topbar__sub { font-size: 12.5px; color: var(--text-sub); margin-top: 3px; }
+    .topbar__actions { display: flex; align-items: center; gap: 10px; }
+
+    .search-box { position: relative; display: flex; align-items: center; }
+    .search-box svg {
+      position: absolute;
+      left: 12px;
+      width: 14px;
+      height: 14px;
+      color: var(--text-muted);
+      pointer-events: none;
+    }
+    .search-box input {
+      width: 220px;
+      height: 36px;
+      padding: 0 12px 0 34px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 12.5px;
+      outline: none;
+      transition: border-color 0.2s, width 0.25s var(--spring);
+    }
+    .search-box input:focus { border-color: var(--accent); width: 250px; }
+
+    .icon-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+      color: var(--text-sub);
+      display: grid;
+      place-items: center;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s var(--spring);
+    }
+    .icon-btn:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); }
+    .icon-btn__dot {
+      position: absolute;
+      top: 7px;
+      right: 8px;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--rose);
+      border: 1.5px solid var(--card-bg);
+    }
+
+    /* Uiverse Theme Toggle */
+    .theme-wrap {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 4px 8px 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--border);
+      background: var(--card-bg);
+    }
+    .uiverse-switch { position: relative; display: inline-block; width: 46px; height: 24px; cursor: pointer; }
+    .uiverse-switch input { opacity: 0; width: 0; height: 0; }
+    .uiverse-slider {
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      background: linear-gradient(135deg, #0b1324, #0369a1);
+      border: 1px solid var(--border-accent);
+      transition: 0.3s;
+    }
+    .uiverse-knob {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      background: #e2e8f0;
+      transition: transform 0.32s var(--spring-bounce), background 0.25s;
+    }
+    .uiverse-switch input:checked + .uiverse-slider { background: linear-gradient(135deg, #0A84FF, #7DD3FC); }
+    .uiverse-switch input:checked + .uiverse-slider .uiverse-knob { transform: translateX(21px); background: #FDE047; }
+
+    /* ── Tab Panels + Staggered Framer-Motion Animations ── */
+    .tab-panel { display: none; flex-direction: column; gap: 18px; }
+    .tab-panel.active { display: flex; animation: panelEnter 0.36s var(--spring) both; }
+    @keyframes panelEnter {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .stagger-item {
+      opacity: 0;
+      transform: translateY(16px) scale(0.985);
+    }
+    .tab-panel.active .stagger-item {
+      animation: staggerIn 0.46s var(--spring) forwards;
+      animation-delay: calc(var(--i, 0) * 55ms);
+    }
+    @keyframes staggerIn {
+      to { opacity: 1; transform: translateY(0) scale(1); }
+    }
+
+    /* ── Stat Cards (Video's whileHover={{ y: -4 }} + CountUp) ── */
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .kpi-card {
+      position: relative;
+      padding: 18px 18px 16px;
+      border-radius: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      overflow: hidden;
+      contain: layout style;
+      transition: transform 0.24s var(--spring), border-color 0.2s, background-color 0.2s;
+    }
+    .kpi-card::after {
+      content: "";
+      position: absolute;
+      inset: 0 0 auto 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(56, 189, 248, 0.45), transparent);
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+    .kpi-card:hover {
+      transform: translate3d(0, -4px, 0);
+      border-color: var(--border-hover);
+      background: var(--card-hover);
+    }
+    .kpi-card:hover::after { opacity: 1; }
+
+    .kpi-card__top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 8px;
+    }
+    .kpi-card__label { font-size: 12px; font-weight: 600; color: var(--text-sub); }
+    .kpi-card__icon {
+      width: 30px;
+      height: 30px;
+      border-radius: 9px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+    }
+    .kpi-card__icon--emerald { background: var(--emerald-soft); color: var(--emerald); }
+    .kpi-card__icon--amber { background: var(--amber-soft); color: var(--amber); }
+    .kpi-card__icon--rose { background: var(--rose-soft); color: var(--rose); }
+    .kpi-card__icon svg { width: 15px; height: 15px; }
+
+    .kpi-card__value {
+      font-size: 26px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+    }
+    .kpi-card__foot {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 11.5px;
+      font-weight: 600;
+    }
+    .trend-up { color: var(--emerald); }
+    .trend-down { color: var(--rose); }
+    .trend-muted { color: var(--text-muted); font-weight: 500; }
+
+    /* ── Overview Split Grid ── */
+    .split-grid {
+      display: grid;
+      grid-template-columns: 1.58fr 1fr;
+      gap: 16px;
+    }
+    .split-grid--equal {
+      display: grid;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 16px;
+    }
+
+    .panel {
+      padding: 20px;
+      border-radius: 18px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      box-shadow: var(--card-shadow);
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .panel__head {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .panel__title { font-size: 15px; font-weight: 800; letter-spacing: -0.02em; }
+    .panel__sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
+
+    .pill-group {
+      display: inline-flex;
+      padding: 3px;
+      border-radius: 10px;
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      gap: 2px;
+    }
+    .pill-btn {
+      padding: 5px 10px;
+      border-radius: 7px;
+      border: none;
+      background: transparent;
+      color: var(--text-sub);
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s var(--spring);
+    }
+    .pill-btn.active {
+      background: var(--accent-strong);
+      color: #fff;
+      box-shadow: 0 3px 10px -2px var(--accent-glow);
+    }
+
+    /* Chart Canvas */
+    .chart-wrap { position: relative; width: 100%; height: 245px; }
+    .chart-svg { width: 100%; height: 100%; overflow: visible; }
+    .chart-line-anim {
+      stroke-dasharray: 1200;
+      stroke-dashoffset: 1200;
+      animation: drawLine 0.85s var(--spring) forwards;
+    }
+    .chart-area-anim {
+      opacity: 0;
+      animation: fadeArea 0.65s ease 0.18s forwards;
+    }
+    @keyframes drawLine { to { stroke-dashoffset: 0; } }
+    @keyframes fadeArea { to { opacity: 1; } }
+
+    .chart-tooltip {
+      position: absolute;
+      pointer-events: none;
+      padding: 8px 12px;
+      border-radius: 10px;
+      background: rgba(11, 17, 26, 0.94);
+      border: 1px solid var(--border-accent);
+      color: #F8FAFC;
+      font-size: 11.5px;
+      box-shadow: 0 12px 26px rgba(0, 0, 0, 0.45);
+      opacity: 0;
+      transform: translate(-50%, -115%);
+      transition: opacity 0.15s ease, left 0.12s ease, top 0.12s ease;
+      white-space: nowrap;
+      z-index: 10;
+    }
+    [data-theme="white"] .chart-tooltip {
+      background: rgba(255, 255, 255, 0.96);
+      color: #0F172A;
+      box-shadow: 0 10px 24px rgba(15, 23, 42, 0.14);
+    }
+
+    /* Recent Activity Feed */
+    .activity-list { display: flex; flex-direction: column; gap: 9px; }
+    .activity-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 11px 12px;
+      border-radius: 12px;
+      background: var(--card-inner);
+      border: 1px solid transparent;
+      transition: transform 0.22s var(--spring), border-color 0.2s, background 0.2s;
+    }
+    .activity-item:hover { transform: translateX(3px); border-color: var(--border-hover); }
+    .activity-item__left { display: flex; align-items: center; gap: 11px; min-width: 0; }
+    .activity-dot {
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
+      background: var(--accent-soft);
+      color: var(--accent);
+      display: grid;
+      place-items: center;
+      flex-shrink: 0;
+    }
+    .activity-item__title {
+      font-size: 12.8px;
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .activity-item__meta { font-size: 11px; color: var(--text-muted); margin-top: 2px; }
+    .activity-item__time { font-size: 11px; color: var(--text-muted); white-space: nowrap; }
+
+    /* ── Price Watch / Finance Tab ── */
+    .table-wrap { overflow-x: auto; }
+    table { width: 100%; border-collapse: collapse; font-size: 12.5px; }
+    th {
+      text-align: left;
+      padding: 9px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+    }
+    td { padding: 12px 10px; border-bottom: 1px solid var(--border); vertical-align: middle; }
+    tr:last-child td { border-bottom: 0; }
+    tbody tr { transition: background 0.18s; }
+    tbody tr:hover { background: var(--card-inner); }
+
+    .mall-link {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 8px;
+      border-radius: 7px;
+      background: var(--card-inner);
+      border: 1px solid var(--border);
+      color: var(--text-main);
+      text-decoration: none;
+      font-size: 11px;
+      font-weight: 600;
+      transition: all 0.18s;
+    }
+    .mall-link:hover { border-color: var(--accent); color: var(--accent); }
+
+    /* Animated Category Savings Bars (Video Finance Right Panel) */
+    .bar-list { display: flex; flex-direction: column; gap: 14px; margin-top: 4px; }
+    .bar-row__top { display: flex; justify-content: space-between; font-size: 12.5px; font-weight: 700; margin-bottom: 6px; }
+    .bar-track {
+      height: 8px;
+      border-radius: 999px;
+      background: var(--card-inner);
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      width: 100%;
+      border-radius: 999px;
+      background: linear-gradient(90deg, var(--accent-strong), #06b6d4);
+      transform-origin: left center;
+      transform: scaleX(0);
+      transition: transform 0.65s var(--spring);
+    }
+
+    /* ── Saved Devices / Moderation 4-Col Photo Grid ── */
+    .filter-bar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .device-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 14px;
+    }
+    .device-card {
+      border-radius: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      box-shadow: var(--card-shadow);
+      padding: 13px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      contain: layout style;
+      transition: transform 0.24s var(--spring), border-color 0.2s;
+    }
+    .device-card:hover {
+      transform: translate3d(0, -4px, 0);
+      border-color: var(--border-hover);
+    }
+
+    .device-card__media {
+      position: relative;
+      height: 142px;
+      border-radius: 12px;
+      background: #f8fafc;
+      display: grid;
+      isolation: isolate;
+      place-items: center;
+      overflow: hidden;
+      padding: 10px;
+    }
+    .device-card__media img {
+      max-width: 84%;
+      max-height: 118px;
+      object-fit: contain;
+      mix-blend-mode: multiply;
+      transition: transform 0.35s var(--spring);
+    }
+    .device-card:hover .device-card__media img { transform: scale(1.06); }
+
+    .device-card__brand {
+      position: absolute;
+      top: 8px;
+      left: 8px;
+      padding: 3px 8px;
+      border-radius: 7px;
+      background: rgba(15, 23, 42, 0.84);
+      color: #fff;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .device-card__cat {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      padding: 3px 7px;
+      border-radius: 7px;
+      background: rgba(14, 165, 233, 0.14);
+      color: #0284c7;
+      font-size: 10px;
+      font-weight: 700;
+    }
+    .device-card__name { font-size: 14px; font-weight: 800; letter-spacing: -0.02em; }
+    .device-card__spec { font-size: 11px; color: var(--text-sub); margin-top: 2px; }
+    .device-card__price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      padding-top: 8px;
+      border-top: 1px solid var(--border);
+    }
+    .device-card__price { font-size: 13.5px; font-weight: 800; color: var(--accent); }
+    .device-card__actions { display: grid; grid-template-columns: 1fr 32px; gap: 7px; }
+
+    .btn-sm {
+      height: 31px;
+      border-radius: 9px;
+      border: 1px solid var(--border);
+      background: var(--card-inner);
+      color: var(--text-main);
+      font-family: inherit;
+      font-size: 11.5px;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.2s var(--spring);
+    }
+    .btn-sm:hover { border-color: var(--accent); color: var(--accent); }
+    .btn-sm--primary { background: var(--accent-strong); border-color: var(--accent-strong); color: #fff; }
+    .btn-sm--primary:hover { opacity: 0.92; color: #fff; transform: translateY(-1px); }
+
+    /* ── Announcements / Alerts List ── */
+    .announce-list { display: flex; flex-direction: column; gap: 11px; }
+    .announce-card {
+      padding: 17px 20px;
+      border-radius: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--border);
+      box-shadow: var(--card-shadow);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      transition: transform 0.25s var(--spring), border-color 0.2s;
+    }
+    .announce-card:hover { transform: translateY(-2px); border-color: var(--border-hover); }
+    .announce-card__tag {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 999px;
+      font-size: 10.5px;
+      font-weight: 700;
+      margin-bottom: 6px;
+    }
+    .announce-card__title { font-size: 14.5px; font-weight: 800; }
+    .announce-card__desc { font-size: 12.5px; color: var(--text-sub); margin-top: 3px; }
+
+    /* Toast */
+    .compare-toast {
+      position: fixed;
+      bottom: 24px;
+      right: 28px;
+      padding: 12px 18px;
+      border-radius: 14px;
+      background: var(--accent-strong);
+      color: #fff;
+      font-size: 12.5px;
+      font-weight: 700;
+      box-shadow: 0 14px 34px -8px var(--accent-glow);
+      opacity: 0;
+      transform: translateY(12px);
+      pointer-events: none;
+      transition: all 0.26s var(--spring);
+      z-index: 50;
+    }
+    .compare-toast.show { opacity: 1; transform: translateY(0); }
+
+    @media (max-width: 1140px) {
+      .kpi-grid, .device-grid { grid-template-columns: repeat(2, 1fr); }
+      .split-grid, .split-grid--equal { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 820px) {
+      body { padding: 10px; }
+      .dash-shell { grid-template-columns: 1fr; }
+      .sidebar { border-right: 0; border-bottom: 1px solid var(--border); }
+      .device-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="dash-shell">
+    <!-- Left Sidebar -->
+    <aside class="sidebar">
+      <div>
+        <a href="./ide.html" class="brand">
+          <span class="brand__mark tech-mono">TC</span>
+          <div>
+            <div class="brand__name">TechCompare</div>
+            <div class="brand__sub">99종 IT 스펙 · 마이페이지</div>
+          </div>
+        </a>
+
+        <div class="nav-label">Dashboard</div>
+        <nav class="nav-list" id="sidebarNav">
+          <div class="nav-indicator" id="navIndicator"></div>
+          <button class="nav-item active" data-tab="overview">
+            <span class="nav-item__left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="9" rx="1.5"/><rect x="14" y="3" width="7" height="5" rx="1.5"/><rect x="14" y="12" width="7" height="9" rx="1.5"/><rect x="3" y="16" width="7" height="5" rx="1.5"/></svg>
+              마이페이지 홈
+            </span>
+          </button>
+          <button class="nav-item" data-tab="finance">
+            <span class="nav-item__left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+              최저가 · 절약 분석
+            </span>
+          </button>
+          <button class="nav-item" data-tab="saved">
+            <span class="nav-item__left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg>
+              찜한 기기 · 비교함
+            </span>
+            <span class="nav-badge tech-mono" id="savedCountBadge">8</span>
+          </button>
+          <button class="nav-item" data-tab="alerts">
+            <span class="nav-item__left">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+              가격 알림 · 소식
+            </span>
+            <span class="nav-badge tech-mono">4</span>
+          </button>
+        </nav>
+      </div>
+
+      <div class="sidebar-footer">
+        <a href="./ide.html" class="sidebar-link">
+          <span>3D 쇼케이스 (ide.html)</span>
+          <span class="tech-mono">↗</span>
+        </a>
+        <div class="sidebar-user">
+          <div class="avatar">MJ</div>
+          <div>
+            <div class="sidebar-user__name">김민준</div>
+            <div class="sidebar-user__meta tech-mono">PRO · 5 CATS</div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Main Panel -->
+    <main class="main">
+      <header class="topbar">
+        <div>
+          <h1 class="topbar__title" id="pageHeading">안녕하세요, 민준님</h1>
+          <p class="topbar__sub" id="pageSub">5개 카테고리 99종 카탈로그 중 찜한 기기 8종의 최저가와 1:1 스펙 비교 내역입니다.</p>
+        </div>
+
+        <div class="topbar__actions">
+          <div class="search-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg>
+            <input type="text" id="globalSearch" placeholder="기기명 · 칩셋 검색..." />
+          </div>
+
+          <button class="icon-btn" id="bellBtn" title="가격 알림 보기">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+            <span class="icon-btn__dot"></span>
+          </button>
+
+          <div class="theme-wrap">
+            <span id="themeLabel" class="tech-mono" style="font-size:11px;font-weight:700;color:var(--text-sub);">DARK</span>
+            <label class="uiverse-switch" title="다크 / 화이트 버전 전환">
+              <input type="checkbox" id="themeToggle" />
+              <span class="uiverse-slider"><span class="uiverse-knob"></span></span>
+            </label>
+          </div>
+        </div>
+      </header>
+
+      <!-- TAB 1: OVERVIEW -->
+      <section class="tab-panel active" id="tab-overview">
+        <div class="kpi-grid">
+          <div class="kpi-card stagger-item" style="--i:0">
+            <div class="kpi-card__top">
+              <span class="kpi-card__label">누적 1:1 스펙 비교</span>
+              <span class="kpi-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 3h5v5"/><path d="M8 3H3v5"/><path d="M21 3l-7 7"/><path d="M3 3l7 7"/><path d="M16 21h5v-5"/><path d="M8 21H3v-5"/><path d="M21 21l-7-7"/><path d="M3 21l7-7"/></svg></span>
+            </div>
+            <div class="kpi-card__value tech-mono" data-count="42" data-suffix="건">0건</div>
+            <div class="kpi-card__foot"><span class="trend-up tech-mono">↗ +14.2%</span><span class="trend-muted">vs 지난주</span></div>
+          </div>
+
+          <div class="kpi-card stagger-item" style="--i:1">
+            <div class="kpi-card__top">
+              <span class="kpi-card__label">찜한 관심 기기</span>
+              <span class="kpi-card__icon kpi-card__icon--amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/></svg></span>
+            </div>
+            <div class="kpi-card__value tech-mono" id="overviewSavedCount" data-count="8" data-suffix="종">0종</div>
+            <div class="kpi-card__foot"><span class="trend-up tech-mono">5개 카테고리</span><span class="trend-muted">전부 추적중</span></div>
+          </div>
+
+          <div class="kpi-card stagger-item" style="--i:2">
+            <div class="kpi-card__top">
+              <span class="kpi-card__label">가격 하락 감지</span>
+              <span class="kpi-card__icon kpi-card__icon--rose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 18 13.5 8.5 8.5 13.5 1 6"/><polyline points="17 18 23 18 23 12"/></svg></span>
+            </div>
+            <div class="kpi-card__value tech-mono" data-count="5" data-suffix="건">0건</div>
+            <div class="kpi-card__foot"><span class="trend-up tech-mono">최대 -11.8%</span><span class="trend-muted">오늘 기준</span></div>
+          </div>
+
+          <div class="kpi-card stagger-item" style="--i:3">
+            <div class="kpi-card__top">
+              <span class="kpi-card__label">예상 최저가 절약액</span>
+              <span class="kpi-card__icon kpi-card__icon--emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span>
+            </div>
+            <div class="kpi-card__value tech-mono" data-count="642000" data-prefix="₩">₩0</div>
+            <div class="kpi-card__foot"><span class="trend-up tech-mono">출고가 대비</span><span class="trend-muted">최저가 합산</span></div>
+          </div>
+        </div>
+
+        <div class="split-grid">
+          <div class="panel stagger-item" style="--i:4">
+            <div class="panel__head">
+              <div>
+                <div class="panel__title">플래그십 2종 최저가 추이</div>
+                <div class="panel__sub">iPhone 17 Pro Max vs Galaxy S25 Ultra (만원)</div>
+              </div>
+              <div class="pill-group" id="rangePills">
+                <button class="pill-btn active" data-range="7d">7D</button>
+                <button class="pill-btn" data-range="30d">30D</button>
+                <button class="pill-btn" data-range="90d">90D</button>
+              </div>
+            </div>
+            <div class="chart-wrap">
+              <svg class="chart-svg" id="priceChart" viewBox="0 0 640 240"></svg>
+              <div class="chart-tooltip" id="chartTooltip"></div>
+            </div>
+          </div>
+
+          <div class="panel stagger-item" style="--i:5">
+            <div class="panel__head">
+              <div>
+                <div class="panel__title">최근 비교 · 알림 로그</div>
+                <div class="panel__sub">실시간 스펙 탐색 기록</div>
+              </div>
+            </div>
+            <div class="activity-list" id="activityList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 2: PRICE WATCH / FINANCE -->
+      <section class="tab-panel" id="tab-finance">
+        <div class="kpi-grid">
+          <div class="kpi-card stagger-item" style="--i:0">
+            <div class="kpi-card__top"><span class="kpi-card__label">추적 기기 출고가 합계</span><span class="kpi-card__icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/></svg></span></div>
+            <div class="kpi-card__value tech-mono" data-count="12730000" data-prefix="₩">₩0</div>
+            <div class="kpi-card__foot"><span class="trend-muted">공식 출시가 기준</span></div>
+          </div>
+          <div class="kpi-card stagger-item" style="--i:1">
+            <div class="kpi-card__top"><span class="kpi-card__label">현재 최저가 합계</span><span class="kpi-card__icon kpi-card__icon--emerald"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg></span></div>
+            <div class="kpi-card__value tech-mono" data-count="12088000" data-prefix="₩">₩0</div>
+            <div class="kpi-card__foot"><span class="trend-up tech-mono">-5.0% 평균 할인</span></div>
+          </div>
+          <div class="kpi-card stagger-item" style="--i:2">
+            <div class="kpi-card__top"><span class="kpi-card__label">총 절약 가능 금액</span><span class="kpi-card__icon kpi-card__icon--amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg></span></div>
+            <div class="kpi-card__value tech-mono" data-count="642000" data-prefix="₩">₩0</div>
+            <div class="kpi-card__foot"><span class="trend-up tech-mono">+₩184,000</span><span class="trend-muted">지난달 대비</span></div>
+          </div>
+          <div class="kpi-card stagger-item" style="--i:3">
+            <div class="kpi-card__top"><span class="kpi-card__label">목표가 도달 기기</span><span class="kpi-card__icon kpi-card__icon--rose"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span></div>
+            <div class="kpi-card__value tech-mono" data-count="3" data-suffix="종">0종</div>
+            <div class="kpi-card__foot"><span class="trend-up tech-mono">즉시 구매 추천</span></div>
+          </div>
+        </div>
+
+        <div class="split-grid--equal">
+          <div class="panel stagger-item" style="--i:4">
+            <div class="panel__head">
+              <div>
+                <div class="panel__title">찜한 기기 실시간 최저가 테이블</div>
+                <div class="panel__sub">다나와 · 네이버 최저가 바로가기</div>
+              </div>
+            </div>
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>기기명</th>
+                    <th>출고가</th>
+                    <th>현재 최저가</th>
+                    <th>절약액</th>
+                    <th>쇼핑몰</th>
+                  </tr>
+                </thead>
+                <tbody id="financeTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel stagger-item" style="--i:5">
+            <div class="panel__head">
+              <div>
+                <div class="panel__title">카테고리별 절약 비중</div>
+                <div class="panel__sub">5개 카테고리 할인율 분석</div>
+              </div>
+            </div>
+            <div class="bar-list" id="categoryBarList"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- TAB 3: SAVED DEVICES (4-Column Photo Grid) -->
+      <section class="tab-panel" id="tab-saved">
+        <div class="filter-bar stagger-item" style="--i:0">
+          <div class="pill-group" id="catFilterPills">
+            <button class="pill-btn active" data-cat="all">전체</button>
+            <button class="pill-btn" data-cat="smartphone">스마트폰</button>
+            <button class="pill-btn" data-cat="tablet">태블릿</button>
+            <button class="pill-btn" data-cat="laptop">노트북</button>
+            <button class="pill-btn" data-cat="watch">워치</button>
+            <button class="pill-btn" data-cat="audio">오디오</button>
+          </div>
+          <div class="pill-group" id="brandFilterPills">
+            <button class="pill-btn active" data-brand="all">모든 브랜드</button>
+            <button class="pill-btn" data-brand="Apple">Apple</button>
+            <button class="pill-btn" data-brand="Samsung">Samsung</button>
+          </div>
+        </div>
+
+        <div class="device-grid" id="savedDeviceGrid"></div>
+      </section>
+
+      <!-- TAB 4: ALERTS & NEWS -->
+      <section class="tab-panel" id="tab-alerts">
+        <div class="announce-list" id="announceList"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="compare-toast" id="compareToast"></div>
+
+  <script>
+    // ── TechCompare 5-Category Catalog Sample Data (using local frontend/public/images/products/*.jpg) ──
+    let savedDevices = [
+      { id: 'iphone-17-pro-max', name: 'iPhone 17 Pro Max', brand: 'Apple', cat: 'smartphone', catKo: '스마트폰', spec: 'A19 Pro · 6.9" 120Hz · 48MP', msrp: 1990000, low: 1890000, img: './frontend/public/images/products/iphone-17-pro-max.jpg' },
+      { id: 'galaxy-s25-ultra', name: 'Galaxy S25 Ultra', brand: 'Samsung', cat: 'smartphone', catKo: '스마트폰', spec: 'SD 8 Elite · 6.9" 120Hz · 200MP', msrp: 1698400, low: 1510000, img: './frontend/public/images/products/galaxy-s25-ultra.jpg' },
+      { id: 'ipad-pro-13-m4', name: 'iPad Pro 13 (M4)', brand: 'Apple', cat: 'tablet', catKo: '태블릿', spec: 'M4 · 13" Tandem OLED · 5.1mm', msrp: 1999000, low: 1865000, img: './frontend/public/images/products/ipad-pro-13-m4.jpg' },
+      { id: 'galaxy-tab-s10-ultra', name: 'Galaxy Tab S10 Ultra', brand: 'Samsung', cat: 'tablet', catKo: '태블릿', spec: 'Dimensity 9300+ · 14.6" 120Hz', msrp: 1598300, low: 1419000, img: './frontend/public/images/products/galaxy-tab-s10-ultra.jpg' },
+      { id: 'macbook-pro-14-m3-pro', name: 'MacBook Pro 14 (M3 Pro)', brand: 'Apple', cat: 'laptop', catKo: '노트북', spec: 'M3 Pro · 14.2" XDR 120Hz · 18GB', msrp: 2990000, low: 2790000, img: './frontend/public/images/products/macbook-pro-14-m3-pro.jpg' },
+      { id: 'galaxy-book4-ultra', name: 'Galaxy Book4 Ultra', brand: 'Samsung', cat: 'laptop', catKo: '노트북', spec: 'Core Ultra 9 · RTX 4070 · 16" OLED', msrp: 3360000, low: 3090000, img: './frontend/public/images/products/galaxy-book4-ultra.jpg' },
+      { id: 'apple-watch-ultra-2', name: 'Apple Watch Ultra 2', brand: 'Apple', cat: 'watch', catKo: '워치', spec: 'S9 SiP · 49mm 티타늄 · 3000nits', msrp: 1149000, low: 1069000, img: './frontend/public/images/products/apple-watch-ultra-2.jpg' },
+      { id: 'airpods-pro-2-usbc', name: 'AirPods Pro 2 (USB-C)', brand: 'Apple', cat: 'audio', catKo: '오디오', spec: 'H2 칩 · 적응형 ANC · 공간 음향', msrp: 359000, low: 299000, img: './frontend/public/images/products/airpods-pro-2-usbc.jpg' }
+    ];
+
+    const activities = [
+      { title: 'Galaxy S25 Ultra vs iPhone 17 Pro Max', meta: '1:1 스펙 비교 완료 · 카메라/배터리 승', time: '방금 전' },
+      { title: 'Galaxy S25 Ultra 목표가 도달', meta: '₩1,510,000 (-11.1% 하락)', time: '24분 전' },
+      { title: 'MacBook Pro 14 vs Galaxy Book4 Ultra', meta: '노트북 GPU · 무게 · 디스플레이 비교', time: '2시간 전' },
+      { title: 'AirPods Pro 2 (USB-C) 찜 추가', meta: '오디오 카테고리 최저가 추적 시작', time: '어제' }
+    ];
+
+    const announcements = [
+      { tag: '목표가 도달', tagStyle: 'background:var(--emerald-soft);color:var(--emerald)', title: 'Galaxy S25 Ultra 256GB 최저가 ₩1,510,000 갱신', desc: '설정하신 목표가(₩1,550,000)보다 ₩40,000 더 내려갔습니다.', time: '14분 전' },
+      { tag: '카탈로그 업데이트', tagStyle: 'background:var(--accent-soft);color:var(--accent)', title: '5개 카테고리 99종 기기 공식 스튜디오 이미지 연동 완료', desc: '스마트폰·태블릿·노트북·워치·오디오 전 라인업을 1:1 비교할 수 있습니다.', time: '1시간 전' },
+      { tag: 'AI 스펙 리포트', tagStyle: 'background:var(--amber-soft);color:var(--amber)', title: 'MacBook Pro 14 vs Galaxy Book4 Ultra 렌더링 비교 요약', desc: '영상 편집 위주라면 M3 Pro의 전성비, 3D/게이밍은 RTX 4070이 유리합니다.', time: '어제' },
+      { tag: '가격 하락 주의', tagStyle: 'background:var(--rose-soft);color:var(--rose)', title: 'Galaxy Tab S10 Ultra ₩179,300 즉시 할인 감지', desc: '출고가 대비 11.2% 하락한 최저가 링크가 업데이트되었습니다.', time: '2일 전' }
+    ];
+
+    const won = n => '₩' + Number(n).toLocaleString('ko-KR');
+
+    // ── Sidebar Sliding Indicator (Framer-Motion layoutId="activeNav") ──
+    const navIndicator = document.getElementById('navIndicator');
+    const navBtns = Array.from(document.querySelectorAll('.nav-item'));
+    function moveNavIndicator(btn) {
+      if (!btn || !navIndicator) return;
+      navIndicator.style.transform = `translateY(${btn.offsetTop}px)`;
+      navIndicator.style.height = `${btn.offsetHeight}px`;
+    }
+    requestAnimationFrame(() => moveNavIndicator(document.querySelector('.nav-item.active')));
+    window.addEventListener('resize', () => moveNavIndicator(document.querySelector('.nav-item.active')));
+
+    // ── Animated Count-Up (Single Batched rAF Loop) ──
+    let countRafId = null;
+    function animateCountUps(container) {
+      if (countRafId) cancelAnimationFrame(countRafId);
+      const items = Array.from(container.querySelectorAll('[data-count]')).map(el => ({
+        el,
+        target: Number(el.dataset.count),
+        prefix: el.dataset.prefix || '',
+        suffix: el.dataset.suffix || ''
+      }));
+      if (!items.length) return;
+      const start = performance.now();
+      const dur = 520;
+      function tick(now) {
+        const p = Math.min(1, (now - start) / dur);
+        const eased = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+        for (const item of items) {
+          const val = Math.round(item.target * eased);
+          item.el.textContent = `${item.prefix}${val.toLocaleString('ko-KR')}${item.suffix}`;
+        }
+        if (p < 1) countRafId = requestAnimationFrame(tick);
+        else countRafId = null;
+      }
+      countRafId = requestAnimationFrame(tick);
+    }
+
+    // ── Tab Switching ──
+    const panels = document.querySelectorAll('.tab-panel');
+    const tabMeta = {
+      overview: { title: '안녕하세요, 민준님', sub: '5개 카테고리 99종 카탈로그 중 찜한 기기 8종의 최저가와 1:1 스펙 비교 내역입니다.' },
+      finance: { title: '최저가 · 절약 분석', sub: '추적 중인 기기들의 출고가 대비 실시간 최저가 및 카테고리별 할인 비중입니다.' },
+      saved: { title: '찜한 기기 · 비교함', sub: '스마트폰·태블릿·노트북·워치·오디오 관심 기기를 필터링하고 1:1 비교에 담으세요.' },
+      alerts: { title: '가격 알림 · 소식', sub: '목표가 도달 알림과 신규 스펙 리포트를 한곳에서 확인하세요.' }
+    };
+
+    function switchTab(tabId) {
+      const activeBtn = navBtns.find(b => b.dataset.tab === tabId);
+      navBtns.forEach(b => b.classList.toggle('active', b === activeBtn));
+      moveNavIndicator(activeBtn);
+
+      panels.forEach(p => {
+        p.classList.remove('active');
+        if (p.id === `tab-${tabId}`) {
+          void p.offsetWidth; // re-trigger stagger animations
+          p.classList.add('active');
+          animateCountUps(p);
+          if (tabId === 'overview') renderChart(currentRange);
+          if (tabId === 'finance') animateCategoryBars();
+        }
+      });
+      document.getElementById('pageHeading').textContent = tabMeta[tabId].title;
+      document.getElementById('pageSub').textContent = tabMeta[tabId].sub;
+    }
+    navBtns.forEach(btn => btn.addEventListener('click', () => switchTab(btn.dataset.tab)));
+    document.getElementById('bellBtn').addEventListener('click', () => switchTab('alerts'));
+
+    // ── Dark / White Theme Toggle (with localStorage & ?theme=white) ──
+    const themeToggle = document.getElementById('themeToggle');
+    const themeLabel = document.getElementById('themeLabel');
+    function applyTheme(theme) {
+      const isWhite = theme === 'white';
+      if (isWhite) document.documentElement.setAttribute('data-theme', 'white');
+      else document.documentElement.removeAttribute('data-theme');
+      themeToggle.checked = isWhite;
+      themeLabel.textContent = isWhite ? 'WHITE' : 'DARK';
+      localStorage.setItem('tc_dash_theme', isWhite ? 'white' : 'dark');
+    }
+    const urlTheme = new URLSearchParams(location.search).get('theme');
+    applyTheme(urlTheme || localStorage.getItem('tc_dash_theme') || 'dark');
+    themeToggle.addEventListener('change', () => {
+      applyTheme(themeToggle.checked ? 'white' : 'dark');
+      renderChart(currentRange);
+    });
+
+    // ── Interactive SVG Area Chart (Stroke Draw-In + Hover Tooltip) ──
+    const chartDataMap = {
+      '7d': [
+        { label: '11/07', a: 194, b: 162 }, { label: '11/08', a: 193, b: 160 },
+        { label: '11/09', a: 191, b: 158 }, { label: '11/10', a: 192, b: 155 },
+        { label: '11/11', a: 190, b: 153 }, { label: '11/12', a: 189, b: 152 },
+        { label: '11/13', a: 189, b: 151 }
+      ],
+      '30d': [
+        { label: '10/15', a: 199, b: 170 }, { label: '10/20', a: 198, b: 168 },
+        { label: '10/25', a: 196, b: 165 }, { label: '10/30', a: 195, b: 162 },
+        { label: '11/04', a: 192, b: 158 }, { label: '11/09', a: 190, b: 154 },
+        { label: '11/13', a: 189, b: 151 }
+      ],
+      '90d': [
+        { label: '08월', a: 205, b: 174 }, { label: '09월초', a: 202, b: 171 },
+        { label: '09월말', a: 199, b: 169 }, { label: '10월초', a: 198, b: 166 },
+        { label: '10월말', a: 195, b: 160 }, { label: '11월초', a: 191, b: 155 },
+        { label: '현재', a: 189, b: 151 }
+      ]
+    };
+    let currentRange = '7d';
+
+    function renderChart(range) {
+      const svg = document.getElementById('priceChart');
+      const tooltip = document.getElementById('chartTooltip');
+      const pts = chartDataMap[range];
+      const W = 640, H = 240, padL = 40, padR = 16, padT = 18, padB = 30;
+      const minV = 140, maxV = 212;
+      const xAt = i => padL + (i / (pts.length - 1)) * (W - padL - padR);
+      const yAt = v => padT + (1 - (v - minV) / (maxV - minV)) * (H - padT - padB);
+      const isWhite = document.documentElement.getAttribute('data-theme') === 'white';
+      const gridCol = isWhite ? 'rgba(15,23,42,0.08)' : 'rgba(148,163,184,0.12)';
+      const labelCol = isWhite ? '#64748B' : '#94A3B8';
+      const cA = isWhite ? '#0A84FF' : '#38BDF8';
+      const cB = isWhite ? '#059669' : '#34D399';
+
+      let grid = '';
+      [150, 170, 190, 210].forEach(val => {
+        const y = yAt(val);
+        grid += `<line x1="${padL}" y1="${y}" x2="${W - padR}" y2="${y}" stroke="${gridCol}" stroke-dasharray="4 4"/>`;
+        grid += `<text x="4" y="${y + 4}" fill="${labelCol}" font-size="10.5" font-family="JetBrains Mono">${val}만</text>`;
+      });
+
+      const pathA = pts.map((p, i) => `${i ? 'L' : 'M'} ${xAt(i)} ${yAt(p.a)}`).join(' ');
+      const pathB = pts.map((p, i) => `${i ? 'L' : 'M'} ${xAt(i)} ${yAt(p.b)}`).join(' ');
+      const areaA = `${pathA} L ${xAt(pts.length - 1)} ${H - padB} L ${xAt(0)} ${H - padB} Z`;
+      const xLabels = pts.map((p, i) => `<text x="${xAt(i)}" y="${H - 6}" text-anchor="middle" fill="${labelCol}" font-size="10.5" font-family="JetBrains Mono">${p.label}</text>`).join('');
+      const dots = pts.map((p, i) => `
+        <circle cx="${xAt(i)}" cy="${yAt(p.a)}" r="4.5" fill="${cA}" stroke="#fff" stroke-width="1.5"/>
+        <circle cx="${xAt(i)}" cy="${yAt(p.b)}" r="4.5" fill="${cB}" stroke="#fff" stroke-width="1.5"/>
+        <rect x="${xAt(i) - 26}" y="${padT}" width="52" height="${H - padT - padB}" fill="transparent" data-idx="${i}" style="cursor:pointer"/>
+      `).join('');
+
+      svg.innerHTML = `
+        <defs>
+          <linearGradient id="gradA" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stop-color="${cA}" stop-opacity="0.34"/>
+            <stop offset="100%" stop-color="${cA}" stop-opacity="0"/>
+          </linearGradient>
+        </defs>
+        ${grid}
+        <path class="chart-area-anim" d="${areaA}" fill="url(#gradA)"/>
+        <path class="chart-line-anim" d="${pathA}" fill="none" stroke="${cA}" stroke-width="2.6" stroke-linecap="round"/>
+        <path class="chart-line-anim" d="${pathB}" fill="none" stroke="${cB}" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="6 4"/>
+        ${xLabels}${dots}
+      `;
+
+      svg.querySelectorAll('rect[data-idx]').forEach(hit => {
+        hit.addEventListener('mouseenter', () => {
+          const p = pts[Number(hit.dataset.idx)];
+          tooltip.innerHTML = `<div class="tech-mono" style="font-weight:700;margin-bottom:3px">${p.label}</div><div>iPhone 17 Pro Max: <b>${p.a}만원</b></div><div>Galaxy S25 Ultra: <b>${p.b}만원</b></div>`;
+          tooltip.style.left = `${(xAt(Number(hit.dataset.idx)) / W) * 100}%`;
+          tooltip.style.top = `${(yAt(p.a) / H) * 100}%`;
+          tooltip.style.opacity = '1';
+        });
+        hit.addEventListener('mouseleave', () => { tooltip.style.opacity = '0'; });
+      });
+    }
+
+    document.getElementById('rangePills').addEventListener('click', e => {
+      const btn = e.target.closest('.pill-btn');
+      if (!btn) return;
+      document.querySelectorAll('#rangePills .pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentRange = btn.dataset.range;
+      renderChart(currentRange);
+    });
+
+    // ── Render Lists, Table, Category Bars, & 4-Col Device Grid ──
+    function renderActivities() {
+      document.getElementById('activityList').innerHTML = activities.map(a => `
+        <div class="activity-item">
+          <div class="activity-item__left">
+            <span class="activity-dot"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg></span>
+            <div style="min-width:0">
+              <div class="activity-item__title">${a.title}</div>
+              <div class="activity-item__meta">${a.meta}</div>
+            </div>
+          </div>
+          <span class="activity-item__time">${a.time}</span>
+        </div>
+      `).join('');
+    }
+
+    function renderFinanceTable() {
+      document.getElementById('financeTableBody').innerHTML = savedDevices.map(d => {
+        const diff = d.msrp - d.low;
+        const pct = ((diff / d.msrp) * 100).toFixed(1);
+        const q = encodeURIComponent(d.name);
+        return `
+          <tr>
+            <td><strong>${d.name}</strong><div style="font-size:11px;color:var(--text-muted)">${d.brand} · ${d.catKo}</div></td>
+            <td class="tech-mono" style="color:var(--text-muted)">${won(d.msrp)}</td>
+            <td class="tech-mono" style="font-weight:800;color:var(--accent)">${won(d.low)}</td>
+            <td class="tech-mono trend-up">-${won(diff)} (${pct}%)</td>
+            <td>
+              <div style="display:flex;gap:5px">
+                <a class="mall-link" href="https://search.danawa.com/dsearch.php?k1=${q}" target="_blank" rel="noopener">다나와</a>
+                <a class="mall-link" href="https://search.shopping.naver.com/search/all?query=${q}" target="_blank" rel="noopener">네이버</a>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    const catBars = [
+      { label: '스마트폰 (Smartphone)', pct: 86, saved: '₩288,400 절약' },
+      { label: '노트북 (Laptop)', pct: 74, saved: '₩470,000 절약' },
+      { label: '태블릿 (Tablet)', pct: 68, saved: '₩313,300 절약' },
+      { label: '오디오 (Audio)', pct: 92, saved: '₩60,000 절약 (-16.7%)' },
+      { label: '스마트워치 (Watch)', pct: 54, saved: '₩80,000 절약' }
+    ];
+    function renderCategoryBars() {
+      document.getElementById('categoryBarList').innerHTML = catBars.map(b => `
+        <div>
+          <div class="bar-row__top"><span>${b.label}</span><span class="tech-mono" style="color:var(--accent)">${b.saved}</span></div>
+          <div class="bar-track"><div class="bar-fill" data-scale="${(b.pct / 100).toFixed(2)}"></div></div>
+        </div>
+      `).join('');
+    }
+    function animateCategoryBars() {
+      const fills = document.querySelectorAll('.bar-fill');
+      fills.forEach(el => { el.style.transform = 'scaleX(0)'; });
+      requestAnimationFrame(() => requestAnimationFrame(() => {
+        fills.forEach(el => { el.style.transform = `scaleX(${el.dataset.scale})`; });
+      }));
+    }
+
+    let filterCat = 'all', filterBrand = 'all', searchQuery = '';
+    function renderSavedGrid() {
+      const list = savedDevices.filter(d => {
+        const okCat = filterCat === 'all' || d.cat === filterCat;
+        const okBrand = filterBrand === 'all' || d.brand === filterBrand;
+        const q = searchQuery.trim().toLowerCase();
+        const okQ = !q || d.name.toLowerCase().includes(q) || d.spec.toLowerCase().includes(q);
+        return okCat && okBrand && okQ;
+      });
+      document.getElementById('savedCountBadge').textContent = savedDevices.length;
+      document.getElementById('overviewSavedCount').dataset.count = savedDevices.length;
+
+      document.getElementById('savedDeviceGrid').innerHTML = list.map((d, idx) => `
+        <article class="device-card stagger-item" style="--i:${idx}">
+          <div class="device-card__media">
+            <span class="device-card__brand tech-mono">${d.brand}</span>
+            <span class="device-card__cat">${d.catKo}</span>
+            <img src="${d.img}" alt="${d.name}" loading="lazy" decoding="async" />
+          </div>
+          <div>
+            <div class="device-card__name">${d.name}</div>
+            <div class="device-card__spec">${d.spec}</div>
+          </div>
+          <div class="device-card__price-row">
+            <span style="font-size:11px;color:var(--text-muted)">최저가</span>
+            <span class="device-card__price tech-mono">${won(d.low)}</span>
+          </div>
+          <div class="device-card__actions">
+            <button class="btn-sm btn-sm--primary" onclick="toast('${d.name} · 1:1 비교함에 담았습니다')">1:1 비교 담기</button>
+            <button class="btn-sm" title="찜 해제" onclick="removeDevice('${d.id}')">✕</button>
+          </div>
+        </article>
+      `).join('') || `<div style="grid-column:1/-1;padding:42px;text-align:center;color:var(--text-muted)">조건에 맞는 찜한 기기가 없습니다.</div>`;
+    }
+
+    function renderAnnouncements() {
+      document.getElementById('announceList').innerHTML = announcements.map((a, idx) => `
+        <div class="announce-card stagger-item" style="--i:${idx}">
+          <div>
+            <span class="announce-card__tag" style="${a.tagStyle}">${a.tag}</span>
+            <div class="announce-card__title">${a.title}</div>
+            <div class="announce-card__desc">${a.desc}</div>
+          </div>
+          <div style="text-align:right;flex-shrink:0">
+            <div class="tech-mono" style="font-size:11px;color:var(--text-muted);margin-bottom:8px">${a.time}</div>
+            <button class="btn-sm" style="padding:0 12px" onclick="switchTab('finance')">최저가 확인</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function removeDevice(id) {
+      savedDevices = savedDevices.filter(d => d.id !== id);
+      renderSavedGrid();
+      renderFinanceTable();
+      toast('찜 목록에서 제거했습니다');
+    }
+
+    let toastTimer;
+    function toast(msg) {
+      const el = document.getElementById('compareToast');
+      el.textContent = msg;
+      el.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(() => el.classList.remove('show'), 2300);
+    }
+
+    document.getElementById('catFilterPills').addEventListener('click', e => {
+      const btn = e.target.closest('.pill-btn');
+      if (!btn) return;
+      document.querySelectorAll('#catFilterPills .pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterCat = btn.dataset.cat;
+      renderSavedGrid();
+    });
+    document.getElementById('brandFilterPills').addEventListener('click', e => {
+      const btn = e.target.closest('.pill-btn');
+      if (!btn) return;
+      document.querySelectorAll('#brandFilterPills .pill-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      filterBrand = btn.dataset.brand;
+      renderSavedGrid();
+    });
+    let searchTimer;
+    document.getElementById('globalSearch').addEventListener('input', e => {
+      searchQuery = e.target.value;
+      clearTimeout(searchTimer);
+      searchTimer = setTimeout(() => {
+        renderSavedGrid();
+        if (searchQuery.trim() && !document.getElementById('tab-saved').classList.contains('active')) {
+          switchTab('saved');
+        }
+      }, 90);
+    });
+
+    // Initial Render
+    renderChart(currentRange);
+    renderActivities();
+    renderFinanceTable();
+    renderCategoryBars();
+    renderSavedGrid();
+    renderAnnouncements();
+    animateCountUps(document.getElementById('tab-overview'));
+  </script>
+</body>
+</html>

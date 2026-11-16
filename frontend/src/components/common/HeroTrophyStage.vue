@@ -4,6 +4,15 @@ import * as THREE from 'three'
 import { storeToRefs } from 'pinia'
 import { useThemeStore } from '@/stores/theme'
 
+const props = withDefaults(
+  defineProps<{
+    paused?: boolean
+  }>(),
+  {
+    paused: false,
+  },
+)
+
 const stageRef = ref<HTMLDivElement | null>(null)
 const canvasRef = ref<HTMLCanvasElement | null>(null)
 const { isWhite } = storeToRefs(useThemeStore())
@@ -165,20 +174,17 @@ function createSmartphone3D(opts: {
   const bodyGeo = new THREE.ExtrudeGeometry(roundedRectShape(w, h, radius), {
     depth,
     bevelEnabled: true,
-    bevelSegments: 6,
+    bevelSegments: 3,
     steps: 1,
     bevelSize: 0.034,
     bevelThickness: 0.034,
   })
   bodyGeo.center()
 
-  const frameMat = new THREE.MeshPhysicalMaterial({
+  const frameMat = new THREE.MeshStandardMaterial({
     color: frameColor,
-    metalness: 0.94,
-    roughness: 0.2,
-    clearcoat: 0.45,
-    clearcoatRoughness: 0.18,
-    reflectivity: 1.0,
+    metalness: 0.9,
+    roughness: 0.22,
   })
   group.add(new THREE.Mesh(bodyGeo, frameMat))
 
@@ -198,12 +204,10 @@ function createSmartphone3D(opts: {
 
   // 2. Frosted Matte Backplate
   const backGeo = new THREE.ShapeGeometry(roundedRectShape(w - 0.04, h - 0.04, Math.max(0.04, radius - 0.02)))
-  const backMat = new THREE.MeshPhysicalMaterial({
+  const backMat = new THREE.MeshStandardMaterial({
     color: backColor,
-    metalness: 0.42,
-    roughness: 0.26,
-    clearcoat: 0.9,
-    clearcoatRoughness: 0.14,
+    metalness: 0.45,
+    roughness: 0.24,
   })
   const backPlate = new THREE.Mesh(backGeo, backMat)
   backPlate.position.z = -depth / 2 - 0.0345
@@ -221,15 +225,12 @@ function createSmartphone3D(opts: {
   }
   screenGeo.setAttribute('uv', new THREE.BufferAttribute(uvs, 2))
 
-  const screenMat = new THREE.MeshPhysicalMaterial({
+  const screenMat = new THREE.MeshStandardMaterial({
     map: createOLEDTexture(wallpaperPalette, style === 'ultra'),
     emissive: new THREE.Color(0x1e40af),
-    emissiveIntensity: 0.25,
-    roughness: 0.04,
-    metalness: 0.08,
-    clearcoat: 1.0,
-    clearcoatRoughness: 0.03,
-    reflectivity: 1.0,
+    emissiveIntensity: 0.28,
+    roughness: 0.08,
+    metalness: 0.1,
   })
   const screen = new THREE.Mesh(screenGeo, screenMat)
   screen.position.z = depth / 2 + 0.036
@@ -243,35 +244,33 @@ function createSmartphone3D(opts: {
     island.position.set(0, h / 2 - 0.19, depth / 2 + 0.038)
     group.add(island)
 
-    const camEye = new THREE.Mesh(new THREE.CircleGeometry(0.032, 24), sensorGlassMat)
+    const camEye = new THREE.Mesh(new THREE.CircleGeometry(0.032, 12), sensorGlassMat)
     camEye.position.set(0.145, h / 2 - 0.19, depth / 2 + 0.039)
     group.add(camEye)
   } else {
-    const punch = new THREE.Mesh(new THREE.CircleGeometry(0.046, 24), cutoutMat)
+    const punch = new THREE.Mesh(new THREE.CircleGeometry(0.046, 12), cutoutMat)
     punch.position.set(0, h / 2 - 0.16, depth / 2 + 0.038)
     group.add(punch)
   }
 
   // Camera barrels
-  const sapphireLensMat = new THREE.MeshPhysicalMaterial({
+  const sapphireLensMat = new THREE.MeshStandardMaterial({
     color: 0x040914,
-    metalness: 0.15,
-    roughness: 0.02,
-    clearcoat: 1.0,
-    reflectivity: 1.0,
+    metalness: 0.25,
+    roughness: 0.05,
   })
 
   function addCamera(cx: number, cy: number, r: number, bDepth: number) {
     const bg = new THREE.Group()
-    const outerGeo = new THREE.CylinderGeometry(r, r * 1.04, bDepth, 36)
+    const outerGeo = new THREE.CylinderGeometry(r, r * 1.04, bDepth, 16)
     outerGeo.rotateX(Math.PI / 2)
     bg.add(new THREE.Mesh(outerGeo, frameMat))
 
-    const rimTorus = new THREE.Mesh(new THREE.TorusGeometry(r * 0.94, r * 0.08, 16, 36), chromeMat)
+    const rimTorus = new THREE.Mesh(new THREE.TorusGeometry(r * 0.94, r * 0.08, 8, 16), chromeMat)
     rimTorus.position.z = -bDepth / 2
     bg.add(rimTorus)
 
-    const glassGeo = new THREE.CylinderGeometry(r * 0.66, r * 0.66, bDepth + 0.009, 32)
+    const glassGeo = new THREE.CylinderGeometry(r * 0.66, r * 0.66, bDepth + 0.009, 14)
     glassGeo.rotateX(Math.PI / 2)
     bg.add(new THREE.Mesh(glassGeo, sapphireLensMat))
 
@@ -299,13 +298,17 @@ function initThree() {
   const canvas = canvasRef.value
   if (!stage || !canvas) return
 
+  const hwCores = typeof navigator !== 'undefined' ? navigator.hardwareConcurrency || 8 : 8
+  const devMem = typeof navigator !== 'undefined' ? ((navigator as unknown as { deviceMemory?: number }).deviceMemory ?? 8) : 8
+  const lowGpu = hwCores <= 4 || devMem <= 4
+
   renderer = new THREE.WebGLRenderer({
     canvas,
     alpha: true,
-    antialias: true,
-    powerPreference: 'high-performance',
+    antialias: !lowGpu,
+    powerPreference: lowGpu ? 'low-power' : 'default',
   })
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, 2))
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, lowGpu ? 1 : 1.15))
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 1.32
 
@@ -314,20 +317,20 @@ function initThree() {
   camera.position.set(0, 0.55, 9.6)
   camera.lookAt(0, -0.22, 0)
 
-  // Lights
-  const ambient = new THREE.AmbientLight(0xe0f2fe, 1.15)
+  // Lightweight directional rig (replaces PointLight radial shaders for weak iGPUs)
+  const ambient = new THREE.AmbientLight(0xe0f2fe, 1.25)
   scene.add(ambient)
 
-  const keyLight = new THREE.DirectionalLight(0xffffff, 3.2)
+  const keyLight = new THREE.DirectionalLight(0xffffff, 3.0)
   keyLight.position.set(2.5, 9, 6.5)
   scene.add(keyLight)
 
-  const blueRimLeft = new THREE.PointLight(0x0096ff, 12, 16)
-  blueRimLeft.position.set(-4.8, 2.4, 3.5)
+  const blueRimLeft = new THREE.DirectionalLight(0x0096ff, 2.2)
+  blueRimLeft.position.set(-5.5, 2.5, 4.0)
   scene.add(blueRimLeft)
 
-  const blueRimRight = new THREE.PointLight(0x38bdf8, 12, 16)
-  blueRimRight.position.set(4.8, 2.4, 3.5)
+  const blueRimRight = new THREE.DirectionalLight(0x38bdf8, 2.2)
+  blueRimRight.position.set(5.5, 2.5, 4.0)
   scene.add(blueRimRight)
 
   // Trophy Group
@@ -423,14 +426,14 @@ function resize() {
   camera.updateProjectionMatrix()
 }
 
-const clock = new THREE.Clock()
+const startTimeMs = performance.now()
 function animate() {
-  if (!isVisible) {
-    animationFrameId = requestAnimationFrame(animate)
+  if (!isVisible || props.paused) {
+    animationFrameId = 0
     return
   }
 
-  const t = clock.getElapsedTime()
+  const t = (performance.now() - startTimeMs) * 0.001
   userYaw += (targetYaw - userYaw) * 0.08
 
   if (centerPhone && leftPhone && rightPhone && renderer && scene && camera) {
@@ -479,9 +482,18 @@ function onPointerMove(e: PointerEvent) {
   }
 }
 
+function onContextLost(e: Event) {
+  e.preventDefault()
+  if (animationFrameId) {
+    cancelAnimationFrame(animationFrameId)
+    animationFrameId = 0
+  }
+}
+
 onMounted(() => {
   initThree()
   resize()
+  canvasRef.value?.addEventListener('webglcontextlost', onContextLost)
 
   const stage = stageRef.value
   if (stage) {
@@ -494,15 +506,41 @@ onMounted(() => {
 
     intersectionObserver = new IntersectionObserver((entries) => {
       isVisible = entries[0]?.isIntersecting ?? true
+      if (isVisible && !props.paused && !animationFrameId && renderer && scene && camera) {
+        animationFrameId = requestAnimationFrame(animate)
+      }
     })
     intersectionObserver.observe(stage)
   }
 
-  animationFrameId = requestAnimationFrame(animate)
+  resize()
+  if (renderer && scene && camera) {
+    renderer.compile(scene, camera)
+    renderer.render(scene, camera)
+  }
+  if (!props.paused) {
+    animationFrameId = requestAnimationFrame(animate)
+  }
 })
+
+watch(
+  () => props.paused,
+  (isPaused) => {
+    if (isPaused) {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId)
+        animationFrameId = 0
+      }
+    } else if (isVisible && !animationFrameId && renderer && scene && camera) {
+      animationFrameId = requestAnimationFrame(animate)
+    }
+  },
+)
 
 onBeforeUnmount(() => {
   if (animationFrameId) cancelAnimationFrame(animationFrameId)
+  const canvas = canvasRef.value
+  if (canvas) canvas.removeEventListener('webglcontextlost', onContextLost)
   const stage = stageRef.value
   if (stage) {
     stage.removeEventListener('pointerdown', onPointerDown)
@@ -511,6 +549,19 @@ onBeforeUnmount(() => {
   window.removeEventListener('pointermove', onPointerMove)
   if (resizeObserver) resizeObserver.disconnect()
   if (intersectionObserver) intersectionObserver.disconnect()
+  if (scene) {
+    scene.traverse((obj) => {
+      if (obj instanceof THREE.Mesh) {
+        obj.geometry?.dispose()
+        const mats = Array.isArray(obj.material) ? obj.material : [obj.material]
+        mats.forEach((m) => {
+          if (!m) return
+          if ('map' in m && m.map instanceof THREE.Texture) m.map.dispose()
+          m.dispose()
+        })
+      }
+    })
+  }
   if (renderer) renderer.dispose()
 })
 </script>
@@ -553,9 +604,13 @@ onBeforeUnmount(() => {
   width: 720px;
   height: 115px;
   border-radius: 50%;
-  background: radial-gradient(ellipse at center, rgba(0, 150, 255, 0.52) 0%, rgba(0, 150, 255, 0.14) 50%, transparent 76%);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(0, 150, 255, 0.48) 0%,
+    rgba(0, 150, 255, 0.16) 44%,
+    rgba(0, 150, 255, 0) 76%
+  );
   transform: rotateX(76deg);
-  filter: blur(14px);
   pointer-events: none;
 }
 

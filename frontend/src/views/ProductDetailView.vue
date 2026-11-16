@@ -8,6 +8,7 @@ import {
   Smartphone,
   Tablet,
   Watch,
+  Bookmark,
 } from 'lucide-vue-next'
 import { api, ApiClientError } from '@/services/api'
 import type {
@@ -16,12 +17,14 @@ import type {
   ResolvedSpecItem,
 } from '@/types/api'
 import { useCompareStore } from '@/stores/compare'
+import { useSavedStore } from '@/stores/saved'
 import { buildShoppingMallLinks } from '@/utils/shopping'
 import TechIcon from '@/components/common/TechIcon.vue'
 
 const props = defineProps<{ slug: string }>()
 
 const compareStore = useCompareStore()
+const savedStore = useSavedStore()
 
 const product = ref<ProductDetailRecord | null>(null)
 const selectedVariant = ref<ProductVariantRecord | null>(null)
@@ -243,6 +246,16 @@ const shoppingLinks = computed(() => {
               <Check v-if="inCompare" :size="18" aria-hidden="true" />
               <Plus v-else :size="18" aria-hidden="true" />
               <span>{{ inCompare ? '비교함에 담김' : '비교함에 추가' }}</span>
+            </button>
+
+            <button
+              type="button"
+              class="btn"
+              :class="savedStore.hasSaved(product.slug) ? 'btn--primary' : 'btn--secondary'"
+              @click="savedStore.toggleSaved(product.slug)"
+            >
+              <Bookmark :size="17" aria-hidden="true" />
+              <span>{{ savedStore.hasSaved(product.slug) ? '관심 기종 찜됨 ✓' : '관심 기종 찜하기' }}</span>
             </button>
 
             <a

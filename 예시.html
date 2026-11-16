@@ -1,0 +1,886 @@
+<!DOCTYPE html>
+<html lang="ko" data-theme="dark">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TechCompare — 스펙 비교는 알아서 끝납니다</title>
+<script>
+  // 테마: ?theme=white|dark > localStorage > dark
+  (function(){var q=new URLSearchParams(location.search).get('theme');var t=q||localStorage.getItem('tc-theme')||'dark';document.documentElement.setAttribute('data-theme',t==='white'?'white':'dark');})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=JetBrains+Mono:wght@400;500&family=Nanum+Myeongjo:wght@400;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable.min.css">
+<style>
+/* ===== TechCompare 토큰 (frontend/src/styles/tokens.css 기반) ===== */
+:root,:root[data-theme="dark"]{
+  color-scheme:dark;
+  --bg:#05070A; --text:#FFFFFF; --text2:#CBD5E1; --mute:#94A3B8; --dim:#64748B;
+  --acc:#0096FF; --acc-rgb:0,150,255; --acc2:#60BFFF; --acc-d:#0070DD; --acc-hi:#7CC8FF; --on-acc:#FFFFFF;
+  --glass:rgba(11,15,23,.62); --glass-strong:rgba(9,12,19,.80);
+  --line:rgba(255,255,255,.085); --line2:rgba(255,255,255,.14);
+  --fill:rgba(255,255,255,.06); --fill2:rgba(255,255,255,.12);
+  --chip:rgba(10,13,20,.68); --node:rgba(12,16,24,.9);
+  --shadow:0 1px 0 rgba(255,255,255,.07) inset,0 40px 80px -30px rgba(0,0,0,.8);
+  --heat:linear-gradient(90deg,#161c27,#344055 60%,#161c27);
+  --plate-top:#9AA6B8; --plate-l:#283142; --plate-r:#18202C; --plate-hi:#E2E8F0;
+  --nav-bg:rgba(5,7,10,.85); --grain:.06; --grain-blend:normal;
+}
+:root[data-theme="white"]{
+  color-scheme:light;
+  --bg:#EDF2F9; --text:#0F172A; --text2:#1E293B; --mute:#475569; --dim:#64748B;
+  --acc:#0A84FF; --acc-rgb:10,132,255; --acc2:#38BDF8; --acc-d:#0066CC; --acc-hi:#8CC4FF; --on-acc:#FFFFFF;
+  --glass:rgba(255,255,255,.70); --glass-strong:rgba(255,255,255,.86);
+  --line:rgba(15,23,42,.09); --line2:rgba(15,23,42,.15);
+  --fill:rgba(15,23,42,.06); --fill2:rgba(15,23,42,.12);
+  --chip:rgba(255,255,255,.82); --node:rgba(255,255,255,.95);
+  --shadow:0 1px 0 rgba(255,255,255,.9) inset,0 30px 60px -28px rgba(15,23,42,.22);
+  --heat:linear-gradient(90deg,#d5deeb,#aebcd0 60%,#d5deeb);
+  --plate-top:#B4C2D6; --plate-l:#8796AE; --plate-r:#6B7B94; --plate-hi:#FFFFFF;
+  --nav-bg:rgba(237,242,249,.9); --grain:.05; --grain-blend:multiply;
+}
+:root{
+  --ease:cubic-bezier(.2,.7,.1,1);
+  --sans:"Pretendard Variable",Pretendard,"Inter",system-ui,sans-serif;
+  --mono:"JetBrains Mono",ui-monospace,monospace;
+  --a08:rgba(var(--acc-rgb),.08); --a15:rgba(var(--acc-rgb),.15); --a25:rgba(var(--acc-rgb),.25);
+  --a40:rgba(var(--acc-rgb),.4); --a60:rgba(var(--acc-rgb),.6); --a90:rgba(var(--acc-rgb),.9);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{background:var(--bg);transition:background .6s}
+html.lenis,html.lenis body{height:auto}
+.lenis.lenis-smooth{scroll-behavior:auto!important}
+body{background:var(--bg);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;overflow-x:hidden;letter-spacing:-.01em;transition:color .6s,background .6s}
+::selection{background:var(--acc);color:#fff}
+a{color:inherit;text-decoration:none}
+em{font-family:"Instrument Serif","Nanum Myeongjo",serif;font-style:italic;font-weight:400}
+:lang(ko) em{font-family:"Nanum Myeongjo",serif;font-weight:800;letter-spacing:-.06em}
+.glass,.tag,.pill,.btn-ghost,.app .ic,.hn span,.chip,.node rect,.tools span{transition:background .6s,border-color .6s,color .6s,box-shadow .6s,transform .5s var(--ease)}
+
+/* ---------- background ---------- */
+#aura{position:fixed;inset:0;width:100vw;height:100vh;z-index:0;display:block;background:var(--bg)}
+.grain{position:fixed;inset:-50%;z-index:1;pointer-events:none;opacity:var(--grain);mix-blend-mode:var(--grain-blend);
+  background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  animation:grain 1s steps(4) infinite}
+@keyframes grain{0%{transform:translate(0,0)}25%{transform:translate(-3%,2%)}50%{transform:translate(2%,-3%)}75%{transform:translate(-2%,-1%)}}
+main{position:relative;z-index:2}
+.wrap{max-width:1240px;margin:0 auto;padding:0 40px}
+
+/* ---------- nav ---------- */
+nav{position:fixed;top:0;left:0;right:0;z-index:50;transition:opacity 1s var(--ease),transform 1s var(--ease)}
+body:not(.ready) nav{opacity:0;transform:translateY(-14px)}
+nav .wrap{display:flex;align-items:center;height:72px;gap:40px}
+nav::before{content:"";position:absolute;inset:0;background:linear-gradient(var(--nav-bg),transparent);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);mask:linear-gradient(#000 60%,transparent);-webkit-mask:linear-gradient(#000 60%,transparent);pointer-events:none}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;font-size:15px;position:relative}
+.logo{width:26px;height:26px;border-radius:8px;background:var(--acc);color:var(--on-acc);display:grid;place-items:center;box-shadow:0 0 18px var(--a40)}
+.logo svg{width:15px;height:15px}
+.links{display:flex;gap:30px;margin-left:auto;margin-right:auto;font-size:13px;color:var(--mute);position:relative}
+.links a{transition:color .3s}.links a:hover{color:var(--text)}
+.nav-r{display:flex;gap:10px;align-items:center;position:relative}
+.pill{display:inline-flex;align-items:center;gap:8px;height:30px;padding:0 12px;border:1px solid var(--line2);border-radius:99px;font:500 11px var(--mono);color:var(--text2);background:var(--chip)}
+.dot{width:6px;height:6px;border-radius:50%;background:var(--acc);box-shadow:0 0 10px var(--acc);animation:pulse 1.8s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.35}}
+/* theme toggle */
+.theme{position:relative;display:flex;height:30px;padding:3px;border-radius:99px;border:1px solid var(--line2);background:var(--chip);cursor:pointer;font:600 11px var(--sans);color:var(--mute)}
+.theme span{position:relative;z-index:1;display:flex;align-items:center;gap:5px;padding:0 10px;border-radius:99px;transition:color .4s}
+.theme::before{content:"";position:absolute;top:3px;bottom:3px;left:3px;width:calc(50% - 3px);border-radius:99px;background:var(--acc);box-shadow:0 0 14px var(--a40);transition:transform .5s var(--ease)}
+[data-theme="white"] .theme::before{transform:translateX(100%)}
+[data-theme="dark"] .theme span:first-child,[data-theme="white"] .theme span:last-child{color:#fff}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;height:40px;padding:0 20px;border-radius:99px;font:600 13px var(--sans);border:0;cursor:pointer;transition:transform .35s var(--ease),box-shadow .35s,background .35s;position:relative;overflow:hidden;white-space:nowrap}
+.btn-acc{background:var(--acc);color:var(--on-acc);box-shadow:0 0 0 1px rgba(255,255,255,.18) inset,0 0 28px var(--a25)}
+.btn-acc:hover{transform:translateY(-2px);box-shadow:0 0 0 1px rgba(255,255,255,.25) inset,0 10px 40px var(--a60)}
+.btn-acc::after{content:"";position:absolute;inset:0;background:linear-gradient(105deg,transparent 35%,rgba(255,255,255,.55) 50%,transparent 65%);transform:translateX(-120%);transition:transform .8s var(--ease)}
+.btn-acc:hover::after{transform:translateX(120%)}
+.btn-ghost{background:var(--fill);color:var(--text);border:1px solid var(--line2);backdrop-filter:blur(8px)}
+.btn-ghost:hover{background:var(--fill2);transform:translateY(-2px)}
+.btn-sm{height:30px;padding:0 16px;font-size:12px}
+
+/* ---------- reveal ---------- */
+.rv{opacity:0;transform:translateY(30px);filter:blur(10px);transition:opacity 1.1s var(--ease),transform 1.1s var(--ease),filter 1.1s var(--ease),background .6s,border-color .6s;transition-delay:var(--d,0s)}
+.rv.in{opacity:1;transform:none;filter:none}
+.split .w{display:inline-block;padding:0 .02em .08em;margin-bottom:-.08em}
+.split .wi{display:inline-block;opacity:0;transform:translateY(55%) rotate(2deg);filter:blur(10px);transition:opacity .9s var(--ease),transform 1s var(--ease),filter .9s var(--ease);transition-delay:calc(var(--i)*60ms + var(--d,0s))}
+.split.in .wi{opacity:1;transform:none;filter:none}
+
+.tag{display:inline-flex;align-items:center;gap:8px;font:500 11px var(--mono);color:var(--text2);padding:5px 10px;border:1px solid var(--line2);border-radius:6px;background:var(--chip)}
+.tag i{width:5px;height:5px;background:var(--acc);border-radius:1px;box-shadow:0 0 8px var(--acc)}
+.h2{font-size:clamp(34px,4.4vw,60px);font-weight:700;letter-spacing:-.045em;line-height:1.02}
+.lead{color:var(--mute);font-size:14px;line-height:1.65;max-width:340px}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:40px;margin-bottom:56px}
+.sec-head .tag{margin-bottom:22px}
+.glass{background:var(--glass);border:1px solid var(--line);border-radius:18px;backdrop-filter:blur(22px) saturate(140%);-webkit-backdrop-filter:blur(22px) saturate(140%);box-shadow:var(--shadow)}
+.cap{font:500 10.5px var(--mono);color:var(--dim);letter-spacing:.02em}
+section{position:relative}
+
+/* ---------- hero ---------- */
+.hero{min-height:100vh;display:flex;align-items:center;padding-top:72px}
+.hero .wrap{display:grid;grid-template-columns:1fr 1.08fr;gap:40px;align-items:center;width:100%}
+.hero h1{font-size:clamp(46px,6.2vw,92px);font-weight:700;letter-spacing:-.055em;line-height:.98;margin:26px 0 24px}
+.hero h1 em{display:inline-block;font-weight:800;letter-spacing:-.07em;font-size:.94em;white-space:nowrap}
+.hero p.sub{color:var(--mute);font-size:15px;line-height:1.65;max-width:430px}
+.hero .ctas{display:flex;gap:10px;margin:32px 0 18px}
+.fine{font:400 11px var(--mono);color:var(--dim)}
+.play{width:16px;height:16px;border-radius:50%;background:var(--fill2);display:grid;place-items:center;font-size:7px}
+
+.flow{padding:0;overflow:hidden;transform-origin:left center;background:var(--glass-strong)}
+.flow-top{display:flex;align-items:center;gap:14px;padding:13px 16px;border-bottom:1px solid var(--line);font:500 10.5px var(--mono);color:var(--mute)}
+.flow-top b{color:var(--text);font-weight:500}
+.flow-top .run{margin-left:auto;color:var(--acc);display:flex;gap:6px;align-items:center}
+.flow-body{display:grid;grid-template-columns:38px 1fr}
+.tools{border-right:1px solid var(--line);padding:12px 0;display:flex;flex-direction:column;align-items:center;gap:10px}
+.tools span{width:18px;height:18px;border-radius:5px;border:1px solid var(--line2);background:var(--fill)}
+.tools span:first-child{background:var(--a15);border-color:var(--a60)}
+.flow svg{display:block;width:100%;height:auto}
+.node rect{fill:var(--node);stroke:var(--line2)}
+.node.hot rect{stroke:var(--a60)}
+.node .t{fill:var(--text);font:600 11px var(--sans)}
+.node .s{fill:var(--mute);font:400 9.5px var(--mono)}
+.edge{fill:none;stroke:var(--acc);stroke-width:1.3;opacity:.8;stroke-dasharray:400;stroke-dashoffset:400;filter:drop-shadow(0 0 3px var(--acc))}
+.ready .edge{animation:draw 1.6s var(--ease) forwards;animation-delay:var(--d)}
+@keyframes draw{to{stroke-dashoffset:0}}
+.elabel{font:400 8.5px var(--mono);fill:var(--dim)}
+.runs{border-top:1px solid var(--line);padding:12px 16px 14px 54px;font:400 10px var(--mono);color:var(--mute);display:grid;gap:6px}
+.runs .r{display:grid;grid-template-columns:50px 1fr auto;gap:10px}
+.runs .r b{color:var(--text2);font-weight:400}
+.runs .ok{color:var(--acc)}
+.mover{fill:var(--acc)}
+
+/* ---------- apps ---------- */
+.apps{padding:90px 0 120px}
+.apps-row{display:flex;align-items:center;margin-top:30px}
+.app{display:flex;flex-direction:column;align-items:center;gap:10px;font:500 10.5px var(--mono);color:var(--mute);width:120px}
+.app .ic{width:54px;height:54px;border-radius:14px;border:1px solid var(--line2);background:var(--chip);display:grid;place-items:center;font:700 15px var(--sans);color:var(--text);backdrop-filter:blur(10px)}
+.app:hover .ic{transform:translateY(-4px)}
+.app.on .ic{background:var(--acc);color:var(--on-acc);border-color:var(--acc-hi);box-shadow:0 0 40px var(--a60)}
+.conn{flex:1;height:1px;background:repeating-linear-gradient(90deg,var(--line2) 0 3px,transparent 3px 8px);position:relative;min-width:30px;max-width:90px;margin-bottom:22px}
+.conn::after{content:"";position:absolute;top:-2px;left:0;width:5px;height:5px;border-radius:50%;background:var(--acc);box-shadow:0 0 8px var(--acc);animation:travel 2.4s linear infinite;animation-delay:var(--d,0s)}
+@keyframes travel{from{left:0;opacity:0}15%{opacity:1}85%{opacity:1}to{left:100%;opacity:0}}
+.apps .more{margin-top:70px}
+
+/* ---------- glue (scrolly) ---------- */
+.glue{padding:120px 0 0}
+.scrolly{height:240vh;position:relative}
+.scrolly .stick{position:sticky;top:0;height:100vh;display:flex;align-items:center}
+.scrolly .wrap{display:grid;grid-template-columns:.9fr 1.2fr;gap:60px;width:100%;align-items:center}
+.steps{position:relative;min-height:260px}
+.step{position:absolute;inset:0;transition:opacity .8s var(--ease),transform .8s var(--ease),filter .8s var(--ease)}
+.step .n{font:500 11px var(--mono);color:var(--acc);margin-bottom:14px;display:block}
+.step h3{font-size:clamp(26px,2.6vw,36px);letter-spacing:-.04em;line-height:1.08;margin-bottom:16px}
+.step p{color:var(--mute);font-size:14px;line-height:1.7;max-width:360px}
+.scrolly[data-step="0"] .step[data-s="1"],.scrolly[data-step="1"] .step[data-s="0"]{opacity:0;transform:translateY(24px);filter:blur(8px);pointer-events:none}
+.prog{display:flex;gap:6px;margin-top:190px}
+.prog span{height:2px;width:36px;background:var(--fill2);border-radius:2px;overflow:hidden;position:relative}
+.prog span i{position:absolute;inset:0;background:var(--acc);transform-origin:left;transform:scaleX(0)}
+.panels{position:relative;height:400px}
+.panel{position:absolute;inset:0;padding:22px;transition:opacity .9s var(--ease),transform .9s var(--ease),filter .9s var(--ease),background .6s}
+.scrolly[data-step="0"] .panel[data-s="1"],.scrolly[data-step="1"] .panel[data-s="0"]{opacity:0;transform:translateY(40px) scale(.97);filter:blur(10px);pointer-events:none}
+.ph{display:flex;justify-content:space-between;align-items:center;margin-bottom:18px}
+.ph b{font:600 13px var(--sans)}
+.prow{display:grid;grid-template-columns:18px 1.1fr 1.4fr 48px;align-items:center;gap:12px;font:400 11px var(--mono);color:var(--text2);padding:9px 0;border-bottom:1px dashed var(--line)}
+.prow .ck{color:var(--acc)}
+.prow .ck.wait{color:var(--dim);animation:pulse 1.2s infinite}
+.bar{height:8px;border-radius:3px;background:var(--fill);overflow:hidden}
+.bar i{display:block;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--acc-d),var(--acc2));box-shadow:0 0 12px var(--a60);width:0;transition:width 1.6s var(--ease);transition-delay:var(--d,0s)}
+.prow .tm{text-align:right;color:var(--dim)}
+.axis{display:flex;justify-content:space-between;margin:14px 0 0 30px;font:400 9.5px var(--mono);color:var(--dim)}
+.stacks{display:flex;justify-content:space-around;align-items:flex-end;height:250px;padding-top:10px}
+.stack{display:flex;flex-direction:column;align-items:center;gap:8px}
+.stack svg{width:56px;overflow:visible}
+.plate{opacity:0;transform:translateY(-36px);transition:opacity .6s var(--ease),transform .7s var(--ease);transition-delay:var(--d)}
+.on .plate{opacity:1;transform:none}
+.pt{fill:var(--plate-top)}.pl{fill:var(--plate-l)}.pr{fill:var(--plate-r)}.pth{fill:var(--plate-hi)}.pta{fill:var(--acc)}
+.stack .cap b{color:var(--text);font-weight:500}
+
+/* ---------- expand (accent box) ---------- */
+.expand{height:300vh}
+.expand .stick{position:sticky;top:0;height:100vh;overflow:hidden}
+.xbox{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:120px;height:120px;border-radius:30px;background:var(--acc);
+  box-shadow:0 0 0 1px rgba(255,255,255,.2) inset,0 0 80px var(--a60),0 0 220px var(--a25);display:grid;place-items:center;overflow:hidden;will-change:width,height}
+.xbox::before{content:"";position:absolute;inset:0;background:radial-gradient(120% 90% at 30% 0%,rgba(255,255,255,.35) 0%,transparent 55%),radial-gradient(80% 80% at 100% 100%,var(--acc-d) 0%,transparent 60%);opacity:.8}
+.xicon{width:46px;height:46px;border-radius:13px;background:#fff;color:var(--acc);display:grid;place-items:center;position:relative;box-shadow:0 10px 30px rgba(0,40,100,.35)}
+.xicon svg{width:24px;height:24px}
+.xtext{position:absolute;top:13%;left:0;right:0;text-align:center;font-size:clamp(22px,2.8vw,40px);font-weight:600;letter-spacing:-.04em;color:#fff;white-space:nowrap}
+.xtext .caret{display:inline-block;width:2px;height:.9em;background:#fff;vertical-align:-.1em;margin-left:3px;animation:pulse .8s infinite}
+.xsub{position:absolute;bottom:12%;left:0;right:0;text-align:center;font:500 11px var(--mono);color:rgba(255,255,255,.7)}
+
+/* ---------- boring ---------- */
+.boring{padding:40px 0 140px}
+.cards2{display:grid;grid-template-columns:1.15fr 1fr;gap:16px}
+.card{padding:26px}
+.card h4{font-size:19px;letter-spacing:-.03em;margin-bottom:8px}
+.card p{color:var(--mute);font-size:13px;line-height:1.6;max-width:380px}
+.hub{position:relative;height:200px;margin-top:20px}
+.hub svg{position:absolute;inset:0;width:100%;height:100%}
+.hub .dash-l{stroke:var(--line2)}
+.hub .core{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:66px;height:66px;border-radius:18px;background:var(--acc);color:var(--on-acc);display:grid;place-items:center;box-shadow:0 0 0 1px rgba(255,255,255,.2) inset,0 0 50px var(--a90),0 0 120px var(--a40);animation:breathe 3s ease-in-out infinite}
+.hub .core svg{position:static;width:28px;height:28px}
+@keyframes breathe{50%{box-shadow:0 0 0 1px rgba(255,255,255,.3) inset,0 0 70px var(--acc),0 0 160px var(--a60)}}
+.hn{position:absolute;display:flex;flex-direction:column;align-items:center;gap:5px;font:400 9.5px var(--mono);color:var(--mute);transform:translate(-50%,-50%)}
+.hn span{width:30px;height:30px;border-radius:50%;border:1px solid var(--line2);display:grid;place-items:center;font:700 10px var(--sans);color:var(--text);background:var(--node)}
+.vrow{display:grid;grid-template-columns:1fr 1.3fr 40px;gap:14px;align-items:center;font:400 11px var(--mono);color:var(--text2);padding:12px 0;border-bottom:1px dashed var(--line)}
+.vrow:last-child{border:0}
+.vrow .pct{text-align:right;color:var(--mute)}
+
+/* ---------- tuesday ---------- */
+.tuesday{padding:60px 0 140px}
+.dash{display:grid;grid-template-columns:2fr 1fr;gap:14px}
+.dash2{display:grid;grid-template-columns:1fr 1.2fr 1fr;gap:14px;margin-top:14px}
+.heat{display:grid;grid-template-columns:28px repeat(7,1fr);gap:8px;margin-top:16px}
+.heat .yl{display:flex;flex-direction:column;justify-content:space-between;font:400 9px var(--mono);color:var(--dim);padding:2px 0 22px}
+.col{display:flex;flex-direction:column;gap:3px;align-items:stretch}
+.col i{height:6px;border-radius:2px;background:var(--heat);opacity:var(--o);transition:background .6s,box-shadow .6s}
+.col.act i{background:linear-gradient(90deg,var(--acc-d),var(--acc2),var(--acc-d));box-shadow:0 0 10px var(--a60)}
+.col em{font:500 9px var(--mono);font-style:normal;color:var(--dim);text-align:center;margin-top:8px;letter-spacing:0}
+.col.act em{color:var(--acc)}
+.chip{font:500 10px var(--mono);color:var(--acc);border:1px solid var(--a40);background:var(--a08);padding:4px 8px;border-radius:5px}
+.donut{display:grid;place-items:center;margin:16px 0 10px;position:relative}
+.donut svg{width:130px;height:130px;transform:rotate(-90deg)}
+.donut .bgc{stroke:var(--fill)}
+.donut .v{position:absolute;font:600 26px var(--sans);letter-spacing:-.04em}
+.donut circle.fg{stroke:var(--acc);stroke-linecap:round;filter:drop-shadow(0 0 6px var(--acc));stroke-dasharray:327;stroke-dashoffset:327;transition:stroke-dashoffset 2s var(--ease)}
+.avs{display:flex;margin:18px 0 12px}
+.avs span{width:36px;height:36px;border-radius:50%;border:2px solid var(--bg);margin-right:-9px;display:grid;place-items:center;font:700 11px var(--sans);color:#fff}
+.big{font:600 34px var(--sans);letter-spacing:-.05em}
+.big small{font:400 12px var(--mono);color:var(--mute);letter-spacing:0;margin-left:6px}
+.wave svg{width:100%;height:110px;margin-top:12px;overflow:visible}
+.wave path{fill:none;stroke:var(--acc);stroke-width:1.4;filter:drop-shadow(0 0 4px var(--acc))}
+.srcs{display:grid;gap:10px;margin-top:16px}
+.srcs .vrow{padding:6px 0;grid-template-columns:70px 1fr 34px}
+
+/* ---------- numbers ---------- */
+.numbers{padding:80px 0 140px}
+.stats{display:grid;grid-template-columns:1.2fr 1fr 1fr;gap:56px;margin-top:20px}
+.stat .k{font:500 10.5px var(--mono);color:var(--dim);margin-bottom:6px}
+.stat .num{font:600 clamp(44px,5vw,68px) var(--mono);letter-spacing:-.06em;line-height:1;text-shadow:0 0 30px var(--a25)}
+.stat .cap{margin:10px 0 14px;display:block}
+.spark{width:100%;height:56px}
+.spark path{fill:none;stroke:var(--acc);stroke-width:1.5;filter:drop-shadow(0 0 4px var(--acc));stroke-dasharray:1200;stroke-dashoffset:1200;transition:stroke-dashoffset 2.4s var(--ease)}
+.in .spark path{stroke-dashoffset:0}
+.segs{display:flex;gap:4px;height:34px;align-items:stretch}
+.segs i{flex:1;border-radius:3px;background:var(--fill);transition:background .3s,box-shadow .3s}
+.segs i.lit{background:linear-gradient(var(--acc2),var(--acc));box-shadow:0 0 12px var(--a60)}
+.pbar{height:12px;border-radius:4px;background:var(--fill);overflow:hidden;margin-top:22px}
+.pbar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--acc-d),var(--acc2));box-shadow:0 0 16px var(--acc);transition:width 2s var(--ease)}
+.quotes{display:grid;grid-template-columns:repeat(3,1fr);gap:56px;margin-top:80px;padding-top:36px;border-top:1px solid var(--line)}
+.quotes p{font-size:14px;line-height:1.7;color:var(--text2)}
+.quotes .who{margin-top:18px;font:600 12px var(--sans)}
+.quotes .who span{display:block;font:400 10.5px var(--mono);color:var(--dim);margin-top:4px}
+
+/* ---------- pricing ---------- */
+.pricing{padding:80px 0 120px}
+.calc{display:grid;grid-template-columns:1fr 230px;gap:40px;padding:28px 30px;align-items:center}
+.calc .q{font-size:17px;font-weight:600;letter-spacing:-.03em;margin:6px 0 26px}
+input[type=range]{-webkit-appearance:none;appearance:none;width:100%;height:6px;border-radius:6px;outline:none;cursor:pointer;
+  background:linear-gradient(90deg,var(--acc) 0 var(--p,30%),var(--fill2) var(--p,30%) 100%);box-shadow:0 0 18px var(--a25)}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:20px;height:20px;border-radius:50%;background:var(--acc);border:3px solid var(--bg);box-shadow:0 0 0 1px var(--acc),0 0 20px var(--acc)}
+input[type=range]::-moz-range-thumb{width:16px;height:16px;border-radius:50%;background:var(--acc);border:3px solid var(--bg);box-shadow:0 0 20px var(--acc)}
+.ticks{display:flex;justify-content:space-between;font:400 10px var(--mono);color:var(--dim);margin-top:12px}
+.ticks b{color:var(--text);font-weight:500}
+.rec-box .cap{display:block}
+.rec-box .pl{font:600 13px var(--sans);margin:8px 0 2px}
+.rec-box .pr{font:600 40px var(--mono);letter-spacing:-.06em}
+.rec-box .pr small{font:400 11px var(--mono);color:var(--mute);letter-spacing:0}
+.rec-box .btn{width:100%;margin-top:14px;height:42px;border-radius:12px}
+.plans{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px;align-items:stretch}
+.plan{padding:26px;display:flex;flex-direction:column;transition:transform .6s var(--ease),border-color .6s,box-shadow .6s,background .6s}
+.plan:hover{transform:translateY(-6px)}
+.plan .nm{font:500 12px var(--sans);color:var(--text2);display:flex;justify-content:space-between;align-items:center}
+.plan .pp{font:600 38px var(--mono);letter-spacing:-.06em;margin:10px 0 2px}
+.plan ul{list-style:none;margin:20px 0 26px;display:grid;gap:10px;font-size:12.5px;color:var(--mute)}
+.plan li::before{content:"✓";color:var(--acc);margin-right:10px;font-weight:700}
+.plan .btn{margin-top:auto;border-radius:12px;height:42px}
+.plan.rec{border-color:var(--a60);box-shadow:0 0 0 1px var(--a25),0 30px 80px -30px var(--a60);transform:translateY(-10px)}
+.badge{font:600 10px var(--sans);background:var(--acc);color:var(--on-acc);padding:4px 9px;border-radius:5px;opacity:0;transform:scale(.8);transition:.4s var(--ease)}
+.plan.rec .badge{opacity:1;transform:none}
+.plan.rec .btn-ghost{background:var(--acc);color:var(--on-acc);border-color:transparent;box-shadow:0 0 30px var(--a40)}
+
+/* ---------- footer ---------- */
+.foot{padding:40px 0 60px}
+.foot .wrap{display:grid;grid-template-columns:1fr 1.1fr;gap:16px}
+.fl{padding:30px;position:relative;overflow:hidden;min-height:300px;display:flex;flex-direction:column}
+.fl .chev{position:absolute;right:30px;top:40px;width:180px;opacity:.12;color:var(--text)}
+.fl h5{font-size:22px;letter-spacing:-.04em;line-height:1.25;margin-top:auto;max-width:300px}
+.fl .row{display:flex;justify-content:space-between;align-items:center;margin-top:24px}
+.fl .socials{display:flex;gap:6px}
+.fl .socials span{width:28px;height:28px;border-radius:7px;border:1px solid var(--line2);display:grid;place-items:center;font:600 10px var(--mono);color:var(--mute)}
+.fr{background:var(--acc);border-radius:18px;padding:34px;color:#fff;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 0 0 1px rgba(255,255,255,.2) inset,0 0 90px var(--a40);position:relative;overflow:hidden}
+.fr::before{content:"";position:absolute;inset:0;background:radial-gradient(90% 80% at 0% 0%,rgba(255,255,255,.35),transparent 60%),radial-gradient(70% 70% at 100% 100%,var(--acc-d),transparent 70%);opacity:.8;pointer-events:none}
+.fr h5{font-size:clamp(28px,3vw,42px);letter-spacing:-.05em;line-height:1.05;font-weight:700;position:relative}
+.fr form{display:flex;gap:8px;background:rgba(3,10,25,.55);border:1px solid rgba(255,255,255,.18);border-radius:14px;padding:6px;position:relative;margin-top:40px;backdrop-filter:blur(8px)}
+.fr input{flex:1;background:transparent;border:0;outline:0;color:#fff;font:400 13px var(--sans);padding:0 14px}
+.fr input::placeholder{color:rgba(255,255,255,.55)}
+.fr form .btn{border-radius:10px;background:#fff;color:var(--acc-d);box-shadow:none}
+.fr .note{font:500 10.5px var(--mono);margin-top:12px;opacity:.75;position:relative}
+.finale{height:260vh}
+.finale .xbox{border-radius:28px}
+.finale .fin{position:absolute;inset:0;display:grid;place-items:center;opacity:0}
+.finale .fin .xicon{width:84px;height:84px;border-radius:24px}
+.finale .fin .xicon svg{width:42px;height:42px}
+.finale .fin-t{position:absolute;bottom:10%;left:0;right:0;text-align:center;font:500 11px var(--mono);color:rgba(255,255,255,.8)}
+
+@media (max-width:900px){
+  .wrap{padding:0 20px}.links{display:none}.nav-r .pill{display:none}
+  .hero .wrap,.scrolly .wrap,.cards2,.dash,.dash2,.stats,.quotes,.plans,.calc,.foot .wrap{grid-template-columns:1fr}
+  .sec-head{flex-direction:column;align-items:flex-start}
+  .hero{padding-top:100px}.panels{height:420px}.steps{min-height:200px}.prog{margin-top:150px}
+  .apps-row{flex-wrap:wrap;gap:12px}.conn{display:none}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}.rv,.split .wi{opacity:1;transform:none;filter:none}}
+</style>
+</head>
+<body>
+<canvas id="aura"></canvas>
+<div class="grain"></div>
+
+<svg width="0" height="0" style="position:absolute">
+  <symbol id="g" viewBox="0 0 24 24"><path d="M5 6l6 6-6 6M12 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+</svg>
+
+<nav>
+  <div class="wrap">
+    <a class="brand" href="#"><span class="logo"><svg><use href="#g"/></svg></span>TechCompare</a>
+    <div class="links"><a href="#how">제품</a><a href="#glue">작동 방식</a><a href="#apps">연동</a><a href="#pricing">요금제</a></div>
+    <div class="nav-r">
+      <span class="pill"><span class="dot"></span>50개 모델 실시간 추적</span>
+      <button class="theme" id="themeBtn" aria-label="테마 전환"><span>다크</span><span>화이트</span></button>
+      <a class="btn btn-acc btn-sm" href="#pricing">무료로 시작</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+<!-- ================= HERO ================= -->
+<section class="hero" id="how" data-aura="0.46,-0.02,0,1,0.30,0.3,0.85,0.3,0.12,1">
+  <div class="wrap">
+    <div>
+      <span class="tag rv" style="--d:.1s"><i></i>공식 사양서 기반 / Apple 25 · Samsung 25</span>
+      <h1 class="split" style="--d:.2s">스펙 비교는<br><em>알아서 끝납니다.</em></h1>
+      <p class="sub rv" style="--d:.7s">TechCompare는 Apple과 Samsung의 공식 사양서 12개 항목을 맞춰 보고, 다나와·네이버·쿠팡·공식스토어 최저가까지 한 번에 찾아줍니다. 당신은 고르기만 하면 됩니다.</p>
+      <div class="ctas rv" style="--d:.85s"><a class="btn btn-acc" href="#pricing">무료로 비교하기</a><a class="btn btn-ghost" href="#glue"><span class="play">▶</span>데모 보기 · 1분</a></div>
+      <div class="fine rv" style="--d:1s">가입 불필요 / 광고 없음 / 매일 06:00 가격 갱신</div>
+    </div>
+
+    <div class="glass flow rv" style="--d:.5s" id="flowPanel">
+      <div class="flow-top"><b>비교 #2481</b><span>2 브랜드 · 4 쇼핑몰</span><span class="run"><span class="dot"></span>실행 중</span></div>
+      <div class="flow-body">
+        <div class="tools"><span></span><span></span><span></span><span></span></div>
+        <svg viewBox="0 0 560 250">
+          <path id="e1" class="edge" style="--d:.9s" d="M150 125 C190 125,190 62,232 62"/>
+          <path id="e2" class="edge" style="--d:1.0s" d="M150 125 C190 125,190 188,232 188"/>
+          <path id="e3" class="edge" style="--d:1.3s" d="M362 62 C402 62,402 125,420 125"/>
+          <path id="e4" class="edge" style="--d:1.4s" d="M362 188 C402 188,402 125,420 125"/>
+          <text class="elabel" x="176" y="84">spec</text><text class="elabel" x="176" y="176">variant</text>
+          <g class="node"><rect x="20" y="102" width="130" height="46" rx="9"/><text class="t" x="32" y="121">비교 요청</text><text class="s" x="32" y="137">17 Pro ↔ S25 Ultra</text></g>
+          <g class="node hot"><rect x="232" y="39" width="130" height="46" rx="9"/><text class="t" x="244" y="58">공식 사양서 수집</text><text class="s" x="244" y="74">12개 표준 항목</text></g>
+          <g class="node"><rect x="232" y="165" width="130" height="46" rx="9"/><text class="t" x="244" y="184">변형 매칭</text><text class="s" x="244" y="200">256GB · 5G</text></g>
+          <g class="node hot"><rect x="420" y="102" width="122" height="46" rx="9"/><text class="t" x="432" y="121">최저가 확정</text><text class="s" x="432" y="137">₩1,549,000</text></g>
+          <g class="mover">
+            <circle r="3.2"><animateMotion dur="2.6s" repeatCount="indefinite" begin="2s"><mpath href="#e1"/></animateMotion></circle>
+            <circle r="3.2"><animateMotion dur="2.6s" repeatCount="indefinite" begin="2.6s"><mpath href="#e2"/></animateMotion></circle>
+            <circle r="3.2"><animateMotion dur="2.2s" repeatCount="indefinite" begin="3s"><mpath href="#e3"/></animateMotion></circle>
+            <circle r="3.2"><animateMotion dur="2.2s" repeatCount="indefinite" begin="3.6s"><mpath href="#e4"/></animateMotion></circle>
+          </g>
+        </svg>
+      </div>
+      <div class="runs">
+        <div class="cap" style="margin-bottom:2px">최근 실행</div>
+        <div class="r"><span>13:42</span><b>iPad Air M3 ↔ Tab S10+</b><span class="ok">완료 · 0.8s</span></div>
+        <div class="r"><span>13:41</span><b>Watch S11 ↔ Watch8 Classic</b><span class="ok">완료 · 0.6s</span></div>
+        <div class="r"><span>13:39</span><b>iPhone Air ↔ S25 Edge</b><span class="ok">완료 · 0.9s</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= APPS ================= -->
+<section class="apps" id="apps" data-aura="0.62,0.04,0.25,1,0.62,0.55,0.85,0.5,0.24,1">
+  <div class="wrap">
+    <div class="cap rv">4개 쇼핑몰, 2개 제조사 공식 사양서와 연결됩니다.</div>
+    <div class="apps-row">
+      <div class="app on rv" style="--d:.05s"><div class="ic"><svg style="width:22px;height:22px"><use href="#g"/></svg></div>공식스토어</div>
+      <div class="conn"></div>
+      <div class="app rv" style="--d:.15s"><div class="ic">다</div>danawa</div>
+      <div class="conn" style="--d:.6s"></div>
+      <div class="app rv" style="--d:.25s"><div class="ic">N</div>naver</div>
+      <div class="conn" style="--d:1.2s"></div>
+      <div class="app rv" style="--d:.35s"><div class="ic">C</div>coupang</div>
+      <div class="conn" style="--d:1.8s"></div>
+      <div class="app rv" style="--d:.45s"><div class="ic">TS</div>techspecs</div>
+    </div>
+    <div class="cap more rv">+ Apple · Samsung 공식 사양서 자동 수집</div>
+  </div>
+</section>
+
+<!-- ================= GLUE ================= -->
+<section class="glue" id="glue" data-aura="-0.05,0,-0.95,0,0.4,1.3,0.28,1.1,0.5,0.9">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="tag rv"><i></i>작동 방식</span><h2 class="h2 split">비교의 대부분은 <em>잡일</em>입니다.</h2></div>
+      <p class="lead rv">스펙표 열기, 단위 맞추기, 쇼핑몰 네 곳 돌기. 그 사이의 모든 잡일을 TechCompare가 대신 처리합니다. 당신은 결과만 보면 됩니다.</p>
+    </div>
+  </div>
+  <div class="scrolly" id="scrolly" data-step="0">
+    <div class="stick">
+      <div class="wrap">
+        <div>
+          <div class="steps">
+            <div class="step" data-s="0"><span class="n">01</span><h3>하나의 캔버스,<br>모든 갈래.</h3><p>공식 사양서 파싱부터 단위 정규화, 용량·통신 변형 병합, 쇼핑몰별 가격 조회까지. 모든 단계가 한 화면에서 동시에 흘러갑니다.</p></div>
+            <div class="step" data-s="1"><span class="n">02</span><h3>모든 가격은<br>기록됩니다.</h3><p>매일 아침 스냅샷이 쌓입니다. 언제 가장 쌌는지, 지금 사도 되는지 — 6개월치 가격 이력이 답해줍니다.</p></div>
+          </div>
+          <div class="prog"><span><i id="pg0"></i></span><span><i id="pg1"></i></span></div>
+        </div>
+        <div class="panels">
+          <div class="glass panel" data-s="0">
+            <div class="ph"><b>비교 파이프라인</b><span class="chip">● 6 단계 · 0.82s</span></div>
+            <div class="prow"><span class="ck">✓</span><span>사양서 파싱</span><div class="bar"><i data-w="94%"></i></div><span class="tm">0.12s</span></div>
+            <div class="prow"><span class="ck">✓</span><span>단위 정규화</span><div class="bar"><i data-w="80%" style="--d:.1s"></i></div><span class="tm">0.08s</span></div>
+            <div class="prow"><span class="ck">✓</span><span>변형 병합</span><div class="bar"><i data-w="66%" style="--d:.2s"></i></div><span class="tm">0.10s</span></div>
+            <div class="prow"><span class="ck">✓</span><span>다나와 조회</span><div class="bar"><i data-w="52%" style="--d:.3s"></i></div><span class="tm">0.21s</span></div>
+            <div class="prow"><span class="ck wait">◌</span><span>쿠팡 조회</span><div class="bar"><i data-w="34%" style="--d:.4s"></i></div><span class="tm">…</span></div>
+            <div class="prow"><span class="ck wait">◌</span><span>네이버 조회</span><div class="bar"><i data-w="18%" style="--d:.5s"></i></div><span class="tm">…</span></div>
+            <div class="axis"><span>0</span><span>200</span><span>400</span><span>600</span><span>800ms</span></div>
+          </div>
+          <div class="glass panel" data-s="1">
+            <div class="ph"><b>가격 스냅샷 · 최근 6개월</b><span class="chip">평균 ₩48,200 하락</span></div>
+            <div class="stacks" id="stacks"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= MANIFESTO ================= -->
+<section class="expand" id="manifesto" data-aura="0.1,0.1,-0.7,0,0.4,1.1,0.22,1.0,0.45,0.85">
+  <div class="stick">
+    <div class="xbox" id="xbox">
+      <div class="xtext" id="xtext"></div>
+      <div class="xicon"><svg><use href="#g"/></svg></div>
+      <div class="xsub" id="xsub">TECHCOMPARE · 원칙 01</div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= BORING ================= -->
+<section class="boring" data-aura="0.78,0.2,-1.25,0,0.4,1,0.35,0.8,0.35,0.75">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="tag rv"><i></i>신뢰성</span><h2 class="h2 split"><em>지루할 만큼</em> 정확하게.</h2></div>
+      <p class="lead rv">추측 데이터 없음. 미공개 사양은 '정보 없음'으로 남깁니다. 화려한 대신, 틀리지 않는 쪽을 택했습니다.</p>
+    </div>
+    <div class="cards2">
+      <div class="glass card rv">
+        <h4>하나의 엔진, 모든 브랜드</h4>
+        <p>Apple과 Samsung을 같은 기준으로. 카테고리가 다르면 비교하지 않습니다.</p>
+        <div class="hub">
+          <svg viewBox="0 0 500 200" preserveAspectRatio="none">
+            <g class="dash-l" stroke-dasharray="3 5" fill="none"><path id="h1" d="M70 60 C160 60,170 100,250 100"/><path id="h2" d="M70 140 C160 140,170 100,250 100"/><path id="h3" d="M250 100 C330 100,340 60,430 60"/><path id="h4" d="M250 100 C330 100,340 140,430 140"/></g>
+            <g class="mover"><circle r="2.6"><animateMotion dur="2s" repeatCount="indefinite"><mpath href="#h1"/></animateMotion></circle><circle r="2.6"><animateMotion dur="2s" begin=".7s" repeatCount="indefinite"><mpath href="#h2"/></animateMotion></circle><circle r="2.6"><animateMotion dur="2s" begin="1.1s" repeatCount="indefinite"><mpath href="#h3"/></animateMotion></circle><circle r="2.6"><animateMotion dur="2s" begin="1.5s" repeatCount="indefinite"><mpath href="#h4"/></animateMotion></circle></g>
+          </svg>
+          <div class="hn" style="left:14%;top:30%"><span></span>apple</div>
+          <div class="hn" style="left:14%;top:70%"><span>S</span>samsung</div>
+          <div class="hn" style="left:86%;top:30%"><span>다</span>danawa</div>
+          <div class="hn" style="left:86%;top:70%"><span>C</span>coupang</div>
+          <div class="core"><svg><use href="#g"/></svg></div>
+        </div>
+        <div class="cap">compare("iphone-17-pro", "galaxy-s25-ultra")</div>
+      </div>
+      <div class="glass card rv" style="--d:.12s">
+        <h4>데이터가 있는 곳에서 검증</h4>
+        <p>모든 수치는 출처를 가집니다. 교차 검증되지 않은 값은 표시하지 않습니다.</p>
+        <div style="margin-top:22px" class="cap">출처별 검증률</div>
+        <div class="vrow"><span>Apple 공식</span><div class="bar"><i data-w="100%"></i></div><span class="pct">100%</span></div>
+        <div class="vrow"><span>Samsung 공식</span><div class="bar"><i data-w="100%" style="--d:.1s"></i></div><span class="pct">100%</span></div>
+        <div class="vrow"><span>TechSpecs 교차</span><div class="bar"><i data-w="86%" style="--d:.2s"></i></div><span class="pct">86%</span></div>
+        <div class="vrow"><span>쇼핑몰 실구매가</span><div class="bar"><i data-w="92%" style="--d:.3s"></i></div><span class="pct">92%</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= TUESDAY ================= -->
+<section class="tuesday" data-aura="0.35,-0.35,0.45,0,0.4,0.9,0.4,0.9,0.4,0.8">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="tag rv"><i></i>하루 보기</span><h2 class="h2 split">어느 <em>화요일,</em> TechCompare가 본 시장.</h2></div>
+      <p class="lead rv">가격은 생각보다 자주 움직입니다. 우리는 그 움직임을 사람이 신경 쓰지 않아도 되게 만듭니다.</p>
+    </div>
+    <div class="dash">
+      <div class="glass card rv">
+        <div class="ph" style="margin:0"><span class="cap">요일별 가격 변동 · 시간대 09–21시</span><span class="chip" id="heatChip">● 화 14:00 최저가 갱신</span></div>
+        <div class="heat" id="heat"></div>
+      </div>
+      <div class="glass card rv" style="--d:.1s">
+        <span class="cap">최저가 적중률</span>
+        <div class="donut" id="donut"><svg viewBox="0 0 120 120"><circle class="bgc" cx="60" cy="60" r="52" fill="none" stroke-width="9"/><circle class="fg" cx="60" cy="60" r="52" fill="none" stroke-width="9"/></svg><span class="v"><span class="count" data-to="88">0</span>%</span></div>
+        <p style="font-size:12px;color:var(--mute);text-align:center">실구매가 오차 1% 이내 비율</p>
+      </div>
+    </div>
+    <div class="dash2">
+      <div class="glass card rv">
+        <span class="cap">가격 알림 대기 중</span>
+        <div class="avs"><span style="background:var(--acc)">JH</span><span style="background:var(--acc2)">SY</span><span style="background:#334155">MK</span><span style="background:#94A3B8">DW</span><span style="background:var(--acc-d)">+</span></div>
+        <div class="big"><span class="count" data-to="3214">0</span><small>명</small></div>
+        <div class="cap" style="margin-top:6px">평균 대기 2.4일 — 불평 없이.</div>
+      </div>
+      <div class="glass card rv wave" style="--d:.1s">
+        <span class="cap">가격 파동 & 재조회</span>
+        <svg viewBox="0 0 300 100" preserveAspectRatio="none"><path id="w1"/><path id="w2" style="opacity:.55"/><path id="w3" style="opacity:.3"/></svg>
+        <div class="cap">재조회 성공 99.4% · 실패 시 자동 재시도</div>
+      </div>
+      <div class="glass card rv" style="--d:.2s">
+        <span class="cap">최저가 출처</span>
+        <div class="srcs">
+          <div class="vrow"><span>다나와</span><div class="bar"><i data-w="41%"></i></div><span class="pct">41%</span></div>
+          <div class="vrow"><span>쿠팡</span><div class="bar"><i data-w="29%" style="--d:.1s"></i></div><span class="pct">29%</span></div>
+          <div class="vrow"><span>네이버</span><div class="bar"><i data-w="18%" style="--d:.2s"></i></div><span class="pct">18%</span></div>
+          <div class="vrow"><span>공식몰</span><div class="bar"><i data-w="12%" style="--d:.3s"></i></div><span class="pct">12%</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= NUMBERS ================= -->
+<section class="numbers" data-aura="0,-0.05,0.3,0,0.4,1.3,0.6,1.1,0.5,1">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="tag rv"><i></i>실제 지표</span><h2 class="h2 split">변명할 <em>필요</em> 없는<br>숫자들.</h2></div>
+      <p class="lead rv">지난 30일, 모든 계정의 실제 실행 기록입니다. 반올림도, 좋은 날만 고른 것도 아닙니다.</p>
+    </div>
+    <div class="stats">
+      <div class="stat rv"><div class="k">이번 달</div><div class="num count" data-to="61396">0</div><span class="cap">비교 실행 수 · 30일 누적</span><svg class="spark" viewBox="0 0 400 56" preserveAspectRatio="none"><path id="spark"/></svg></div>
+      <div class="stat rv" style="--d:.1s"><div class="k">표준</div><div class="num count" data-to="12">0</div><span class="cap">비교 스펙 항목</span><div class="segs" id="segs"></div></div>
+      <div class="stat rv" style="--d:.2s"><div class="k">정확도</div><div class="num"><span class="count" data-to="92">0</span>%</div><span class="cap">가격 오차 1% 이내</span><div class="pbar"><i id="pbar"></i></div></div>
+    </div>
+    <div class="quotes">
+      <div class="rv"><p>"아이폰이랑 갤럭시 사이에서 3주를 고민했는데, 비교표 하나로 10분 만에 끝났어요. 최저가까지 찾아준 게 결정적이었습니다."</p><div class="who">김민지<span>대학생 · 서울</span></div></div>
+      <div class="rv" style="--d:.1s"><p>"사무실 태블릿 20대를 교체하면서 썼습니다. 용량별 실구매가 차이가 한눈에 보이니까 결재가 바로 났어요."</p><div class="who">박정호<span>총무팀장 · 판교</span></div></div>
+      <div class="rv" style="--d:.2s"><p>"가격 알림 걸어두고 잊고 있었는데, 딱 내려간 날 알림이 왔어요. 그날 바로 샀습니다."</p><div class="who">이서연<span>디자이너 · 부산</span></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= PRICING ================= -->
+<section class="pricing" id="pricing" data-aura="0,-0.28,0.12,0,0.4,0.6,1,1.4,0.36,1">
+  <div class="wrap">
+    <div class="sec-head">
+      <div><span class="tag rv"><i></i>요금제</span><h2 class="h2 split">비교는 무료, <em>알림만</em> 유료.</h2></div>
+      <p class="lead rv">스펙 비교와 최저가 검색은 언제나 무료입니다. 가격 추적 알림이 필요할 때만 결제하세요.</p>
+    </div>
+    <div class="glass calc rv">
+      <div>
+        <span class="cap">예상 사용량</span>
+        <div class="q">한 달에 몇 개 제품의 가격을 추적하나요?</div>
+        <input type="range" id="rng" name="tracked" min="1" max="200" value="30">
+        <div class="ticks"><span>1</span><b id="rngV">30개</b><span>200개</span></div>
+      </div>
+      <div class="rec-box">
+        <span class="cap">추천 플랜</span>
+        <div class="pl" id="recName">프로</div>
+        <div class="pr"><span id="recPrice">₩9,900</span> <small>/월</small></div>
+        <a class="btn btn-acc" href="#">이 플랜으로 시작</a>
+      </div>
+    </div>
+    <div class="plans">
+      <div class="glass plan rv" data-p="0"><div class="nm">라이트<span class="badge">추천</span></div><div class="pp">₩0</div><span class="cap">영원히 무료</span>
+        <ul><li>무제한 스펙 비교</li><li>4개 쇼핑몰 최저가</li><li>가격 추적 5개</li><li>7일 가격 이력</li></ul><a class="btn btn-ghost" href="#">무료로 시작</a></div>
+      <div class="glass plan rv" data-p="1" style="--d:.1s"><div class="nm">프로<span class="badge">추천</span></div><div class="pp">₩9,900</div><span class="cap">/ 월</span>
+        <ul><li>라이트의 모든 기능</li><li>가격 추적 50개</li><li>6개월 가격 이력</li><li>목표가 즉시 알림</li></ul><a class="btn btn-ghost" href="#">프로 시작</a></div>
+      <div class="glass plan rv" data-p="2" style="--d:.2s"><div class="nm">비즈니스<span class="badge">추천</span></div><div class="pp">₩29,000</div><span class="cap">/ 월</span>
+        <ul><li>무제한 가격 추적</li><li>대량 구매 견적 비교</li><li>CSV · API 내보내기</li><li>전담 지원</li></ul><a class="btn btn-ghost" href="#">문의하기</a></div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FOOTER ================= -->
+<section class="foot" data-aura="0,0.12,0.08,0,0.4,0.6,1,1.2,0.3,1">
+  <div class="wrap">
+    <div class="glass fl rv">
+      <a class="brand"><span class="logo"><svg><use href="#g"/></svg></span>TechCompare</a>
+      <svg class="chev" viewBox="0 0 24 24"><use href="#g"/></svg>
+      <h5>비교의 귀찮음을 자동화합니다. 스펙부터 최저가까지.</h5>
+      <div class="row"><span class="cap">© 2026 TechCompare · Seoul</span><div class="socials"><span>X</span><span>IG</span><span>GH</span><span>YT</span></div></div>
+    </div>
+    <div class="fr rv" style="--d:.12s">
+      <h5>가장 귀찮은 비교부터<br><em>맡겨보세요.</em></h5>
+      <div>
+        <form onsubmit="event.preventDefault();this.querySelector('input').value='';this.querySelector('input').placeholder='비교를 시작합니다 →'">
+          <input name="q" placeholder="예: iPhone 17 Pro vs Galaxy S25 Ultra"><button class="btn">비교하기 →</button>
+        </form>
+        <div class="note">가입 없이 바로 결과 · 30초</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ================= FINALE ================= -->
+<section class="expand finale" id="finale" data-aura="0,0.12,0.08,0,0.4,0.6,1,1.2,0.3,1">
+  <div class="stick">
+    <div class="xbox" id="fbox">
+      <div class="fin" id="fin"><div class="xicon"><svg><use href="#g"/></svg></div></div>
+      <div class="fin-t" id="finT">TECHCOMPARE — 고르기만 하세요.</div>
+    </div>
+  </div>
+</section>
+</main>
+
+<script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
+<script>
+(() => {
+if ('scrollRestoration' in history) history.scrollRestoration = 'manual';
+scrollTo(0, 0);
+const $ = (s, r = document) => r.querySelector(s), $$ = (s, r = document) => [...r.querySelectorAll(s)];
+const clamp = (v, a = 0, b = 1) => Math.min(b, Math.max(a, v));
+const lerp = (a, b, t) => a + (b - a) * t;
+const ease = t => t < .5 ? 4 * t * t * t : 1 - Math.pow(-2 * t + 2, 3) / 2;
+const easeOut = t => 1 - Math.pow(1 - t, 4);
+const root = document.documentElement;
+
+/* ---------- theme (dark / white) ---------- */
+// 셰이더 색: 다크 = Spotlight Blue, 화이트 = Spotlight White (tokens.css)
+const THEMES = {
+  dark:  { A: [0.00, 0.59, 1.00], B: [0.38, 0.75, 1.00], bg: [0.020, 0.027, 0.039], light: 0 },
+  white: { A: [0.04, 0.52, 1.00], B: [0.22, 0.74, 0.97], bg: [0.929, 0.949, 0.976], light: 1 }
+};
+const themeName = () => root.dataset.theme === 'white' ? 'white' : 'dark';
+let TC = JSON.parse(JSON.stringify(THEMES[themeName()]));
+$('#themeBtn').addEventListener('click', () => {
+  const next = themeName() === 'white' ? 'dark' : 'white';
+  root.dataset.theme = next; localStorage.setItem('tc-theme', next);
+});
+
+/* ---------- split headings into words ---------- */
+$$('.split').forEach(el => {
+  const nodes = [...el.childNodes]; el.textContent = ''; let i = 0;
+  const wrap = n => { const w = document.createElement('span'); w.className = 'w'; const wi = document.createElement('span'); wi.className = 'wi'; wi.style.setProperty('--i', i++); wi.appendChild(n); w.appendChild(wi); return w; };
+  const words = (txt, mk) => txt.split(/(\s+)/).forEach(t => { if (!t) return; if (/^\s+$/.test(t)) el.appendChild(document.createTextNode(' ')); else el.appendChild(wrap(mk(t))); });
+  nodes.forEach(n => {
+    if (n.nodeType === 3) words(n.textContent, t => document.createTextNode(t));
+    else if (n.nodeName === 'BR') el.appendChild(n);
+    else if (n.nodeName === 'EM') words(n.textContent, t => { const e = document.createElement('em'); e.textContent = t; return e; });
+    else el.appendChild(wrap(n));
+  });
+});
+
+/* ---------- generated content ---------- */
+const months = [['6월', 7, '₩1.69M'], ['7월', 9, '₩1.66M'], ['8월', 11, '₩1.62M'], ['9월', 13, '₩1.60M'], ['10월', 10, '₩1.58M'], ['11월', 6, '₩1.55M']];
+$('#stacks').innerHTML = months.map(([m, n, p], c) => {
+  let g = '';
+  for (let k = 0; k < n; k++) {
+    const y = 150 - k * 9, d = (c * .08 + k * .05).toFixed(2), top = k === n - 1;
+    const cls = top ? (c === 3 ? 'pta' : 'pth') : 'pt';
+    g += `<g class="plate" style="--d:${d}s"><polygon class="${cls}" points="28,${y} 54,${y + 11} 28,${y + 22} 2,${y + 11}" opacity="${top ? 1 : (.35 + k / n * .5).toFixed(2)}"/><polygon class="pl" points="2,${y + 11} 28,${y + 22} 28,${y + 28} 2,${y + 17}"/><polygon class="pr" points="28,${y + 22} 54,${y + 11} 54,${y + 17} 28,${y + 28}"/></g>`;
+  }
+  return `<div class="stack"><svg viewBox="0 0 56 180" height="180">${g}</svg><span class="cap"><b>${m}</b> ${p}</span></div>`;
+}).join('');
+
+const days = ['월', '화', '수', '목', '금', '토', '일'];
+$('#heat').innerHTML = `<div class="yl"><span>09</span><span>13</span><span>17</span><span>21</span></div>` + days.map((d, c) =>
+  `<div class="col${c === 1 ? ' act' : ''}">${Array.from({ length: 13 }, (_, r) => `<i style="--o:${(.35 + Math.abs(Math.sin(c * 1.7 + r * .9)) * .65).toFixed(2)}"></i>`).join('')}<em>${d}</em></div>`).join('');
+let act = 1; const cols = $$('#heat .col'), hrs = ['10:00', '14:00', '11:30', '16:00', '09:30', '13:00', '20:00'];
+setInterval(() => { cols[act].classList.remove('act'); act = (act + 1) % 7; cols[act].classList.add('act'); $('#heatChip').textContent = `● ${days[act]} ${hrs[act]} 최저가 갱신`; }, 1600);
+
+$('#segs').innerHTML = '<i></i>'.repeat(12);
+let v = 30, pts = [];
+for (let i = 0; i <= 60; i++) { v += Math.sin(i * .7) * 3 + (Math.random() - .35) * 6; v = clamp(v, 4, 52); pts.push(`${i ? 'L' : 'M'}${(i / 60 * 400).toFixed(1)} ${(56 - v).toFixed(1)}`); }
+$('#spark').setAttribute('d', pts.join(''));
+
+/* ---------- in-view triggers ---------- */
+const countUp = el => {
+  if (el.dataset.done) return; el.dataset.done = 1;
+  const to = +el.dataset.to, t0 = performance.now(), dur = 1800;
+  const tick = now => { const t = clamp((now - t0) / dur); el.textContent = Math.round(to * easeOut(t)).toLocaleString('en-US'); if (t < 1) requestAnimationFrame(tick); };
+  requestAnimationFrame(tick);
+};
+const fillBars = el => $$('.bar i', el).forEach(b => b.style.width = b.dataset.w);
+const io = new IntersectionObserver(es => es.forEach(e => {
+  if (!e.isIntersecting) return;
+  const el = e.target; el.classList.add('in');
+  if (!el.closest('.panel')) fillBars(el);
+  $$('.count', el).forEach(countUp); if (el.classList.contains('count')) countUp(el);
+  if ($('#donut', el)) $('#donut .fg').style.strokeDashoffset = 327 * (1 - .88);
+  if ($('#segs', el)) $$('#segs i').forEach((s, i) => setTimeout(() => s.classList.add('lit'), 300 + i * 90));
+  if ($('#pbar', el)) $('#pbar').style.width = '92%';
+  io.unobserve(el);
+}), { threshold: .2, rootMargin: '0px 0px -8% 0px' });
+$$('.rv,.split').forEach(el => { if (!el.closest('.hero')) io.observe(el); });
+
+/* ---------- hero intro ---------- */
+const start = performance.now();
+requestAnimationFrame(() => setTimeout(() => {
+  document.body.classList.add('ready');
+  $$('.hero .rv,.hero .split').forEach(el => el.classList.add('in'));
+}, 150));
+
+/* ---------- pricing slider ---------- */
+const rng = $('#rng'), plans = $$('.plan');
+const setPlan = () => {
+  const n = +rng.value, p = n <= 5 ? 0 : n <= 50 ? 1 : 2;
+  rng.style.setProperty('--p', ((n - 1) / 199 * 100) + '%');
+  $('#rngV').textContent = n + '개';
+  $('#recName').textContent = ['라이트', '프로', '비즈니스'][p];
+  $('#recPrice').textContent = ['₩0', '₩9,900', '₩29,000'][p];
+  plans.forEach((el, i) => el.classList.toggle('rec', i === p));
+};
+rng.addEventListener('input', setPlan); setPlan();
+
+/* ---------- smooth scroll ---------- */
+const lenis = window.Lenis ? new Lenis({ lerp: .085, smoothWheel: true, wheelMultiplier: .9 }) : null;
+$$('a[href^="#"]').forEach(a => a.addEventListener('click', e => { const h = a.getAttribute('href'); if (h.length < 2) return; const t = $(h); if (!t) return; e.preventDefault(); lenis ? lenis.scrollTo(t, { offset: -40, duration: 1.6 }) : t.scrollIntoView({ behavior: 'smooth' }); }));
+
+/* ---------- scroll scenes ---------- */
+const scrolly = $('#scrolly'), xbox = $('#xbox'), xtext = $('#xtext'), xsub = $('#xsub');
+const fbox = $('#fbox'), fin = $('#fin'), finT = $('#finT');
+const MSG = '가장 좋은 비교는, 고민할 필요가 없는 비교입니다.';
+const secProg = el => { const r = el.getBoundingClientRect(); return clamp(-r.top / (r.height - innerHeight)); };
+let lastStep = -1;
+function scenes() {
+  const vw = innerWidth, vh = innerHeight;
+  const sp = secProg(scrolly), step = sp < .5 ? 0 : 1;
+  $('#pg0').style.transform = `scaleX(${clamp(sp / .5)})`;
+  $('#pg1').style.transform = `scaleX(${clamp((sp - .5) / .5)})`;
+  if (scrolly.getBoundingClientRect().top < vh * .6 && step !== lastStep) {
+    lastStep = step; scrolly.dataset.step = step;
+    fillBars($(`.panel[data-s="${step}"]`));
+    $('#stacks').classList.toggle('on', step === 1);
+  }
+  // manifesto accent box
+  const mp = secProg($('#manifesto'));
+  const grow = ease(clamp(mp / .32)), shrink = ease(clamp((mp - .74) / .26));
+  const W = lerp(lerp(0, Math.min(vw * .92, 1400), grow), 110, shrink);
+  const H = lerp(lerp(0, vh * .74, grow), 110, shrink);
+  const intro = easeOut(clamp(mp / .06));
+  xbox.style.width = Math.max(W, 110 * intro) + 'px';
+  xbox.style.height = Math.max(H, 110 * intro) + 'px';
+  xbox.style.borderRadius = lerp(30, 38, grow * (1 - shrink)) + 'px';
+  xbox.style.opacity = clamp(mp * 20) * (1 - clamp((mp - .96) / .04));
+  const tp = clamp((mp - .3) / .32), chars = Math.round(MSG.length * tp);
+  xtext.innerHTML = MSG.slice(0, chars) + (tp > 0 && tp < 1 ? '<span class="caret"></span>' : '');
+  const to = clamp((mp - .28) / .05) * (1 - clamp((mp - .7) / .05));
+  xtext.style.opacity = to; xsub.style.opacity = to;
+  xbox.style.transform = `translate(-50%,-50%) translateY(${lerp(0, -vh * .18, shrink)}px)`;
+  // finale
+  const fp = secProg($('#finale'));
+  const fg = ease(clamp((fp - .05) / .55));
+  fbox.style.width = lerp(Math.min(vw * .5, 520), vw + 4, fg) + 'px';
+  fbox.style.height = lerp(240, vh + 4, fg) + 'px';
+  fbox.style.borderRadius = lerp(28, 0, fg) + 'px';
+  fbox.style.opacity = clamp(fp * 12);
+  const fo = clamp((fp - .5) / .2);
+  fin.style.opacity = fo; fin.style.transform = `scale(${lerp(.7, 1, easeOut(fo))})`;
+  finT.style.opacity = clamp((fp - .62) / .2);
+}
+
+/* ---------- WebGL light ribbons ---------- */
+const cv = $('#aura'), gl = cv.getContext('webgl', { antialias: false });
+const FS = `precision highp float;
+uniform vec2 uR,uC;uniform vec3 uA,uB,uBg;
+uniform float uT,uRot,uArc,uR0,uHaze,uLines,uAmp,uSpread,uBright,uIntro,uLight;
+float h1(float n){return fract(sin(n*91.345)*47453.5453);}
+float h2(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float vn(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h2(i),h2(i+vec2(1.,0.)),f.x),mix(h2(i+vec2(0.,1.)),h2(i+vec2(1.,1.)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*vn(p);p=p*2.02+vec2(3.1,1.7);a*=.5;}return v;}
+void main(){
+ vec2 uv=(gl_FragCoord.xy-.5*uR)/uR.y;
+ vec2 p=uv-uC;float c=cos(uRot),s=sin(uRot);p=vec2(c*p.x-s*p.y,s*p.x+c*p.y);
+ float r=length(p);float a=atan(p.y,-p.x);
+ vec2 q=mix(p,vec2(a*uR0,r-uR0),uArc);
+ float mask=mix(1.,smoothstep(1.75,.35,abs(a)),uArc);
+ float t=uT;
+ float edge=-1.7+uIntro*4.6;
+ float vis=(1.-smoothstep(edge-.6,edge,q.x))*smoothstep(0.,.3,uIntro);
+ float spread=uSpread*(1.+uArc*abs(q.x)*1.6);
+ float Ia=0.,Ib=0.,Ic=0.;
+ for(int i=0;i<30;i++){
+  float fi=float(i)/29.;float hi=h1(float(i)+1.3);
+  float off=(fi-.5)*spread;
+  float y=off+uAmp*(.11*sin(q.x*1.5+t*.22+fi*2.2)+.045*sin(q.x*3.2-t*.31+hi*6.28)+.02*sin(q.x*7.+t*.6+fi*11.));
+  float d=abs(q.y-y);float w=.0007+.0015*hi;
+  float core=smoothstep(w*2.,0.,d);float glow=w*1.1/(d+.006);
+  float flow=.2+.8*smoothstep(.35,.85,vn(vec2(q.x*1.3-t*(.25+.4*hi),fi*7.+hi*3.)));
+  float I=(core*1.1+glow*.85)*flow;float sb=step(.7,hi);
+  Ia+=I*(1.-sb);Ib+=I*sb;Ic+=core*.5*flow;
+ }
+ Ia*=uLines;Ib*=uLines;Ic*=uLines;
+ float band=exp(-q.y*q.y/(spread*spread*.5+.002));
+ float n=fbm(vec2(q.x*1.1-t*.05,q.y*2.6+t*.03));
+ float m=smoothstep(.35,.75,fbm(q*2.3+vec2(t*.04,-t*.03)+5.));
+ float H=band*pow(n,2.2)*2.3*uHaze;
+ Ia+=H*.75*(1.-m);Ib+=H*.6*m;
+ vec2 sp=floor(gl_FragCoord.xy/2.);
+ Ib+=step(.9985,h2(sp))*band*(.5+.5*sin(t*3.+h2(sp+1.)*40.))*.9;
+ float k=mask*vis*uBright;Ia*=k;Ib*=k;Ic*=k;
+ float vig=smoothstep(1.3,.2,length(uv*vec2(.8,1.)));
+ vec3 dk=uA*Ia+uB*Ib+vec3(1.)*Ic;dk=1.-exp(-dk*1.15);dk=dk*mix(.5,1.,vig)+uBg;
+ vec3 ab=(1.-uA)*Ia+(1.-uB)*Ib;
+ vec3 lt=uBg*exp(-ab*.95*mix(.7,1.,vig));
+ gl_FragColor=vec4(mix(dk,lt,uLight),1.);
+}`;
+let U = {}, glOK = false;
+if (gl) {
+  const sh = (t, s) => { const o = gl.createShader(t); gl.shaderSource(o, s); gl.compileShader(o); if (!gl.getShaderParameter(o, gl.COMPILE_STATUS)) console.error(gl.getShaderInfoLog(o)); return o; };
+  const pr = gl.createProgram();
+  gl.attachShader(pr, sh(gl.VERTEX_SHADER, 'attribute vec2 p;void main(){gl_Position=vec4(p,0.,1.);}'));
+  gl.attachShader(pr, sh(gl.FRAGMENT_SHADER, FS)); gl.linkProgram(pr);
+  if (gl.getProgramParameter(pr, gl.LINK_STATUS)) {
+    gl.useProgram(pr); glOK = true;
+    gl.bindBuffer(gl.ARRAY_BUFFER, gl.createBuffer());
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+    const loc = gl.getAttribLocation(pr, 'p'); gl.enableVertexAttribArray(loc); gl.vertexAttribPointer(loc, 2, gl.FLOAT, false, 0, 0);
+    ['uR', 'uC', 'uA', 'uB', 'uBg', 'uT', 'uRot', 'uArc', 'uR0', 'uHaze', 'uLines', 'uAmp', 'uSpread', 'uBright', 'uIntro', 'uLight'].forEach(n => U[n] = gl.getUniformLocation(pr, n));
+  }
+}
+const resize = () => { const s = Math.min(devicePixelRatio || 1, 1.5) * .7; cv.width = Math.round(innerWidth * s); cv.height = Math.round(innerHeight * s); gl && gl.viewport(0, 0, cv.width, cv.height); };
+addEventListener('resize', resize); resize();
+
+const keys = $$('[data-aura]').map(el => ({ el, v: el.dataset.aura.split(',').map(Number) }));
+let cur = keys[0].v.slice();
+function target() {
+  const mid = innerHeight * .5; let i = 0;
+  for (let k = 0; k < keys.length; k++) if (keys[k].el.getBoundingClientRect().top <= mid) i = k;
+  const a = keys[i], b = keys[Math.min(i + 1, keys.length - 1)];
+  const ra = a.el.getBoundingClientRect(), rb = b.el.getBoundingClientRect();
+  const t = a === b ? 0 : ease(clamp((mid - ra.top) / Math.max(1, rb.top - ra.top)));
+  return a.v.map((x, j) => lerp(x, b.v[j], t));
+}
+
+const wp = [$('#w1'), $('#w2'), $('#w3')];
+function waves(t) {
+  wp.forEach((p, k) => {
+    let d = '';
+    for (let x = 0; x <= 300; x += 5) { const y = 50 + Math.sin(x * .035 + t * (1.2 + k * .3) + k * 1.4) * (26 - k * 6) * Math.sin(x * .0105 + .3); d += (x ? 'L' : 'M') + x + ' ' + y.toFixed(1); }
+    p.setAttribute('d', d);
+  });
+}
+
+function loop(now) {
+  lenis && lenis.raf(now);
+  const t = (now - start) / 1000;
+  scenes(); waves(t);
+  const tg = target();
+  cur = cur.map((x, j) => lerp(x, tg[j], .06));
+  // 테마 색 부드럽게 전환
+  const th = THEMES[themeName()], f = .07;
+  ['A', 'B', 'bg'].forEach(key => TC[key] = TC[key].map((x, j) => lerp(x, th[key][j], f)));
+  TC.light = lerp(TC.light, th.light, f);
+  if (glOK) {
+    const [cx, cy, rot, arc, r0, haze, lines, amp, spread, bright] = cur;
+    gl.uniform2f(U.uR, cv.width, cv.height); gl.uniform2f(U.uC, cx * (innerWidth / innerHeight) * .5, cy);
+    gl.uniform3fv(U.uA, TC.A); gl.uniform3fv(U.uB, TC.B); gl.uniform3fv(U.uBg, TC.bg);
+    gl.uniform1f(U.uT, t); gl.uniform1f(U.uRot, rot); gl.uniform1f(U.uArc, arc); gl.uniform1f(U.uR0, r0);
+    gl.uniform1f(U.uHaze, haze); gl.uniform1f(U.uLines, lines); gl.uniform1f(U.uAmp, amp); gl.uniform1f(U.uSpread, spread);
+    gl.uniform1f(U.uBright, bright); gl.uniform1f(U.uIntro, ease(clamp((t - .5) / 2.4))); gl.uniform1f(U.uLight, TC.light);
+    gl.drawArrays(gl.TRIANGLES, 0, 3);
+  }
+  requestAnimationFrame(loop);
+}
+requestAnimationFrame(loop);
+
+const fpnl = $('#flowPanel');
+addEventListener('mousemove', e => { const x = e.clientX / innerWidth - .5, y = e.clientY / innerHeight - .5; fpnl.style.transform = `perspective(1400px) rotateY(${x * -4}deg) rotateX(${y * 3}deg)`; });
+})();
+</script>
+</body>
+</html>

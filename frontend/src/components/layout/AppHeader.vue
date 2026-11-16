@@ -18,6 +18,7 @@ const links = [
   { to: '/products?category=smartwatch', label: '워치', path: '/products', category: 'smartwatch' },
   { to: '/products?category=audio', label: '오디오', path: '/products', category: 'audio' },
   { to: '/compare', label: '스펙 비교', path: '/compare', category: null },
+  { to: '/mypage', label: '마이페이지', path: '/mypage', category: null },
 ] as const
 
 function isActive(l: (typeof links)[number]) {
@@ -44,7 +45,11 @@ watch(
   <header class="nav top-bar">
     <div class="wrap nav__inner">
       <RouterLink to="/" class="nav__brand" aria-label="TechCompare 홈">
-        <span class="nav__mark" aria-hidden="true">TC</span>
+        <span class="nav__mark" aria-hidden="true">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M5 6l6 6-6 6M12 6l6 6-6 6" />
+          </svg>
+        </span>
         <span>TechCompare</span>
       </RouterLink>
 
@@ -163,7 +168,7 @@ watch(
   height: 32px;
   border-radius: 9px;
   background: var(--accent);
-  color: var(--accent-text);
+  color: var(--on-acc, #ffffff);
   font-size: 13px;
   font-weight: 800;
   font-family: var(--font-mono);
@@ -456,7 +461,7 @@ watch(
 
 .mode-pill.is-active {
   background: var(--accent);
-  color: var(--accent-text);
+  color: var(--on-acc, #ffffff);
   border-color: var(--accent);
 }
 

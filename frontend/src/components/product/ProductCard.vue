@@ -1,8 +1,9 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue'
-import { Check, Plus } from 'lucide-vue-next'
+import { Bookmark, Check, Plus } from 'lucide-vue-next'
 import type { ProductSummaryRecord } from '@/types/api'
 import { useCompareStore } from '@/stores/compare'
+import { useSavedStore } from '@/stores/saved'
 import { buildShoppingMallLinks } from '@/utils/shopping'
 import TechIcon from '@/components/common/TechIcon.vue'
 
@@ -11,6 +12,7 @@ const props = defineProps<{
 }>()
 
 const compareStore = useCompareStore()
+const savedStore = useSavedStore()
 const feedbackMsg = ref<string | null>(null)
 const hasImgError = ref(false)
 
@@ -78,6 +80,7 @@ function toggleCompare(e: Event) {
           :alt="product.name"
           class="pcard__img"
           loading="lazy"
+          decoding="async"
           @error="hasImgError = true"
         />
 
@@ -180,18 +183,31 @@ function toggleCompare(e: Event) {
         </div>
       </div>
 
-      <button
-        type="button"
-        class="btn pcard__compare-btn"
-        :class="inCompare ? 'btn--primary' : 'btn--secondary'"
-        :disabled="!inCompare && isCategoryLocked"
-        :title="isCategoryLocked ? '비교함에 담긴 카테고리와 동일한 카테고리만 선택할 수 있습니다' : ''"
-        @click="toggleCompare"
-      >
-        <Check v-if="inCompare" :size="15" aria-hidden="true" />
-        <Plus v-else :size="15" aria-hidden="true" />
-        <span>{{ inCompare ? '비교함 담김' : isCategoryLocked ? '다른 카테고리' : '비교 담기' }}</span>
-      </button>
+      <div class="pcard__action-row">
+        <button
+          type="button"
+          class="btn pcard__compare-btn"
+          :class="inCompare ? 'btn--primary' : 'btn--secondary'"
+          :disabled="!inCompare && isCategoryLocked"
+          :title="isCategoryLocked ? '비교함에 담긴 카테고리와 동일한 카테고리만 선택할 수 있습니다' : ''"
+          @click="toggleCompare"
+        >
+          <Check v-if="inCompare" :size="15" aria-hidden="true" />
+          <Plus v-else :size="15" aria-hidden="true" />
+          <span>{{ inCompare ? '비교함 담김' : isCategoryLocked ? '다른 카테고리' : '비교 담기' }}</span>
+        </button>
+
+        <button
+          type="button"
+          class="btn pcard__save-btn"
+          :class="savedStore.hasSaved(product.slug) ? 'is-saved' : ''"
+          :aria-label="`${product.name} 관심 기종 찜하기`"
+          :title="savedStore.hasSaved(product.slug) ? '관심 기종 찜 해제' : '마이페이지에 찜하기'"
+          @click="savedStore.toggleSaved(product.slug)"
+        >
+          <Bookmark :size="15" aria-hidden="true" />
+        </button>
+      </div>
       <p v-if="feedbackMsg" class="pcard__feedback">{{ feedbackMsg }}</p>
     </div>
   </article>
@@ -400,10 +416,35 @@ function toggleCompare(e: Event) {
   color: var(--action);
 }
 
+.pcard__action-row {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
 .pcard__compare-btn {
-  width: 100%;
+  flex: 1;
   height: 38px;
   font-size: 13px;
+}
+
+.pcard__save-btn {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  border-radius: var(--r-btn, 8px);
+  border: 1px solid var(--hairline-strong);
+  background: var(--card-inner);
+  color: var(--text-sub);
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+}
+
+.pcard__save-btn.is-saved {
+  border-color: var(--accent);
+  background: var(--action-subtle);
+  color: var(--accent-text);
 }
 
 .pcard__compare-btn:disabled {

@@ -74,31 +74,53 @@ function toQueryString(params: Record<string, string | number | undefined | null
   return str ? `?${str}` : ''
 }
 
+const CACHE_TTL_MS = 60_000
+const listCache = new Map<string, { expiresAt: number; payload: unknown }>()
+
+function cachedGet<T>(key: string, loader: () => Promise<T>): Promise<T> {
+  const hit = listCache.get(key)
+  if (hit && hit.expiresAt > Date.now()) {
+    return Promise.resolve(hit.payload as T)
+  }
+  return loader().then((res) => {
+    listCache.set(key, { expiresAt: Date.now() + CACHE_TTL_MS, payload: res })
+    return res
+  })
+}
+
+export function invalidateCatalogCache() {
+  listCache.clear()
+}
+
 export const api = {
   health: () => request<HealthStatus>('/health'),
-  brands: () => request<BrandRecord[]>('/brands'),
-  categories: () => request<CategoryRecord[]>('/categories'),
+  brands: () => cachedGet('brands', () => request<BrandRecord[]>('/brands')),
+  categories: () => cachedGet('categories', () => request<CategoryRecord[]>('/categories')),
 
   categorySpecDefinitions: (slug: CategorySlug) =>
-    request<{ category: CategoryRecord; definitions: SpecDefinitionRecord[] }>(
-      `/categories/${encodeURIComponent(slug)}/spec-definitions`,
+    cachedGet(`cat-defs:${slug}`, () =>
+      request<{ category: CategoryRecord; definitions: SpecDefinitionRecord[] }>(
+        `/categories/${encodeURIComponent(slug)}/spec-definitions`,
+      ),
     ),
 
-  products: (params: ProductQueryParams = {}) =>
-    requestWithMeta<ProductSummaryRecord[]>(
-      `/products${toQueryString({
-        q: params.q,
-        brand: params.brand,
-        category: params.category,
-        series: params.series,
-        year: params.year,
-        minPrice: params.minPrice,
-        maxPrice: params.maxPrice,
-        sort: params.sort,
-        page: params.page,
-        limit: params.limit,
-      })}`,
-    ),
+  products: (params: ProductQueryParams = {}) => {
+    const qs = toQueryString({
+      q: params.q,
+      brand: params.brand,
+      category: params.category,
+      series: params.series,
+      year: params.year,
+      minPrice: params.minPrice,
+      maxPrice: params.maxPrice,
+      sort: params.sort,
+      page: params.page,
+      limit: params.limit,
+    })
+    return cachedGet(`products:${qs}`, () =>
+      requestWithMeta<ProductSummaryRecord[]>(`/products${qs}`),
+    )
+  },
 
   productDetail: (slug: string) => request<ProductDetailRecord>(`/products/${encodeURIComponent(slug)}`),
 
@@ -115,15 +137,19 @@ export const api = {
 
   adminAudit: () => request<DataAuditSummary>('/admin/audit'),
 
-  adminUpsertProduct: (input: AdminProductUpsertInput) =>
-    request<ProductDetailRecord>('/admin/products', {
+  adminUpsertProduct: (input: AdminProductUpsertInput) => {
+    invalidateCatalogCache()
+    return request<ProductDetailRecord>('/admin/products', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(input),
-    }),
+    })
+  },
 
-  adminDeleteProduct: (slug: string) =>
-    request<{ deleted: boolean; slug: string }>(`/admin/products/${encodeURIComponent(slug)}`, {
+  adminDeleteProduct: (slug: string) => {
+    invalidateCatalogCache()
+    return request<{ deleted: boolean; slug: string }>(`/admin/products/${encodeURIComponent(slug)}`, {
       method: 'DELETE',
-    }),
+    })
+  },
 }

@@ -4,6 +4,7 @@ import { useRoute, useRouter, RouterLink } from 'vue-router'
 import { storeToRefs } from 'pinia'
 import { api, ApiClientError } from '@/services/api'
 import { useCompareStore, COMPARE_MAX, COMPARE_MIN } from '@/stores/compare'
+import { useSavedStore } from '@/stores/saved'
 import { buildShoppingMallLinks } from '@/utils/shopping'
 import TechIcon from '@/components/common/TechIcon.vue'
 import type { CategorySlug, CompareProductItem, CompareResult, ProductSummaryRecord } from '@/types/api'
@@ -11,9 +12,18 @@ import type { CategorySlug, CompareProductItem, CompareResult, ProductSummaryRec
 const route = useRoute()
 const router = useRouter()
 const compareStore = useCompareStore()
+const savedStore = useSavedStore()
 const { items, category, count } = storeToRefs(compareStore)
 
 const compareData = ref<CompareResult | null>(null)
+watch(compareData, (res) => {
+  if (res && res.items.length >= 2) {
+    savedStore.recordComparison(
+      res.items.map((i) => i.product.name),
+      res.category.name,
+    )
+  }
+})
 const candidateProducts = ref<ProductSummaryRecord[]>([])
 const selectedAddSlug = ref('')
 const browseCategory = ref<CategorySlug>('smartphone')

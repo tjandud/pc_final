@@ -1,7 +1,7 @@
 import { createRouter, createWebHistory, type RouteRecordRaw } from 'vue-router'
 
 const routes: RouteRecordRaw[] = [
-  { path: '/', name: 'home', component: () => import('@/views/HomeView.vue'), meta: { title: '홈' } },
+  { path: '/', name: 'home', component: () => import('@/views/HomeView.vue'), meta: { title: '홈', fullBleed: true } },
   {
     path: '/products',
     name: 'catalog',
@@ -20,6 +20,12 @@ const routes: RouteRecordRaw[] = [
     name: 'compare',
     component: () => import('@/views/CompareView.vue'),
     meta: { title: '제품 비교' },
+  },
+  {
+    path: '/mypage',
+    name: 'mypage',
+    component: () => import('@/views/MyPageView.vue'),
+    meta: { title: '마이페이지' },
   },
   {
     path: '/admin',
